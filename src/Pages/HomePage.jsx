@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Footer } from '../Component/Footer';
 import { Header } from '../Component/Header';
 import './HomePage.css'
@@ -28,8 +29,8 @@ export function HomePage(){
             {/* <!-- Category grid with icons and labels --> */}
             <div className="category-grid">
                 <div className="category-item">
-                   <a href="BonsaiCategory.html"> <img className="category-image" src="Images/bonsai-6114254_1280.jpg"/></a>
-                    <h3>Bonsai Tree</h3>
+                   <Link to="/bonsaiCategory"> <img className="category-image" src="Images/bonsai-6114254_1280.jpg"/></Link>
+                    <Link to="/bonsaiCategory"> <h3> Bonsia Tree</h3></Link>
                 </div>
                 <div className="category-item">
                     <img className="category-image" src="Images/little-bonsai-tree-with-pink-flowers.jpg"/>

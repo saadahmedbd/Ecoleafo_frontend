@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import  './Header.css';
 export function Header(){
     return(
@@ -6,8 +7,8 @@ export function Header(){
         <nav className="nav-bar">
             <div className="nav-container">
                 {/* <!-- Logo with tree icon --> */}
-                <div className="logo">Tree Store</div>
-                
+                <Link to="/"> <div className='logo'> Tree store</div></Link>
+                             
                 {/* <!-- Main navigation menu --> */}
                 <ul className="nav-menu">
                     <li><a href="#shop">Shop</a></li>
