@@ -5,6 +5,7 @@ import './App.css'
 import './index.css'
 import { HomePage } from './Pages/HomePage'
 import { Category } from './Pages/Category'
+import { Product } from './Pages/Product'
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path='' element={<HomePage/>}/>
         <Route path='bonsaicategory' element={<Category/>}></Route>
+        <Route path='product' element={<Product/>}></Route>
       </Routes>
     </>
   )
