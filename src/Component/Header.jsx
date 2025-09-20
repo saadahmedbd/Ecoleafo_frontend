@@ -1,9 +1,13 @@
 import { Link } from 'react-router-dom';
 import  './Header.css';
-export function Header(){
+export function Header({cart = []}){
+    let totalQuantity = 0;
+    cart.forEach((cartItem) =>{
+        totalQuantity += cartItem.quantity
+    })
     return(
     <>
-        
+         
         <nav className="nav-bar">
             <div className="nav-container">
                 {/* <!-- Logo with tree icon --> */}
@@ -20,8 +24,8 @@ export function Header(){
                 {/* <!-- Navigation icons for cart, search, profile --> */}
                 <div className="nav-icons">
                     <span><img src="Icon/search.png"/></span>
-                    <span><img src="Icon/shopping-cart.png"/></span>
-                    <span><img src="Icon//user.png"/></span>
+                    <span><img src="Icon/shopping-cart.png"/><p>{totalQuantity}</p></span>
+                   <Link to="/login">  <span><img src="Icon//user.png"/></span></Link>
                 </div>
             </div>
         </nav>
