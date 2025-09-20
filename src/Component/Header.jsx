@@ -24,7 +24,7 @@ export function Header({cart = []}){
                 {/* <!-- Navigation icons for cart, search, profile --> */}
                 <div className="nav-icons">
                     <span><img src="Icon/search.png"/></span>
-                    <span><img src="Icon/shopping-cart.png"/><p>{totalQuantity}</p></span>
+                    <Link to= "/cart"><span><img src="Icon/shopping-cart.png"/><p>{totalQuantity}</p></span></Link>
                    <Link to="/login">  <span><img src="Icon//user.png"/></span></Link>
                 </div>
             </div>

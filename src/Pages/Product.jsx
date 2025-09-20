@@ -5,17 +5,24 @@ import axios from "axios";
 
 export function Product(){
     const [products,setPoducts]=useState([])
+    const [cart, setCart]=useState([])
     useEffect(() => {
     axios.get("http://localhost:3000/getproduct")
         .then((response) => {
         setPoducts(response.data);
         })
-        .catch((err) => console.error("Error fetching products:", err));
-    }, []);  //  runs only once
+
+    axios.get("http://localhost:3000/getcartitem")
+        .then((response)=>{
+            setCart(response.data)
+        })
+    },[]);
+  
+    
    
     return(
         <>
-            <Header/>
+            <Header cart/>
 
              <section className="products-section">
         <div className="container">
