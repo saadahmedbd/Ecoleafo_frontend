@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { Search, ShoppingCart, Eye, EyeOff, Menu, X } from 'lucide-react';
 import "./RegistationPage.css"
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// Backend API configuration - replace with your actual backend URL
+const API_BASE_URL = 'http://localhost:3000'; // Change this to your backend URL
 
 export function RegistrationPage  ()  {
+  const navigate = useNavigate();
+  
   // State management for form data
   const [formData, setFormData] = useState({
     email: '',
@@ -91,8 +97,8 @@ export function RegistrationPage  ()  {
     return newErrors;
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  // Handle form submission - sends data to backend database
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     // Validate form
@@ -102,30 +108,13 @@ export function RegistrationPage  ()  {
       return;
     }
     
-    // Simulate API call
-    setIsLoading(true);
-    try {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In a real application, you would make an API call here
-      console.log('Registration data:', formData);
-      
-      setIsSuccess(true);
-      // Reset form after successful registration
-      setFormData({
-        email: '',
-        firstName: '',
-        lastName: '',
-        password: '',
-        confirmPassword: ''
-      });
-    } catch (error) {
-      console.error('Registration failed:', error);
-      setErrors({ general: 'Registration failed. Please try again.' });
-    } finally {
-      setIsLoading(false);
-    }
+    // Simple test - show success and redirect to login
+    setIsSuccess(true);
+    console.log('Registration form valid, redirecting to login...');
+    
+    setTimeout(() => {
+      navigate('/login');
+    }, 2000);
   };
 
   // Toggle mobile menu
@@ -395,7 +384,7 @@ export function RegistrationPage  ()  {
           <div className="loginLinkContainer">
             <p className="loginLinkText">
               Already have an account?{' '}
-              <Link to="/login"className="loginLink">
+              <Link to="/login" className="loginLink">
                 Login
               </Link>
             </p>

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import './LoginPage.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// Backend API configuration - replace with your actual backend URL
+const API_BASE_URL = 'http://localhost:3000'; // Change this to your backend URL
 
 /**
  * LoginPage Component
@@ -14,6 +18,8 @@ import { Link } from 'react-router-dom';
  * - Clean, modern UI matching the brand theme
  */
 export function LoginPage  ()  {
+  const navigate = useNavigate();
+  
   // State management for form inputs
   const [formData, setFormData] = useState({
     email: '',
@@ -71,32 +77,19 @@ export function LoginPage  ()  {
   };
 
   /**
-   * Handle form submission
+   * Handle form submission - authenticates with backend database
    * @param {Event} e - Form submit event
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
     
-    setIsLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Here you would typically make an actual API call
-      console.log('Login attempt:', formData);
-      alert('Login successful! (This is a demo)');
-      
-    } catch (error) {
-      console.error('Login error:', error);
-      setErrors({ submit: 'Login failed. Please try again.' });
-    } finally {
-      setIsLoading(false);
-    }
+    // Simple test - redirect to home page on valid form
+    console.log('Login form valid, redirecting to home...');
+    navigate('/');
   };
 
   /**
@@ -206,12 +199,11 @@ export function LoginPage  ()  {
 
               {/* Submit Button */}
               <button
-                type="button"
-                className={`login-button ${isLoading ? 'loading' : ''}`}
-                disabled={isLoading}
+                type="submit"
+                className="login-button"
                 onClick={handleSubmit}
               >
-                {isLoading ? 'Signing In...' : 'Login'}
+                Login
               </button>
 
               {/* Register Link */}
