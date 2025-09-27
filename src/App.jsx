@@ -9,6 +9,8 @@ import { Product } from './Pages/Product'
 import RegistrationPage from './Pages/RegistationPage'
 import LoginPage from './Pages/LoginPage'
 import ProductcartPage from './Pages/ProductcartPage'
+import BuyerAccountPage from './Pages/BuyerAccountPage'
+import OrderPage from './Pages/OrderPage'
 
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
         <Route path="registation" element={<RegistrationPage/>}></Route>
         <Route path='/login' element={<LoginPage/>}></Route>
         <Route path='/cart' element={<ProductcartPage/>}></Route>
+        <Route path='/buyer-account' element={<BuyerAccountPage/>}></Route>
+        <Route path='/order' element={<OrderPage/>}></Route>
 
       </Routes>
     </>
