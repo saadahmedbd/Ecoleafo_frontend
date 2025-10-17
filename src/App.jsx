@@ -11,6 +11,8 @@ import LoginPage from './Pages/LoginPage'
 import ProductcartPage from './Pages/ProductcartPage'
 import BuyerAccountPage from './Pages/BuyerAccountPage'
 import OrderPage from './Pages/OrderPage'
+import AddProductPage from './Pages/AddProductPage'
+import AllProducts from './Pages/AllProducts'
 
 
 function App() {
@@ -20,6 +22,7 @@ function App() {
     <>
       <Routes>
         <Route path='' element={<HomePage/>}/>
+        <Route path="all-products" element={<AllProducts/>}></Route>
         <Route path='bonsaicategory' element={<Category/>}></Route>
         <Route path='product' element={<Product/>}></Route>
         <Route path="registation" element={<RegistrationPage/>}></Route>
@@ -27,6 +30,8 @@ function App() {
         <Route path='/cart' element={<ProductcartPage/>}></Route>
         <Route path='/buyer-account' element={<BuyerAccountPage/>}></Route>
         <Route path='/order' element={<OrderPage/>}></Route>
+        <Route path='/add-product' element={<AddProductPage/>}></Route>
+
 
       </Routes>
     </>
