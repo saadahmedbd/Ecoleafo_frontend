@@ -1,62 +1,146 @@
 import './Footer.css';
-export function Footer(){
-    return(
-        <>
-    
-    <footer className="footer">
-        <div className="container">
-            {/* <!-- Footer content grid with company info and links --> */}
-            <div className="footer-content">
-                <div className="footer-section">
-                    <div className="logo">Evergreen Emporium</div>
-                    <p>Planting roots for generations to come. Creating spaces that nurture both trees and the hearts that tend them.</p>
-                </div>
-                
-                {/* <!-- Shop section links --> */}
-                <div className="footer-section">
-                    <h3>SHOP</h3>
-                    <ul>
-                        <li><a href="#">Evergreen</a></li>
-                        <li><a href="#">Deciduous</a></li>
-                        <li><a href="#">Fruit Trees</a></li>
-                        <li><a href="#">Bulk & Saplings</a></li>
-                    </ul>
-                </div>
-                
-                {/* <!-- Support section links --> */}
-                <div className="footer-section">
-                    <h3>SUPPORT</h3>
-                    <ul>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">FAQs</a></li>
-                        <li><a href="#">Shipping & Returns</a></li>
-                        <li><a href="#">Care Guides</a></li>
-                    </ul>
-                </div>
-                
-                {/* <!-- Company section links --> */}
-                <div className="footer-section">
-                    <h3>COMPANY</h3>
-                    <ul>
-                        <li><a href="#">Our Story</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                    </ul>
-                </div>
+import React, { useState } from 'react';
+import { Instagram, Twitter, Facebook, Leaf } from 'lucide-react';
+/* ============================================
+   FOOTER COMPONENT
+   Modern, responsive footer with newsletter subscription
+   ============================================ */
+export function Footer  () {
+  // State for email input
+  const [email, setEmail] = useState('');
+
+  // Handle newsletter subscription
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email) {
+      console.log('Subscribing email:', email);
+      // Add your subscription logic here
+      alert(`Thank you for subscribing with: ${email}`);
+      setEmail('');
+    }
+  };
+
+  // Handle email input change
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  return (
+    <footer className="footer-container">
+      {/* Main Footer Content */}
+      <div className="footer-content">
+        <div className="footer-grid">
+          
+          {/* ============================================
+              BRAND SECTION - Logo, Description, Social Icons
+              ============================================ */}
+          <div className="footer-brand">
+            <div className="footer-logo">
+              <Leaf className="logo-icon" size={32} strokeWidth={2.5} />
+              <h2 className="brand-name">GreenLeaf</h2>
             </div>
+            <p className="brand-description">
+              Your source for the finest trees and plants.
+            </p>
             
-            {/* <!-- Footer bottom with copyright and social icons --> */}
-            <div className="footer-bottom">
-                <p>&copy; 2024 Evergreen Emporium. All rights reserved.</p>
-                <div className="social-icons">
-                    <span>📘</span>
-                    <span>🐦</span>
-                    <span>📷</span>
-                </div>
+            {/* Social Media Icons */}
+            <div className="social-links">
+              <a 
+                href="https://instagram.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="Instagram"
+              >
+                <Instagram size={20} />
+              </a>
+              <a 
+                href="https://twitter.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="Twitter"
+              >
+                <Twitter size={20} />
+              </a>
+              <a 
+                href="https://facebook.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="Facebook"
+              >
+                <Facebook size={20} />
+              </a>
             </div>
+          </div>
+
+          {/* ============================================
+              QUICK LINKS SECTION
+              ============================================ */}
+          <div className="footer-links">
+            <h3 className="footer-heading">QUICK LINKS</h3>
+            <ul className="links-list">
+              <li>
+                <a href="#about" className="footer-link">About Us</a>
+              </li>
+              <li>
+                <a href="#support" className="footer-link">Support</a>
+              </li>
+              <li>
+                <a href="#privacy" className="footer-link">Privacy Policy</a>
+              </li>
+              <li>
+                <a href="#contact" className="footer-link">Contact Us</a>
+              </li>
+            </ul>
+          </div>
+
+          {/* ============================================
+              NEWSLETTER SECTION
+              ============================================ */}
+          <div className="footer-newsletter">
+            <h3 className="footer-heading">JOIN OUR NEWSLETTER</h3>
+            <p className="newsletter-description">
+              Get updates on new arrivals and special offers.
+            </p>
+            
+            {/* Newsletter Subscription Form */}
+            <form onSubmit={handleSubscribe} className="newsletter-form">
+              <input
+                type="email"
+                placeholder="Your email address"
+                value={email}
+                onChange={handleEmailChange}
+                className="email-input"
+                required
+                aria-label="Email address for newsletter"
+              />
+              <button 
+                type="submit" 
+                className="subscribe-btn"
+                aria-label="Subscribe to newsletter"
+              >
+                SUBSCRIBE
+              </button>
+            </form>
+          </div>
+
         </div>
+      </div>
+
+      {/* ============================================
+          COPYRIGHT SECTION
+          ============================================ */}
+      <div className="footer-bottom">
+        <div className="footer-content">
+          <p className="copyright-text">
+            © 2024 GreenLeaf Nursery. All rights reserved.
+          </p>
+        </div>
+      </div>
     </footer>
-        </>
-    )
-}
+  );
+};
+
+export default Footer;
