@@ -13,6 +13,9 @@ import BuyerAccountPage from './Pages/BuyerAccountPage'
 import OrderPage from './Pages/OrderPage'
 import AddProductPage from './Pages/AddProductPage'
 import AllProducts from './Pages/AllProducts'
+import ProductDetail from './Pages/Productdetail'
+import ShoppingCart from './Pages/ShoppingCart'
+import CheckoutPage from './Pages/CheckoutPage'
 
 
 function App() {
@@ -23,6 +26,11 @@ function App() {
       <Routes>
         <Route path='' element={<HomePage/>}/>
         <Route path="all-products" element={<AllProducts/>}></Route>
+        <Route path="product-detail" element={<ProductDetail/>}></Route>
+        <Route path="shopping-cart" element={<ShoppingCart/>}></Route>
+        <Route path="checkout" element={<CheckoutPage/>}></Route>
+
+
         <Route path='bonsaicategory' element={<Category/>}></Route>
         <Route path='product' element={<Product/>}></Route>
         <Route path="registation" element={<RegistrationPage/>}></Route>

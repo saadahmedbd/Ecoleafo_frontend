@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
 import './Header.css';
-import { Link } from 'react-router-dom';
+import { Link, Links } from 'react-router-dom';
 
 /**
  * Evergreen E-commerce Header Component
@@ -70,12 +70,13 @@ export function Header() {
             </button>
 
             {/* Shopping Cart */}
-            <button className="icon-button cart-button" aria-label="Shopping cart">
+            <Link to ={"/shopping-cart"}> <button className="icon-button cart-button" aria-label="Shopping cart">
               <ShoppingCart size={24} />
               {cartCount > 0 && (
                 <span className="cart-badge">{cartCount}</span>
               )}
-            </button>
+            </button></Link>
+           
 
             {/* User Authentication - Desktop */}
             <button className="auth-button desktop-auth">
