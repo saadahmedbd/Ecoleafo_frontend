@@ -100,6 +100,7 @@ export default function MobileApp() {
         } />
         <Route path="product-details" element={
           selectedProduct && <ProductDetails
+            key={selectedProduct.id}
             product={selectedProduct}
             onBack={() => navigate("/mobile/home")}
             onAddToCart={handleAddToCart}
