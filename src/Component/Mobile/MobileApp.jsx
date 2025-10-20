@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { CheckCircle2, Heart, X } from "lucide-react";
 import "./mobile.css";
 import HomePage from "./Components/Hompage";
 import BottomNav from "./Components/BottomNav";
@@ -14,6 +15,7 @@ import CheckoutPage from "./Components/CheckoutPage";
 import OrderSuccess from "./Components/OrderSuccess";
 import NotificationsPage from "./Components/Notification";
 import HelpSupport from "./Components/HelpSupport";
+import OrderDetails from "./Components/OrderDetails";
 
 const mockProducts = [
   { id: 1, name: "Oak Tree", price: 89, originalPrice: 120, image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=200&h=200&fit=crop", category: "Oak", inStock: true, rating: 4.5, reviews: 120 },
@@ -37,6 +39,13 @@ export default function MobileApp() {
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState(new Set());
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
+
+  const showToast = (message, type = "cart") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
+  };
 
   const currentPage = location.pathname.split('/').pop() || 'home';
 
@@ -47,21 +56,38 @@ export default function MobileApp() {
     } else {
       setCart([...cart, { ...product, quantity: 1 }]);
     }
+    showToast("Added to cart successfully!", "cart");
   };
 
   const handleToggleWishlist = (productId) => {
     const newWishlist = new Set(wishlist);
+    const isAdding = !newWishlist.has(productId);
     if (newWishlist.has(productId)) {
       newWishlist.delete(productId);
     } else {
       newWishlist.add(productId);
     }
     setWishlist(newWishlist);
+    showToast(
+      isAdding ? "Added to wishlist!" : "Removed from wishlist!",
+      "wishlist"
+    );
   };
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     navigate("/mobile/product-details");
+  };
+
+  const handleOrderClick = (order) => {
+    setSelectedOrder(order);
+    navigate("/mobile/order-details");
+  };
+
+  const handleReorder = (order) => {
+    order.items.forEach((item) => {
+      handleAddToCart(item);
+    });
   };
 
   const wishlistProducts = mockProducts.filter((p) => wishlist.has(p.id));
@@ -86,6 +112,7 @@ export default function MobileApp() {
             onProductClick={handleProductClick}
             wishlistIds={wishlist}
             onSearchClick={() => navigate("/mobile/search")}
+            onWishlistClick={() => navigate("/mobile/wishlist")}
           />
         } />
         <Route path="search" element={
@@ -138,7 +165,19 @@ export default function MobileApp() {
               { id: "ORD12345", date: "Dec 15, 2024", status: "delivered", items: mockProducts.slice(0, 2), total: 154 },
               { id: "ORD12346", date: "Dec 18, 2024", status: "in-progress", items: mockProducts.slice(2, 3), total: 150 },
             ]}
-            onOrderClick={(order) => console.log("Order clicked:", order)}
+            onOrderClick={handleOrderClick}
+            onReorder={handleReorder}
+          />
+        } />
+        <Route path="order-details" element={
+          selectedOrder && <OrderDetails
+            order={selectedOrder}
+            onBack={() => navigate("/mobile/orders")}
+            onReorder={(order) => {
+              handleReorder(order);
+              navigate("/mobile/cart");
+            }}
+            onProductClick={handleProductClick}
           />
         } />
         <Route path="account" element={
@@ -166,6 +205,25 @@ export default function MobileApp() {
       </Routes>
 
       <BottomNav currentPage={currentPage} onNavigate={(page) => navigate(`/mobile/${page}`)} cartCount={cartCount} />
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+          <div className={`px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-md ${
+            toast.type === "cart" ? "bg-[#059669] text-white" : "bg-pink-500 text-white"
+          }`}>
+            {toast.type === "cart" ? (
+              <CheckCircle2 className="w-5 h-5" />
+            ) : (
+              <Heart className="w-5 h-5 fill-white" />
+            )}
+            <span className="font-medium">{toast.message}</span>
+            <button onClick={() => setToast({ show: false, message: "", type: "" })} className="ml-2">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

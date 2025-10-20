@@ -1,9 +1,17 @@
-import { Package, Clock, CheckCircle2, XCircle, Download, RotateCcw } from "lucide-react";
+import { Package, Clock, CheckCircle2, XCircle, Download, RotateCcw, X } from "lucide-react";
 import { useState } from "react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 
-export default function OrdersPage({ orders, onOrderClick }) {
+export default function OrdersPage({ orders, onOrderClick, onReorder }) {
   const [activeTab, setActiveTab] = useState("all");
+  const [showToast, setShowToast] = useState(false);
+
+  const handleReorder = (e, order) => {
+    e.stopPropagation();
+    onReorder(order);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   const tabs = [
     { id: "all", label: "All Orders" },
@@ -115,16 +123,13 @@ export default function OrdersPage({ orders, onOrderClick }) {
               </div>
 
               {order.status === "delivered" && (
-                <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200">
-                  <button className="flex-1 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
-                    <Download className="w-4 h-4" />
-                    Invoice
-                  </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-[#059669] text-white rounded-lg hover:bg-[#047857] text-sm">
-                    <RotateCcw className="w-4 h-4" />
-                    Reorder
-                  </button>
-                </div>
+                <button
+                  onClick={(e) => handleReorder(e, order)}
+                  className="w-full flex items-center justify-center gap-2 py-2 bg-[#059669] text-white rounded-lg hover:bg-[#047857] text-sm mt-3"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reorder
+                </button>
               )}
 
               {order.status === "in-progress" && (
@@ -136,6 +141,19 @@ export default function OrdersPage({ orders, onOrderClick }) {
           ))
         )}
       </div>
+
+      {/* Success Toast */}
+      {showToast && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+          <div className="bg-[#059669] text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-md">
+            <CheckCircle2 className="w-5 h-5" />
+            <span className="font-medium">Added to cart successfully!</span>
+            <button onClick={() => setShowToast(false)} className="ml-2">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

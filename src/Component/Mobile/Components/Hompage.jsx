@@ -1,4 +1,4 @@
-import { Search, Mic, ChevronRight, Clock } from "lucide-react";
+import { Search, Mic, ChevronRight, Clock, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import ProductCard from "./ProductCard.jsx";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
@@ -25,6 +25,7 @@ export default function Homepage({
   onProductClick,
   wishlistIds,
   onSearchClick,
+  onWishlistClick,
 }) {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 30 });
@@ -54,9 +55,22 @@ export default function Homepage({
   return (
     <div className="pb-20 bg-gray-50">
       {/* Greeting */}
-      <div className="bg-white px-4 py-4">
-        <h1 className="text-xl">Hi Saad 👋</h1>
-        <p className="text-sm text-gray-600">Let's find your perfect tree</p>
+      <div className="bg-white px-4 py-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl">Hi Saad 👋</h1>
+          <p className="text-sm text-gray-600">Let's find your perfect tree</p>
+        </div>
+        <button
+          onClick={onWishlistClick}
+          className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <Heart className="w-6 h-6 text-gray-700" />
+          {wishlistIds.size > 0 && (
+            <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
+              {wishlistIds.size}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Search Bar */}
