@@ -1,4 +1,5 @@
-import { Trash2, Plus, Minus, Tag } from "lucide-react";
+import { Trash2, Plus, Minus, Tag, Store, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 
 export default function CartPage({
@@ -7,7 +8,28 @@ export default function CartPage({
   onRemoveItem,
   onCheckout,
 }) {
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const [selectedItems, setSelectedItems] = useState(new Set(items.map(item => item.id)));
+
+  const toggleSelectItem = (itemId) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(itemId)) {
+      newSelected.delete(itemId);
+    } else {
+      newSelected.add(itemId);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.size === items.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(items.map(item => item.id)));
+    }
+  };
+
+  const selectedCartItems = items.filter(item => selectedItems.has(item.id));
+  const subtotal = selectedCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const deliveryFee = subtotal > 0 ? 5 : 0;
   const total = subtotal + deliveryFee;
 
@@ -27,15 +49,40 @@ export default function CartPage({
     <div className="pb-32 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="bg-white px-4 py-4 mb-2">
-        <h1 className="text-xl">Shopping Cart</h1>
-        <p className="text-sm text-gray-600">{items.length} items</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl">Shopping Cart</h1>
+            <p className="text-sm text-gray-600">{items.length} items</p>
+          </div>
+          <button
+            onClick={toggleSelectAll}
+            className="text-sm text-[#059669] font-medium"
+          >
+            {selectedItems.size === items.length ? "Deselect All" : "Select All"}
+          </button>
+        </div>
       </div>
 
       {/* Cart Items */}
       <div className="px-4 space-y-3 mb-4">
         {items.map((item) => (
           <div key={item.id} className="bg-white rounded-xl p-4 shadow-sm border border-border">
+            {/* Seller Store Link */}
+            <button className="flex items-center gap-2 mb-3 text-sm text-gray-700 hover:text-[#059669]">
+              <Store className="w-4 h-4" />
+              <span>{item.seller || "TreeStore Official"}</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
             <div className="flex gap-3">
+              {/* Checkbox */}
+              <input
+                type="checkbox"
+                checked={selectedItems.has(item.id)}
+                onChange={() => toggleSelectItem(item.id)}
+                className="w-5 h-5 mt-1 accent-[#059669] cursor-pointer"
+              />
+
               <ImageWithFallback
                 src={item.image}
                 alt={item.name}
@@ -111,12 +158,17 @@ export default function CartPage({
       </div>
 
       {/* Checkout Button */}
-      <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-border px-4 py-3">
+      <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-border px-4 py-3 max-w-md mx-auto">
+        <div className="flex items-center justify-between mb-2 text-sm">
+          <span className="text-gray-600">{selectedItems.size} item(s) selected</span>
+          <span className="font-medium">Total: ${total.toFixed(2)}</span>
+        </div>
         <button
           onClick={onCheckout}
-          className="w-full bg-[#059669] text-white py-3 rounded-xl hover:bg-[#047857] transition-colors"
+          disabled={selectedItems.size === 0}
+          className="w-full bg-[#059669] text-white py-3 rounded-xl hover:bg-[#047857] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Proceed to Checkout (${total.toFixed(2)})
+          Proceed to Checkout
         </button>
       </div>
     </div>
