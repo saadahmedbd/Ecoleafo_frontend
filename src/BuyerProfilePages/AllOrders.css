@@ -1,0 +1,416 @@
+/* ============================================
+   ALL ORDERS PAGE LAYOUT
+   ============================================ */
+.all-orders-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 40px 20px 80px;
+  margin-left: 280px; /* Space for sidebar */
+  display: flex;
+  flex-direction: column;
+}
+
+.orders-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.page-header {
+  margin-bottom: 30px;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* ============================================
+   ORDERS LIST
+   ============================================ */
+.orders-list {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* ============================================
+   ORDER ROW
+   ============================================ */
+.order-row {
+  display: grid;
+  grid-template-columns: 120px 200px 180px 150px 40px;
+  align-items: center;
+  padding: 24px 30px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.order-row:last-child {
+  border-bottom: none;
+}
+
+.order-row:hover {
+  background-color: #f9fafb;
+}
+
+/* ============================================
+   ORDER COLUMNS
+   ============================================ */
+.order-id {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.order-date {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.order-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-indicator.blue {
+  background-color: #3b82f6;
+}
+
+.status-indicator.green {
+  background-color: #22c55e;
+}
+
+.status-indicator.red {
+  background-color: #ef4444;
+}
+
+.status-indicator.yellow {
+  background-color: #f59e0b;
+}
+
+.status-text {
+  font-size: 0.95rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.order-amount {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.order-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: #9ca3af;
+  transition: color 0.3s ease;
+}
+
+.order-row:hover .order-arrow {
+  color: #22c55e;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+  background-color: white;
+  border-radius: 12px;
+  padding: 80px 40px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.empty-text {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ============================================
+   PAGE FOOTER
+   ============================================ */
+.page-footer {
+  text-align: center;
+  padding: 30px 20px 0;
+  margin-top: auto;
+}
+
+.footer-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - TABLET
+   Breakpoint: 768px - 1024px
+   ============================================ */
+@media (max-width: 1024px) {
+  .all-orders-page {
+    margin-left: 260px;
+    padding: 35px 20px 70px;
+  }
+
+  .order-row {
+    grid-template-columns: 100px 180px 160px 130px 40px;
+    padding: 22px 25px;
+  }
+
+  .order-id {
+    font-size: 0.95rem;
+  }
+
+  .order-date,
+  .status-text {
+    font-size: 0.9rem;
+  }
+
+  .order-amount {
+    font-size: 1rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE
+   Breakpoint: Below 768px
+   ============================================ */
+@media (max-width: 768px) {
+  .all-orders-page {
+    margin-left: 0;
+    padding: 25px 15px 60px;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .orders-list {
+    border-radius: 10px;
+  }
+
+  .order-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 20px;
+  }
+
+  .order-id {
+    font-size: 1.05rem;
+    grid-row: 1;
+  }
+
+  .order-date {
+    font-size: 0.875rem;
+    grid-row: 2;
+  }
+
+  .order-status {
+    grid-row: 3;
+  }
+
+  .order-amount {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.05rem;
+  }
+
+  .order-arrow {
+    display: none;
+  }
+
+  .order-row {
+    position: relative;
+  }
+
+  .empty-state {
+    padding: 60px 30px;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .empty-title {
+    font-size: 1.3rem;
+  }
+
+  .empty-text {
+    font-size: 0.95rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - SMALL MOBILE
+   Breakpoint: Below 480px
+   ============================================ */
+@media (max-width: 480px) {
+  .all-orders-page {
+    padding: 20px 10px 50px;
+  }
+
+  .page-header {
+    margin-bottom: 25px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .order-row {
+    padding: 18px 15px;
+    gap: 10px;
+  }
+
+  .order-id {
+    font-size: 1rem;
+  }
+
+  .order-date {
+    font-size: 0.85rem;
+  }
+
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+  }
+
+  .status-text {
+    font-size: 0.875rem;
+  }
+
+  .order-amount {
+    top: 18px;
+    right: 15px;
+    font-size: 1rem;
+  }
+
+  .empty-state {
+    padding: 50px 20px;
+  }
+
+  .empty-icon {
+    font-size: 2.5rem;
+  }
+
+  .empty-title {
+    font-size: 1.2rem;
+  }
+
+  .empty-text {
+    font-size: 0.9rem;
+  }
+
+  .footer-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.order-row:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: -2px;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .order-row,
+  .order-arrow {
+    transition: none;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  .all-orders-page {
+    background-color: white;
+    margin-left: 0;
+  }
+
+  .order-arrow,
+  .page-footer {
+    display: none;
+  }
+
+  .orders-list {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .order-row {
+    page-break-inside: avoid;
+  }
+}
+
+/* ============================================
+   LOADING STATE (OPTIONAL)
+   ============================================ */
+.order-row.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ============================================
+   ANIMATION
+   ============================================ */
+.order-row {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   HOVER EFFECTS
+   ============================================ */
+@media (min-width: 769px) {
+  .order-row:hover {
+    transform: translateX(4px);
+  }
+}

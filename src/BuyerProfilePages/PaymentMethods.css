@@ -1,0 +1,498 @@
+/* ============================================
+   PAYMENT METHODS PAGE LAYOUT
+   ============================================ */
+.payment-methods-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 40px 20px;
+  margin-left: 280px; /* Space for sidebar */
+}
+
+.payment-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.btn-add-method {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.btn-add-method:hover {
+  background-color: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-add-method:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   PAYMENT SECTION
+   ============================================ */
+.payment-section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 20px 0;
+}
+
+/* ============================================
+   PAYMENT GRID
+   ============================================ */
+.payment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+  gap: 20px;
+}
+
+/* ============================================
+   PAYMENT CARD
+   ============================================ */
+.payment-card {
+  background-color: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.payment-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
+}
+
+/* ============================================
+   CARD ICON
+   ============================================ */
+.card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.bank-icon {
+  background-color: #f0fdf4;
+}
+
+.mobile-icon {
+  background-color: #f3f4f6;
+}
+
+.mobile-icon.nagad {
+  background-color: #fff7ed;
+}
+
+.mobile-icon.bkash {
+  background-color: #fef2f2;
+}
+
+.mobile-icon.rocket {
+  background-color: #faf5ff;
+}
+
+/* ============================================
+   CARD CONTENT
+   ============================================ */
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.card-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 4px 0;
+}
+
+.card-holder {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* ============================================
+   DELETE BUTTON
+   ============================================ */
+.delete-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background-color: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.delete-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   DEFAULT BADGE
+   ============================================ */
+.default-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background-color: #dcfce7;
+  color: #16a34a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   SET DEFAULT BUTTON
+   ============================================ */
+.set-default-btn {
+  background: none;
+  border: none;
+  color: #22c55e;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s ease;
+  text-align: left;
+}
+
+.set-default-btn:hover {
+  color: #16a34a;
+  text-decoration: underline;
+}
+
+/* ============================================
+   SECURITY NOTICE
+   ============================================ */
+.security-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: 40px;
+}
+
+.security-notice svg {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - TABLET
+   Breakpoint: 768px - 1024px
+   ============================================ */
+@media (max-width: 1024px) {
+  .payment-methods-page {
+    margin-left: 260px;
+    padding: 35px 20px;
+  }
+
+  .payment-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE
+   Breakpoint: Below 768px
+   ============================================ */
+@media (max-width: 768px) {
+  .payment-methods-page {
+    margin-left: 0;
+    padding: 25px 15px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .btn-add-method {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .payment-section {
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+
+  .payment-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .payment-card {
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .card-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .delete-btn {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - SMALL MOBILE
+   Breakpoint: Below 480px
+   ============================================ */
+@media (max-width: 480px) {
+  .payment-methods-page {
+    padding: 20px 10px;
+  }
+
+  .page-header {
+    gap: 14px;
+    margin-bottom: 25px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .btn-add-method {
+    padding: 11px 20px;
+    font-size: 0.9rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .payment-grid {
+    gap: 14px;
+  }
+
+  .payment-card {
+    padding: 18px;
+    gap: 14px;
+    flex-direction: column;
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+
+  .card-header {
+    flex-direction: row;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+  }
+
+  .card-subtitle,
+  .card-holder {
+    font-size: 0.85rem;
+  }
+
+  .delete-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .default-badge {
+    padding: 5px 12px;
+    font-size: 0.75rem;
+  }
+
+  .set-default-btn {
+    font-size: 0.875rem;
+  }
+
+  .security-notice {
+    padding: 14px;
+    font-size: 0.85rem;
+    margin-top: 30px;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.btn-add-method:focus-visible,
+.delete-btn:focus-visible,
+.set-default-btn:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .payment-card,
+  .btn-add-method,
+  .delete-btn,
+  .set-default-btn {
+    transition: none;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  .payment-methods-page {
+    background-color: white;
+    margin-left: 0;
+  }
+
+  .btn-add-method,
+  .delete-btn,
+  .set-default-btn {
+    display: none;
+  }
+
+  .payment-card {
+    box-shadow: none;
+    border: 1px solid #000;
+    page-break-inside: avoid;
+  }
+}
+
+/* ============================================
+   EMPTY STATE (OPTIONAL)
+   ============================================ */
+.empty-state {
+  background-color: white;
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.empty-text {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+}
+
+/* ============================================
+   ANIMATION
+   ============================================ */
+.payment-card {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

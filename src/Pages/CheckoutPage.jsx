@@ -166,10 +166,13 @@ const CheckoutPage = () => {
             <strong>Total</strong>
             <strong>$85.54</strong>
           </div>
-          <button className="btn-payment" onClick={handleSubmit}>
-            <Lock size={18} />
-            Proceed to Payment
-          </button>
+          <Link to={"/payment-method"}>
+            <button className="btn-payment">
+              <Lock size={18} />
+              Proceed to Payment
+            </button>
+          </Link>
+         
         </aside>
       </div>
 

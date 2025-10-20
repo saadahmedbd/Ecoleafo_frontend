@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
 import './Header.css';
-import { Link, Links } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 /**
- * Evergreen E-commerce Header Component
+ *  E-commerce Header Component
  * A responsive header with logo, search bar, cart, and user authentication
  */
 export function Header() {
+  const location = useLocation();
+  
   // State for mobile menu toggle
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -79,10 +81,12 @@ export function Header() {
            
 
             {/* User Authentication - Desktop */}
-            <button className="auth-button desktop-auth">
-              <User size={20} />
-              <span className="auth-text">Sign In / Register</span>
-            </button>
+            <Link to="/login" state={{ from: location.pathname }}>
+              <button className="auth-button desktop-auth">
+                <User size={20} />
+                <span className="auth-text">Sign In / Register</span>
+              </button>
+            </Link>
 
             {/* User Icon - Mobile */}
             <button className="icon-button mobile-user-icon" aria-label="User account">
@@ -118,10 +122,10 @@ export function Header() {
         {/* Mobile Menu */}
         <div className={`mobile-menu ${isMobileMenuOpen ? 'active' : ''}`}>
           <nav className="mobile-nav">
-            <a href="#" className="mobile-nav-item">
+            <Link to="/login" state={{ from: location.pathname }} className="mobile-nav-item">
               <User size={20} />
               <span>Sign In / Register</span>
-            </a>
+            </Link>
             <a href="#" className="mobile-nav-item">
               <ShoppingCart size={20} />
               <span>My Cart ({cartCount})</span>

@@ -1,0 +1,278 @@
+/* Return/Refund Requests Styles */
+.return-refund-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+}
+
+/* New Request Section */
+.new-request-section {
+  margin-bottom: 3rem;
+}
+
+.order-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.order-info {
+  flex: 1;
+}
+
+.order-number {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.order-details {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.request-button {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 0.875rem 1.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.request-button:hover {
+  background: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.request-button:active {
+  transform: translateY(0);
+}
+
+.order-image {
+  width: 320px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-left: 2rem;
+}
+
+.order-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Existing Requests Section */
+.existing-requests-section {
+  margin-bottom: 2rem;
+}
+
+.requests-table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.requests-table thead {
+  background-color: #f8f9fa;
+}
+
+.requests-table th {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.requests-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.requests-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.requests-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.requests-table td {
+  padding: 1.25rem 1.5rem;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.order-col {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.item-col {
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.date-col {
+  color: #666;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.375rem 0.875rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-completed {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* View Details Button */
+.view-details-button {
+  background: transparent;
+  color: #22c55e;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+}
+
+.view-details-button:hover {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .order-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-image {
+    width: 100%;
+    height: 240px;
+    margin-left: 0;
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .return-refund-container {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.875rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .order-card {
+    padding: 1.5rem;
+  }
+
+  .requests-table-container {
+    overflow-x: auto;
+  }
+
+  .requests-table {
+    min-width: 700px;
+  }
+
+  .requests-table th,
+  .requests-table td {
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .return-refund-container {
+    padding: 0.75rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .order-card {
+    padding: 1rem;
+  }
+
+  .order-number {
+    font-size: 1.25rem;
+  }
+
+  .request-button {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .order-image {
+    height: 200px;
+  }
+}

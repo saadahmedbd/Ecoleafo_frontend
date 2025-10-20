@@ -1,0 +1,455 @@
+/* ============================================
+   LOGIN PAGE LAYOUT
+   ============================================ */
+.login-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* ============================================
+   LOGIN CONTAINER
+   ============================================ */
+.login-container {
+  width: 100%;
+  max-width: 480px;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 50px 40px;
+}
+
+/* ============================================
+   HEADER SECTION
+   ============================================ */
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+}
+
+.login-subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ============================================
+   FORM STYLES
+   ============================================ */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  color: #1f2937;
+  background-color: #f3f4f6;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+.form-input:hover {
+  background-color: #e5e7eb;
+}
+
+.form-input:focus {
+  background-color: white;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* ============================================
+   FORGOT PASSWORD
+   ============================================ */
+.forgot-password-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: -12px;
+}
+
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: #22c55e;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+.forgot-password-link:hover {
+  color: #16a34a;
+  text-decoration: underline;
+}
+
+/* ============================================
+   SIGN IN BUTTON
+   ============================================ */
+.btn-sign-in {
+  width: 100%;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background-color: #22c55e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.btn-sign-in:hover:not(:disabled) {
+  background-color: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+}
+
+.btn-sign-in:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-sign-in:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.divider-text {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+/* ============================================
+   SOCIAL LOGIN BUTTONS
+   ============================================ */
+.social-login-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background-color: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-social:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn-social:active {
+  transform: translateY(0);
+}
+
+.social-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* ============================================
+   SIGNUP LINKS
+   ============================================ */
+.signup-links {
+  margin-top: 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.signup-text {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.signup-link {
+  color: #22c55e;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.signup-link:hover {
+  color: #16a34a;
+  text-decoration: underline;
+}
+
+.business-link {
+  color: #3b82f6;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.business-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - TABLET
+   Breakpoint: 768px - 1024px
+   ============================================ */
+@media (max-width: 1024px) {
+  .login-container {
+    max-width: 450px;
+    padding: 45px 35px;
+  }
+
+  .login-title {
+    font-size: 2rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE
+   Breakpoint: Below 768px
+   ============================================ */
+@media (max-width: 768px) {
+  .login-page {
+    padding: 30px 20px;
+  }
+
+  .login-container {
+    max-width: 100%;
+    padding: 40px 30px;
+  }
+
+  .login-title {
+    font-size: 1.875rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .login-header {
+    margin-bottom: 35px;
+  }
+
+  .form-input {
+    padding: 13px 15px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .btn-sign-in {
+    padding: 15px;
+  }
+
+  .social-login-buttons {
+    gap: 10px;
+  }
+
+  .btn-social {
+    padding: 13px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - SMALL MOBILE
+   Breakpoint: Below 480px
+   ============================================ */
+@media (max-width: 480px) {
+  .login-page {
+    padding: 20px 15px;
+  }
+
+  .login-container {
+    padding: 35px 25px;
+    border-radius: 12px;
+  }
+
+  .login-title {
+    font-size: 1.75rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .login-header {
+    margin-bottom: 30px;
+  }
+
+  .login-form {
+    gap: 20px;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .form-input {
+    padding: 12px 14px;
+  }
+
+  .forgot-password-link {
+    font-size: 0.85rem;
+  }
+
+  .btn-sign-in {
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+
+  .divider {
+    gap: 12px;
+    margin: 4px 0;
+  }
+
+  .divider-text {
+    font-size: 0.8rem;
+  }
+
+  .social-login-buttons {
+    gap: 8px;
+  }
+
+  .btn-social {
+    padding: 12px;
+  }
+
+  .social-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .signup-links {
+    margin-top: 28px;
+    gap: 10px;
+  }
+
+  .signup-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+.form-input:focus-visible,
+.btn-sign-in:focus-visible,
+.btn-social:focus-visible,
+.forgot-password-link:focus-visible,
+.signup-link:focus-visible,
+.business-link:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+.btn-sign-in:disabled {
+  position: relative;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .form-input,
+  .btn-sign-in,
+  .btn-social,
+  .forgot-password-link,
+  .signup-link,
+  .business-link {
+    transition: none;
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+@media (prefers-contrast: high) {
+  .form-input {
+    border: 2px solid #1f2937;
+  }
+
+  .form-input:focus {
+    border-width: 3px;
+  }
+
+  .btn-social {
+    border-width: 2px;
+    border-color: #1f2937;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  .login-page {
+    background-color: white;
+  }
+
+  .social-login-buttons,
+  .signup-links {
+    display: none;
+  }
+}

@@ -1,0 +1,493 @@
+/* ============================================
+   BUYER SIDEBAR LAYOUT
+   ============================================ */
+.buyer-sidebar {
+  width: 280px;
+  height: 100vh;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+.buyer-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.buyer-sidebar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.buyer-sidebar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.buyer-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ============================================
+   SIDEBAR HEADER - USER PROFILE
+   ============================================ */
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: white;
+  margin: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   SIDEBAR NAVIGATION
+   ============================================ */
+.sidebar-nav {
+  flex: 1;
+  padding: 0px 0;
+  overflow-y: auto;
+}
+
+/* ============================================
+   MENU SECTION
+   ============================================ */
+.menu-section {
+  margin-bottom: 0px;
+}
+
+.section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #374151;
+}
+
+.section-header:hover {
+  background-color: #f9fafb;
+}
+
+.section-header.expanded {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.section-header-content {
+  display: flex;
+  /* align-items: center; */
+  gap: 12px;
+}
+
+.section-icon {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+.section-title {
+  font-size: 0.95rem !important;
+  font-weight: 600;
+  color: currentColor;
+  text-align: left;
+}
+
+.chevron-icon {
+  flex-shrink: 0;
+  color: #9ca3af;
+  transition: transform 0.2s ease;
+}
+
+.section-header.expanded .chevron-icon {
+  color: #22c55e;
+}
+
+/* ============================================
+   SECTION ITEMS
+   ============================================ */
+.section-items {
+  padding: 0px 0 8px 0;
+  background-color: #f9fafb;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px 10px 52px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  position: relative;
+}
+
+.menu-item:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.menu-item.active {
+  background-color: #dcfce7;
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.menu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #22c55e;
+}
+
+.item-icon {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+.item-label {
+  font-size: 0.9rem;
+  color: currentColor;
+  text-align: left;
+}
+
+/* ============================================
+   SIDEBAR FOOTER - LOGOUT
+   ============================================ */
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  position: sticky;
+  bottom: 0;
+}
+
+.logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #fecaca;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+.logout-icon {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - TABLET
+   Breakpoint: 768px - 1024px
+   ============================================ */
+@media (max-width: 1024px) {
+  .buyer-sidebar {
+    width: 260px;
+  }
+
+  .sidebar-header {
+    padding: 20px 16px;
+  }
+
+  .user-avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .section-header {
+    padding: 10px 16px;
+  }
+
+  .menu-item {
+    padding: 9px 16px 9px 48px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE
+   Breakpoint: Below 768px
+   ============================================ */
+@media (max-width: 768px) {
+  .buyer-sidebar {
+    width: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .buyer-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Mobile overlay */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+
+  .sidebar-header {
+    padding: 20px 20px;
+  }
+
+  .user-name {
+    font-size: 1rem;
+  }
+
+  .user-email {
+    font-size: 0.75rem;
+  }
+
+  .section-header {
+    padding: 12px 20px;
+  }
+
+  .section-title {
+    font-size: 0.9rem;
+  }
+
+  .menu-item {
+    padding: 10px 20px 10px 52px;
+  }
+
+  .item-label {
+    font-size: 0.875rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - SMALL MOBILE
+   Breakpoint: Below 480px
+   ============================================ */
+@media (max-width: 480px) {
+  .buyer-sidebar {
+    width: 85%;
+    max-width: 320px;
+  }
+
+  .sidebar-header {
+    padding: 18px;
+  }
+
+  .user-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .user-name {
+    font-size: 0.95rem;
+  }
+
+  .section-header {
+    padding: 11px 18px;
+  }
+
+  .section-title {
+    font-size: 0.875rem;
+  }
+
+  .menu-item {
+    padding: 9px 18px 9px 48px;
+  }
+
+  .item-label {
+    font-size: 0.85rem;
+  }
+
+  .sidebar-footer {
+    padding: 14px 18px;
+  }
+
+  .logout-btn {
+    padding: 11px;
+    font-size: 0.9rem;
+  }
+}
+
+/* ============================================
+   MOBILE MENU TOGGLE BUTTON
+   ============================================ */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  width: 44px;
+  height: 44px;
+  background-color: #22c55e;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background-color: #16a34a;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.section-header:focus-visible,
+.menu-item:focus-visible,
+.logout-btn:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .section-items,
+  .chevron-icon,
+  .menu-item,
+  .logout-btn,
+  .buyer-sidebar {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  .buyer-sidebar {
+    display: none;
+  }
+}
+
+/* ============================================
+   BADGE / NOTIFICATION DOT (OPTIONAL)
+   ============================================ */
+.menu-item .badge {
+  margin-left: auto;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.menu-item.active .badge {
+  background-color: #22c55e;
+}
+
+/* ============================================
+   STICKY POSITIONING FIX
+   ============================================ */
+.sidebar-footer {
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+}
