@@ -16,6 +16,8 @@ import OrderSuccess from "./Components/OrderSuccess";
 import NotificationsPage from "./Components/Notification";
 import HelpSupport from "./Components/HelpSupport";
 import OrderDetails from "./Components/OrderDetails";
+import PaymentMethod from "./Components/PaymentMethod";
+import TrackOrder from "./Components/TrackOrder";
 
 const mockProducts = [
   { id: 1, name: "Oak Tree", price: 89, originalPrice: 120, image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=200&h=200&fit=crop", category: "Oak", inStock: true, rating: 4.5, reviews: 120 },
@@ -41,6 +43,11 @@ export default function MobileApp() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [lastOrderId, setLastOrderId] = useState(null);
+
+  const generateOrderId = () => {
+    return "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase();
+  };
 
   const showToast = (message, type = "cart") => {
     setToast({ show: true, message, type });
@@ -187,14 +194,34 @@ export default function MobileApp() {
           <CheckoutPage
             items={cart}
             onBack={() => navigate("/mobile/cart")}
-            onPlaceOrder={() => {
+            onPlaceOrder={() => navigate("/mobile/payment")}
+          />
+        } />
+        <Route path="payment" element={
+          <PaymentMethod
+            total={cart.reduce((sum, item) => sum + item.price * item.quantity, 0) + 5}
+            onBack={() => navigate("/mobile/checkout")}
+            onConfirmPayment={(method) => {
+              const orderId = generateOrderId();
+              setLastOrderId(orderId);
+              console.log("Payment method:", method, "Order ID:", orderId);
               navigate("/mobile/order-success");
               setCart([]);
             }}
           />
         } />
         <Route path="order-success" element={
-          <OrderSuccess onContinueShopping={() => navigate("/mobile/home")} />
+          <OrderSuccess
+            orderId={lastOrderId || "ORD12347"}
+            onBackToHome={() => navigate("/mobile/home")}
+            onViewOrders={() => navigate("/mobile/track-order")}
+          />
+        } />
+        <Route path="track-order" element={
+          <TrackOrder
+            orderId={lastOrderId}
+            onBack={() => navigate("/mobile/orders")}
+          />
         } />
         <Route path="notifications" element={
           <NotificationsPage onBack={() => navigate("/mobile/home")} />
