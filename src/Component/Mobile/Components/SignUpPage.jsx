@@ -1,16 +1,31 @@
 import { ArrowLeft, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { authAPI } from "../../../services/api";
 
-export default function SignUpPage({ onBack, onSignUp, onLoginClick }) {
+export default function SignUpPage({ onBack, onSignUp, onLoginClick, showToast }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    onSignUp({ firstName, lastName, email, password });
+    setLoading(true);
+    setError("");
+
+    const result = await authAPI.register({ firstName, lastName, email, password });
+    
+    setLoading(false);
+    
+    if (result.success) {
+      showToast?.("Registration successful!", "cart");
+      onSignUp({ firstName, lastName, email, password });
+    } else {
+      setError(result.error || "Registration failed. Please try again.");
+    }
   };
 
   const handleGoogleSignUp = () => {
@@ -141,12 +156,19 @@ export default function SignUpPage({ onBack, onSignUp, onLoginClick }) {
             </label>
           </div>
 
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
           {/* Sign Up Button */}
           <button
             type="submit"
-            className="w-full bg-[#059669] text-white py-3 rounded-lg hover:bg-[#047857] transition-colors font-medium"
+            disabled={loading}
+            className="w-full bg-[#059669] text-white py-3 rounded-lg hover:bg-[#047857] transition-colors font-medium disabled:opacity-50"
           >
-            Sign Up
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
         </form>
 

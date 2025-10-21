@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { CheckCircle2, Heart, X } from "lucide-react";
 import "./mobile.css";
@@ -50,14 +50,16 @@ export default function MobileApp() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const [lastOrderId, setLastOrderId] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem('authToken');
+  });
   const [userName, setUserName] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [userProfile, setUserProfile] = useState({
-    firstName: "Saad",
-    lastName: "Ahmad",
-    email: "saad@example.com",
-    phone: "+1 234 567 8900",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
     profileImage: null
   });
   const [addresses, setAddresses] = useState([
@@ -92,6 +94,19 @@ export default function MobileApp() {
       is_default: false
     }
   ]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData);
+        setUserProfile(user);
+        setUserName(user.firstName);
+        setIsLoggedIn(true);
+      }
+    }
+  }, []);
 
   const generateOrderId = () => {
     return "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -251,6 +266,13 @@ export default function MobileApp() {
             onEditProfileClick={() => navigate("/mobile/edit-profile")}
             onManageAddressesClick={() => navigate("/mobile/manage-addresses")}
             onSecurityClick={() => navigate("/mobile/security-settings")}
+            onLogout={() => {
+              setIsLoggedIn(false);
+              setUserName("");
+              setUserProfile({ firstName: "", lastName: "", email: "", phone: "", profileImage: null });
+              showToast("Logged out successfully!", "cart");
+              navigate("/mobile/home");
+            }}
             darkMode={darkMode}
             onToggleDarkMode={() => setDarkMode(!darkMode)}
             isLoggedIn={isLoggedIn}
@@ -261,25 +283,46 @@ export default function MobileApp() {
         <Route path="login" element={
           <LoginPage
             onBack={() => navigate("/mobile/account")}
-            onLogin={(credentials) => {
+            onLogin={(userData) => {
+              localStorage.setItem('authToken', userData.token);
+              const profile = {
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                email: userData.email,
+                phone: "",
+                profileImage: null
+              };
+              localStorage.setItem('userData', JSON.stringify(profile));
               setIsLoggedIn(true);
-              setUserName(credentials.firstName || "User");
-              navigate("/mobile/account");
+              setUserName(userData.firstName || "User");
+              setUserProfile(profile);
+              navigate("/mobile/home");
             }}
             onSignUpClick={() => navigate("/mobile/signup")}
             onForgotPasswordClick={() => navigate("/mobile/forgot-password")}
             onGuestContinue={() => navigate("/mobile/home")}
+            showToast={showToast}
           />
         } />
         <Route path="signup" element={
           <SignUpPage
             onBack={() => navigate("/mobile/account")}
             onSignUp={(userData) => {
+              const profile = {
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                email: userData.email,
+                phone: "",
+                profileImage: null
+              };
+              localStorage.setItem('userData', JSON.stringify(profile));
               setIsLoggedIn(true);
               setUserName(userData.firstName || "User");
+              setUserProfile(profile);
               navigate("/mobile/account");
             }}
             onLoginClick={() => navigate("/mobile/login")}
+            showToast={showToast}
           />
         } />
         <Route path="forgot-password" element={

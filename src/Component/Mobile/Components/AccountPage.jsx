@@ -15,12 +15,21 @@ import {
   Store,
 } from "lucide-react";
 import { useState } from "react";
+import { authAPI } from "../../../services/api";
 
 /**
  * AccountPage component - user account management page
  */
-export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, onEditProfileClick, onManageAddressesClick, onSecurityClick, isLoggedIn = false, userName = "", userProfile = {} }) {
+export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, onEditProfileClick, onManageAddressesClick, onSecurityClick, onLogout, isLoggedIn = false, userName = "", userProfile = {} }) {
   const [expandedSection, setExpandedSection] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogout = async () => {
+    setLoading(true);
+    await authAPI.logout();
+    setLoading(false);
+    onLogout?.();
+  };
 
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -289,9 +298,13 @@ export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, 
         </div>
 
         {/* Logout */}
-        <button className="w-full bg-white rounded-xl border border-border px-4 py-4 flex items-center justify-center gap-3 hover:bg-red-50 hover:border-red-200 transition-colors text-red-600">
+        <button 
+          onClick={handleLogout}
+          disabled={loading}
+          className="w-full bg-white rounded-xl border border-border px-4 py-4 flex items-center justify-center gap-3 hover:bg-red-50 hover:border-red-200 transition-colors text-red-600 disabled:opacity-50"
+        >
           <LogOut className="w-5 h-5" />
-          <span>Logout</span>
+          <span>{loading ? "Logging out..." : "Logout"}</span>
         </button>
 
         {/* Footer Links */}

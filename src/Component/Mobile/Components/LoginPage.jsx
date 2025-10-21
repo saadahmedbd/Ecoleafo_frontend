@@ -1,15 +1,34 @@
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { authAPI } from "../../../services/api";
 
-export default function LoginPage({ onBack, onLogin, onSignUpClick, onForgotPasswordClick, onGuestContinue }) {
+export default function LoginPage({ onBack, onLogin, onSignUpClick, onForgotPasswordClick, onGuestContinue, showToast }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const firstName = email.split('@')[0];
-    onLogin({ email, password, firstName });
+    setLoading(true);
+    setError("");
+
+    const result = await authAPI.login({ email, password });
+    
+    setLoading(false);
+    
+    if (result.success) {
+      showToast?.("Login successful!", "cart");
+      onLogin({ 
+        firstName: result.data.first_name, 
+        lastName: result.data.last_name, 
+        email: result.data.email,
+        token: result.data.token 
+      });
+    } else {
+      setError(result.error || "Login failed. Please try again.");
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -93,12 +112,19 @@ export default function LoginPage({ onBack, onLogin, onSignUpClick, onForgotPass
             </button>
           </div>
 
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-[#059669] text-white py-3 rounded-lg hover:bg-[#047857] transition-colors font-medium"
+            disabled={loading}
+            className="w-full bg-[#059669] text-white py-3 rounded-lg hover:bg-[#047857] transition-colors font-medium disabled:opacity-50"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
