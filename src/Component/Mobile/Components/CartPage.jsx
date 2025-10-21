@@ -7,6 +7,7 @@ export default function CartPage({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
+  isLoggedIn = false,
 }) {
   const [selectedItems, setSelectedItems] = useState(new Set(items.map(item => item.id)));
 
@@ -168,7 +169,7 @@ export default function CartPage({
           disabled={selectedItems.size === 0}
           className="w-full bg-[#059669] text-white py-3 rounded-xl hover:bg-[#047857] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Proceed to Checkout
+          {isLoggedIn ? "Proceed to Checkout" : "Login to Checkout"}
         </button>
       </div>
     </div>

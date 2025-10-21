@@ -18,6 +18,9 @@ import HelpSupport from "./Components/HelpSupport";
 import OrderDetails from "./Components/OrderDetails";
 import PaymentMethod from "./Components/PaymentMethod";
 import TrackOrder from "./Components/TrackOrder";
+import LoginPage from "./Components/LoginPage";
+import SignUpPage from "./Components/SignUpPage";
+import ForgotPassword from "./Components/ForgotPassword";
 
 const mockProducts = [
   { id: 1, name: "Oak Tree", price: 89, originalPrice: 120, image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=200&h=200&fit=crop", category: "Oak", inStock: true, rating: 4.5, reviews: 120 },
@@ -44,6 +47,8 @@ export default function MobileApp() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const [lastOrderId, setLastOrderId] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
 
   const generateOrderId = () => {
     return "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -155,7 +160,14 @@ export default function MobileApp() {
               }
             }}
             onRemoveItem={(id) => setCart(cart.filter((item) => item.id !== id))}
-            onCheckout={() => navigate("/mobile/checkout")}
+            onCheckout={() => {
+              if (isLoggedIn) {
+                navigate("/mobile/checkout");
+              } else {
+                navigate("/mobile/login");
+              }
+            }}
+            isLoggedIn={isLoggedIn}
           />
         } />
         <Route path="wishlist" element={
@@ -188,7 +200,47 @@ export default function MobileApp() {
           />
         } />
         <Route path="account" element={
-          <AccountPage onHelpClick={() => navigate("/mobile/help")} />
+          <AccountPage
+            onHelpClick={() => navigate("/mobile/help")}
+            onLoginClick={() => navigate("/mobile/login")}
+            onSignUpClick={() => navigate("/mobile/signup")}
+            onGuestContinue={() => navigate("/mobile/home")}
+            isLoggedIn={isLoggedIn}
+            userName={userName}
+          />
+        } />
+        <Route path="login" element={
+          <LoginPage
+            onBack={() => navigate("/mobile/account")}
+            onLogin={(credentials) => {
+              setIsLoggedIn(true);
+              setUserName(credentials.firstName || "User");
+              navigate("/mobile/account");
+            }}
+            onSignUpClick={() => navigate("/mobile/signup")}
+            onForgotPasswordClick={() => navigate("/mobile/forgot-password")}
+            onGuestContinue={() => navigate("/mobile/home")}
+          />
+        } />
+        <Route path="signup" element={
+          <SignUpPage
+            onBack={() => navigate("/mobile/account")}
+            onSignUp={(userData) => {
+              setIsLoggedIn(true);
+              setUserName(userData.firstName || "User");
+              navigate("/mobile/account");
+            }}
+            onLoginClick={() => navigate("/mobile/login")}
+          />
+        } />
+        <Route path="forgot-password" element={
+          <ForgotPassword
+            onBack={() => navigate("/mobile/login")}
+            onResetSuccess={() => {
+              showToast("Password reset successful!", "cart");
+              navigate("/mobile/login");
+            }}
+          />
         } />
         <Route path="checkout" element={
           <CheckoutPage
