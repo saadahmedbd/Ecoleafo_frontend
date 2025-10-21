@@ -23,6 +23,7 @@ import SignUpPage from "./Components/SignUpPage";
 import ForgotPassword from "./Components/ForgotPassword";
 import EditProfile from "./Components/EditProfile";
 import ManageAddresses from "./Components/ManageAddresses";
+import SecuritySettings from "./Components/SecuritySettings";
 
 const mockProducts = [
   { id: 1, name: "Oak Tree", price: 89, originalPrice: 120, image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=200&h=200&fit=crop", category: "Oak", inStock: true, rating: 4.5, reviews: 120 },
@@ -51,6 +52,7 @@ export default function MobileApp() {
   const [lastOrderId, setLastOrderId] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
   const [userProfile, setUserProfile] = useState({
     firstName: "Saad",
     lastName: "Ahmad",
@@ -147,7 +149,7 @@ export default function MobileApp() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen">
+    <div className={`max-w-md mx-auto min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
       {!['mobile', 'home', 'orders', 'wishlist', 'cart', 'account'].includes(currentPage) && (
         <Header
           title={currentPage === "search" ? "Search" : currentPage === "product-details" ? "Product Details" : currentPage === "checkout" ? "Checkout" : currentPage === "order-success" ? "Order Placed" : currentPage === "notifications" ? "Notifications" : currentPage === "help" ? "Help & Support" : ""}
@@ -248,6 +250,9 @@ export default function MobileApp() {
             onGuestContinue={() => navigate("/mobile/home")}
             onEditProfileClick={() => navigate("/mobile/edit-profile")}
             onManageAddressesClick={() => navigate("/mobile/manage-addresses")}
+            onSecurityClick={() => navigate("/mobile/security-settings")}
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode(!darkMode)}
             isLoggedIn={isLoggedIn}
             userName={userName}
             userProfile={userProfile}
@@ -315,6 +320,15 @@ export default function MobileApp() {
                 setAddresses([...addresses, addressData]);
                 showToast("Address added successfully!", "cart");
               }
+            }}
+          />
+        } />
+        <Route path="security-settings" element={
+          <SecuritySettings
+            onBack={() => navigate("/mobile/account")}
+            onSave={(securityData) => {
+              console.log("Security updated:", securityData);
+              showToast("Security settings updated!", "cart");
             }}
           />
         } />

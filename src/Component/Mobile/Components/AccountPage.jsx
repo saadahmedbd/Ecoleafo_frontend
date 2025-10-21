@@ -19,7 +19,7 @@ import { useState } from "react";
 /**
  * AccountPage component - user account management page
  */
-export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, onEditProfileClick, onManageAddressesClick, isLoggedIn = false, userName = "", userProfile = {} }) {
+export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, onEditProfileClick, onManageAddressesClick, onSecurityClick, isLoggedIn = false, userName = "", userProfile = {} }) {
   const [expandedSection, setExpandedSection] = useState(null);
 
   const toggleSection = (section) => {
@@ -229,7 +229,7 @@ export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, 
         {/* Security */}
         <div className="bg-white rounded-xl overflow-hidden border border-border">
           <button
-            onClick={() => toggleSection("security")}
+            onClick={onSecurityClick}
             className="w-full px-4 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center gap-3">
@@ -238,26 +238,8 @@ export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, 
               </div>
               <span>Security Settings</span>
             </div>
-            <ChevronRight
-              className={`w-5 h-5 text-gray-400 transition-transform ${
-                expandedSection === "security" ? "rotate-90" : ""
-              }`}
-            />
+            <ChevronRight className="w-5 h-5 text-gray-400" />
           </button>
-          {expandedSection === "security" && (
-            <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
-              <button className="w-full text-left py-2 px-3 hover:bg-gray-50 rounded-lg flex items-center justify-between">
-                <span className="text-sm">Change Password</span>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              </button>
-              <button className="w-full text-left py-2 px-3 hover:bg-gray-50 rounded-lg flex items-center justify-between">
-                <span className="text-sm">Two-Factor Authentication</span>
-                <div className="w-10 h-6 bg-gray-200 rounded-full relative">
-                  <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 shadow" />
-                </div>
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Preferences */}
