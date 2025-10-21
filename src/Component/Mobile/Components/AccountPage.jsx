@@ -10,23 +10,109 @@ import {
   ChevronRight,
   Edit,
   HelpCircle,
+  UserPlus,
+  LogIn,
+  Store,
 } from "lucide-react";
 import { useState } from "react";
 
 /**
  * AccountPage component - user account management page
  */
-export default function AccountPage({ onHelpClick }) {
+export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, isLoggedIn = false, userName = "" }) {
   const [expandedSection, setExpandedSection] = useState(null);
 
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
+  // If user is not logged in, show login/signup screen
+  if (!isLoggedIn) {
+    return (
+      <div className="pb-20 bg-gray-50 min-h-screen flex items-center justify-center px-4">
+        <div className="w-full max-w-sm">
+          {/* Logo/Icon */}
+          <div className="text-center mb-8">
+            <div className="w-24 h-24 bg-[#059669] rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="w-12 h-12 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to TreeStore</h1>
+            <p className="text-gray-600">Login or create an account to continue</p>
+          </div>
+
+          {/* Login/Signup Buttons */}
+          <div className="space-y-3">
+            <button
+              onClick={onLoginClick || (() => setIsLoggedIn(true))}
+              className="w-full bg-[#059669] text-white py-3 rounded-xl hover:bg-[#047857] transition-colors font-medium flex items-center justify-center gap-2"
+            >
+              <LogIn className="w-5 h-5" />
+              Login
+            </button>
+            <button
+              onClick={onSignUpClick || (() => setIsLoggedIn(true))}
+              className="w-full bg-white border-2 border-[#059669] text-[#059669] py-3 rounded-xl hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
+            >
+              <UserPlus className="w-5 h-5" />
+              Sign Up
+            </button>
+          </div>
+
+          {/* Business Account Registration */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-xl">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Store className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900 mb-1">Sell on TreeStore</h3>
+                <p className="text-xs text-gray-600">Register as a business seller and reach millions of customers</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsLoggedIn(true)}
+              className="w-full bg-orange-500 text-white py-2.5 rounded-lg hover:bg-orange-600 transition-colors font-medium text-sm flex items-center justify-center gap-2"
+            >
+              <Store className="w-4 h-4" />
+              Register as Business
+            </button>
+          </div>
+
+          {/* Guest Continue */}
+          <div className="mt-4 text-center">
+            <button
+              onClick={onGuestContinue}
+              className="text-gray-600 text-sm hover:text-[#059669] underline"
+            >
+              Continue as Guest
+            </button>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-gray-200 space-y-2">
+            <button className="w-full text-center text-sm text-gray-600 hover:text-[#059669]">
+              Privacy Policy
+            </button>
+            <button className="w-full text-center text-sm text-gray-600 hover:text-[#059669]">
+              Terms of Service
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Logged in user view
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
       {/* Profile Header */}
       <div className="bg-gradient-to-br from-[#059669] to-[#047857] px-4 py-8 mb-2">
+        {/* Welcome Message */}
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold text-white">Welcome, {userName}!</h2>
+          <p className="text-sm text-white/80 mt-1">Manage your account and orders</p>
+        </div>
+        
         <div className="flex items-center gap-4 mb-4">
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
             <User className="w-10 h-10 text-[#059669]" />
