@@ -21,8 +21,8 @@ export default function SignUpPage({ onBack, onSignUp, onLoginClick, showToast }
     setLoading(false);
     
     if (result.success) {
-      showToast?.("Registration successful!", "cart");
-      onSignUp({ firstName, lastName, email, password });
+      showToast?.("Registration successful! Please login.", "cart");
+      onLoginClick();
     } else {
       setError(result.error || "Registration failed. Please try again.");
     }
