@@ -1,0 +1,583 @@
+================================================================================
+                    TREESTORE MOBILE APPLICATION
+                    TECHNICAL DOCUMENTATION
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+TreeStore is a mobile-first e-commerce application for purchasing trees and 
+plants. Built with React, React Router, and Tailwind CSS, following modern 
+web development best practices and industry-standard patterns.
+
+Version: 1.0.0
+Framework: React 18+ with Vite
+Styling: Tailwind CSS with Dark Mode Support
+State Management: React Hooks (useState, useEffect)
+Routing: React Router v6
+Icons: Lucide React
+
+
+ARCHITECTURE OVERVIEW
+================================================================================
+
+1. COMPONENT STRUCTURE
+   - Parent Component: MobileApp.jsx (Main container & state management)
+   - Child Components: Individual page components
+   - Shared Components: ProductCard, BottomNav, Header
+   - Pattern: Container/Presentational Component Pattern
+
+2. STATE MANAGEMENT
+   - Centralized state in MobileApp.jsx
+   - Props drilling for data flow
+   - Callback functions for child-to-parent communication
+   - Ready for Redux/Context API integration
+
+3. ROUTING ARCHITECTURE
+   - Client-side routing with React Router
+   - Base path: /mobile/*
+   - Protected routes for authenticated users
+   - Nested routing support
+
+
+CORE FEATURES
+================================================================================
+
+1. AUTHENTICATION SYSTEM
+   - Login with email/password
+   - Sign up with validation
+   - Google OAuth integration ready
+   - Forgot password with OTP verification
+   - Guest mode support
+   - Session management ready
+
+2. USER PROFILE MANAGEMENT
+   - Profile editing with image upload
+   - Address management (CRUD operations)
+   - Security settings (password change, 2FA)
+   - Dark mode preference
+
+3. PRODUCT CATALOG
+   - Product listing with categories
+   - Search functionality
+   - Product details with specifications
+   - Reviews and ratings
+   - Q&A section
+   - Related products
+
+4. SHOPPING CART
+   - Add/remove items
+   - Quantity management
+   - Item selection for checkout
+   - Seller information display
+   - Coupon code support
+
+5. WISHLIST
+   - Add/remove products
+   - Badge counter
+   - Quick add to cart
+
+6. CHECKOUT FLOW
+   - Address selection
+   - Delivery options (Standard/Express)
+   - Payment method selection
+   - Order summary
+   - Order confirmation
+
+7. ORDER MANAGEMENT
+   - Order history
+   - Order tracking with timeline
+   - Reorder functionality
+   - Order details view
+
+8. PAYMENT INTEGRATION
+   - Cash on Delivery (COD)
+   - Mobile Banking (bKash, Nagad, Rocket)
+   - Payment instructions
+   - Order ID generation
+
+9. DARK MODE SYSTEM(not yet compelete)
+   - Tailwind CSS class-based dark mode
+   - Toggle in account settings
+   - Persistent across pages
+   - Automatic theme switching
+
+
+COMPONENT DOCUMENTATION
+================================================================================
+
+1. MobileApp.jsx (Main Container)
+   Purpose: Root component managing global state and routing
+   State:
+   - cart: Array of cart items
+   - wishlist: Set of product IDs
+   - isLoggedIn: Boolean for auth status
+   - darkMode: Boolean for theme preference
+   - userProfile: Object with user data
+   - addresses: Array of delivery addresses
+   
+   Key Functions:
+   - handleAddToCart(): Add product to cart
+   - handleToggleWishlist(): Toggle wishlist items
+   - showToast(): Display notifications
+   - generateOrderId(): Create unique order IDs
+
+2. HomePage.jsx
+   Purpose: Main landing page with product discovery
+   Features:
+   - Greeting section with wishlist badge
+   - Search bar
+   - Banner carousel (auto-rotating)
+   - Category grid
+   - Flash deals with countdown timer
+   - Trending products
+   Props: products, darkMode, wishlistIds, callbacks
+
+3. ProductDetails.jsx
+   Purpose: Detailed product information page
+   Features:
+   - Image gallery
+   - Price and discount display
+   - Specifications tab
+   - Reviews with rating distribution
+   - Q&A section
+   - Seller information
+   - Related products
+   - Sticky bottom action buttons
+
+4. CartPage.jsx
+   Purpose: Shopping cart management
+   Features:
+   - Item selection with checkboxes
+   - Quantity controls
+   - Seller store links
+   - Select All/Deselect All
+   - Order summary
+   - Login requirement for checkout
+
+5. CheckoutPage.jsx
+   Purpose: Order finalization
+   Features:
+   - Delivery address selection
+   - Add new address option
+   - Order items display
+   - Delivery options with dates
+   - Payment summary
+   - Place order button
+
+6. AccountPage.jsx
+   Purpose: User account management hub
+   Features:
+   - Profile header with welcome message
+   - Edit profile button
+   - Manage addresses
+   - Payment methods
+   - Security settings
+   - Language preferences
+   - Dark mode toggle
+   - Help & support
+   - Logout option
+
+7. LoginPage.jsx
+   Purpose: User authentication
+   Features:
+   - Email/password login
+   - Show/hide password toggle
+   - Forgot password link
+   - Google OAuth button
+   - Sign up navigation
+   - Continue as guest option
+
+8. SignUpPage.jsx
+   Purpose: New user registration
+   Features:
+   - First name, last name fields
+   - Email validation
+   - Password strength (min 6 chars)
+   - Confirm password
+   - Terms & conditions checkbox
+   - Google signup option
+
+9. ForgotPassword.jsx
+   Purpose: Password recovery
+   Features:
+   - 3-step process (Email → OTP → New Password)
+   - Email input
+   - 6-digit OTP verification
+   - Auto-focus OTP fields
+   - Resend code option
+   - Password reset with validation
+
+10. EditProfile.jsx
+    Purpose: User profile editing
+    Features:
+    - Profile photo upload with preview
+    - First name, last name
+    - Email, phone number
+    - Form validation
+    - Save changes with toast notification
+
+11. ManageAddresses.jsx
+    Purpose: Delivery address management
+    Features:
+    - Address list with labels (Home/Work/Other)
+    - Add new address form
+    - Edit existing addresses
+    - Delete with confirmation
+    - Default address marking
+    - Bangladesh address format support
+    Fields: address_line1, address_line2, street, city, 
+            district, state, country, postal_code
+
+12. SecuritySettings.jsx
+    Purpose: Account security management
+    Features:
+    - Change password form
+    - Current password verification
+    - New password validation
+    - Password match checking
+    - Two-factor authentication toggle
+    - Security tips section
+
+13. PaymentMethod.jsx
+    Purpose: Payment option selection
+    Features:
+    - Cash on Delivery
+    - Mobile banking (bKash, Nagad, Rocket)
+    - Payment instructions
+    - Payment summary
+    - Confirm payment button
+
+14. OrderSuccess.jsx
+    Purpose: Order confirmation
+    Features:
+    - Success animation
+    - Order ID display
+    - Estimated delivery date
+    - Track order button
+    - Continue shopping option
+
+15. TrackOrder.jsx
+    Purpose: Order tracking
+    Features:
+    - 5-stage timeline (Placed → Processing → Shipped → 
+      Out for Delivery → Delivered)
+    - Current location card
+    - Estimated delivery date
+    - Visual progress indicators
+
+
+DATA STRUCTURES
+================================================================================
+
+1. PRODUCT OBJECT
+   {
+     id: Number,
+     name: String,
+     price: Number,
+     originalPrice: Number (optional),
+     image: String (URL),
+     category: String,
+     inStock: Boolean,
+     rating: Number (0-5),
+     reviews: Number
+   }
+
+2. USER PROFILE OBJECT
+   {
+     firstName: String,
+     lastName: String,
+     email: String,
+     phone: String,
+     profileImage: String (base64 or URL)
+   }
+
+3. ADDRESS OBJECT
+   {
+     id: Number,
+     label: String (Home/Work/Other),
+     fullName: String,
+     phone: String,
+     address_line1: String,
+     address_line2: String,
+     street: String,
+     city: String,
+     district: String,
+     state: String,
+     country: String,
+     postal_code: String,
+     is_default: Boolean
+   }
+
+4. CART ITEM OBJECT
+   {
+     ...Product,
+     quantity: Number
+   }
+
+5. ORDER OBJECT
+   {
+     id: String (ORD + alphanumeric),
+     date: String,
+     status: String (delivered/in-progress),
+     items: Array<Product>,
+     total: Number
+   }
+
+
+STYLING GUIDELINES
+================================================================================
+
+1. COLOR PALETTE
+   Primary Green: #059669
+   Primary Hover: #047857
+   Orange Accent: #f97316
+   Pink (Wishlist): #E2136E
+   bKash Pink: #E2136E
+   Nagad Orange: #F15B2A
+   Rocket Purple: #8B3A9C
+
+2. DARK MODE COLORS
+   Background: bg-gray-900
+   Cards: bg-gray-800
+   Borders: border-gray-700
+   Text: text-white
+   Secondary Text: text-gray-400
+
+3. SPACING
+   Container: max-w-md mx-auto
+   Bottom Padding: pb-20 (for bottom nav)
+   Section Spacing: space-y-2 to space-y-4
+
+4. TYPOGRAPHY
+   Headings: text-xl to text-2xl, font-bold
+   Body: text-sm to text-base
+   Secondary: text-xs, text-gray-600
+
+5. COMPONENTS
+   Buttons: rounded-lg to rounded-xl
+   Cards: rounded-xl with border
+   Icons: w-5 h-5 (standard), w-6 h-6 (large)
+
+
+DARK MODE IMPLEMENTATION
+================================================================================
+
+1. CONFIGURATION
+   - Tailwind config: darkMode: 'class'
+   - Main container adds 'dark' class when enabled
+   - All components use dark: prefix for dark styles
+
+2. USAGE PATTERN
+   className={`bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
+
+3. COMMON PATTERNS
+   - Backgrounds: bg-white → dark:bg-gray-800
+   - Text: text-gray-900 → dark:text-white
+   - Secondary: text-gray-600 → dark:text-gray-400
+   - Borders: border-gray-200 → dark:border-gray-700
+   - Hover: hover:bg-gray-50 → dark:hover:bg-gray-700
+
+
+BACKEND INTEGRATION GUIDE
+================================================================================
+
+1. API ENDPOINTS (Recommended Structure)
+   
+   Authentication:
+   POST /api/auth/login
+   POST /api/auth/signup
+   POST /api/auth/forgot-password
+   POST /api/auth/verify-otp
+   POST /api/auth/reset-password
+   
+   User Profile:
+   GET /api/user/profile
+   PUT /api/user/profile
+   POST /api/user/profile/image
+   
+   Addresses:
+   GET /api/user/addresses
+   POST /api/user/addresses
+   PUT /api/user/addresses/:id
+   DELETE /api/user/addresses/:id
+   
+   Products:
+   GET /api/products
+   GET /api/products/:id
+   GET /api/products/search?q=
+   GET /api/products/category/:category
+   
+   Cart:
+   GET /api/cart
+   POST /api/cart/add
+   PUT /api/cart/update/:id
+   DELETE /api/cart/remove/:id
+   
+   Orders:
+   GET /api/orders
+   GET /api/orders/:id
+   POST /api/orders/create
+   GET /api/orders/:id/track
+   
+   Wishlist:
+   GET /api/wishlist
+   POST /api/wishlist/add/:productId
+   DELETE /api/wishlist/remove/:productId
+
+2. INTEGRATION POINTS
+   - Replace callback functions with API calls
+   - Add loading states
+   - Implement error handling
+   - Add token management (localStorage/cookies)
+   - Use axios or fetch for HTTP requests
+
+3. EXAMPLE INTEGRATION
+   ```javascript
+   const handleLogin = async (credentials) => {
+     try {
+       const response = await fetch('/api/auth/login', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(credentials)
+       });
+       const data = await response.json();
+       setIsLoggedIn(true);
+       setUserName(data.firstName);
+       localStorage.setItem('token', data.token);
+     } catch (error) {
+       showToast('Login failed', 'error');
+     }
+   };
+   ```
+
+
+BEST PRACTICES
+================================================================================
+
+1. CODE ORGANIZATION
+   - One component per file
+   - Descriptive component names
+   - Props destructuring
+   - Consistent file naming (PascalCase)
+
+2. STATE MANAGEMENT
+   - Keep state as close to usage as possible
+   - Lift state up when needed
+   - Use callbacks for child-to-parent communication
+   - Consider Context API for deeply nested props
+
+3. PERFORMANCE
+   - Use React.memo for expensive components
+   - Implement lazy loading for routes
+   - Optimize images (WebP format)
+   - Minimize re-renders
+
+4. ACCESSIBILITY
+   - Semantic HTML elements
+   - ARIA labels where needed
+   - Keyboard navigation support
+   - Sufficient color contrast
+
+5. SECURITY
+   - Never store sensitive data in localStorage
+   - Validate all user inputs
+   - Sanitize data before display
+   - Use HTTPS for API calls
+   - Implement CSRF protection
+
+
+DEPLOYMENT CHECKLIST
+================================================================================
+
+1. PRE-DEPLOYMENT
+   ☐ Remove console.log statements
+   ☐ Update API endpoints to production URLs
+   ☐ Configure environment variables
+   ☐ Test all user flows
+   ☐ Verify responsive design
+   ☐ Test dark mode on all pages
+   ☐ Optimize images and assets
+   ☐ Run production build
+
+2. BUILD COMMAND
+   npm run build
+
+3. ENVIRONMENT VARIABLES
+   VITE_API_BASE_URL=https://api.treestore.com
+   VITE_GOOGLE_CLIENT_ID=your_client_id
+   VITE_STRIPE_PUBLIC_KEY=your_key
+
+4. HOSTING OPTIONS
+   - Vercel (Recommended for Vite)
+   - Netlify
+   - AWS Amplify
+   - Firebase Hosting
+
+
+TROUBLESHOOTING
+================================================================================
+
+1. Dark Mode Not Working
+   - Check Tailwind config has darkMode: 'class'
+   - Verify 'dark' class is added to root container
+   - Ensure components use dark: prefix
+
+2. Routes Not Working
+   - Verify React Router is properly configured
+   - Check base path matches deployment path
+   - Ensure BrowserRouter wraps the app
+
+3. State Not Updating
+   - Check if state is being mutated directly
+   - Verify callback functions are passed correctly
+   - Use React DevTools to inspect state
+
+4. Images Not Loading
+   - Check image URLs are correct
+   - Verify CORS settings for external images
+   - Use ImageWithFallback component
+
+
+FUTURE ENHANCEMENTS
+================================================================================
+
+1. PLANNED FEATURES
+   - Push notifications
+   - Social media sharing
+   - Product comparison
+   - Advanced filters
+   - Voice search
+   - AR plant preview
+   - Subscription service
+   - Loyalty program
+
+2. TECHNICAL IMPROVEMENTS
+   - Implement Redux for state management
+   - Add unit tests (Jest + React Testing Library)
+   - Implement E2E tests (Cypress)
+   - Add PWA support
+   - Implement code splitting
+   - Add analytics (Google Analytics/Mixpanel)
+   - Implement error boundary
+   - Add Sentry for error tracking
+
+
+CONTACT & SUPPORT
+================================================================================
+
+For technical questions or contributions:
+- Repository: [GitHub URL]
+- Documentation: [Docs URL]
+- Issue Tracker: [Issues URL]
+
+Development Team:
+- Frontend Lead: [Name]
+- Backend Lead: [Name]
+- UI/UX Designer: [Name]
+
+Last Updated: December 2024
+Version: 1.0.0
+
+================================================================================
+                        END OF DOCUMENTATION
+================================================================================
