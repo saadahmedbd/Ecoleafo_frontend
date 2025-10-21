@@ -2,14 +2,9 @@ import { ArrowLeft, MapPin, CheckCircle2, Edit2, Plus, ChevronRight, Truck, Cale
 import { useState } from "react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 
-export default function CheckoutPage({ items, onBack, onPlaceOrder }) {
-  const [selectedAddress, setSelectedAddress] = useState("home");
+export default function CheckoutPage({ items, onBack, onPlaceOrder, addresses = [], onAddAddress }) {
+  const [selectedAddress, setSelectedAddress] = useState(addresses[0]?.id || null);
   const [selectedDelivery, setSelectedDelivery] = useState("standard");
-
-  const addresses = [
-    { id: "home", label: "Home", address: "123 Oak Street, Springfield, IL 62701" },
-    { id: "work", label: "Work", address: "456 Pine Avenue, Chicago, IL 60601" },
-  ];
 
   const deliveryOptions = [
     { 
@@ -52,38 +47,54 @@ export default function CheckoutPage({ items, onBack, onPlaceOrder }) {
             <MapPin className="w-5 h-5 text-[#059669]" />
             <h2 className="font-medium">Delivery Address</h2>
           </div>
-          <button className="text-[#059669] text-sm flex items-center gap-1">
+          <button
+            onClick={onAddAddress}
+            className="text-[#059669] text-sm flex items-center gap-1 hover:underline"
+          >
             <Plus className="w-4 h-4" />
             Add New
           </button>
         </div>
         <div className="space-y-2">
-          {addresses.map((addr) => (
-            <button
-              key={addr.id}
-              onClick={() => setSelectedAddress(addr.id)}
-              className={`w-full text-left p-3 rounded-lg border transition-all ${
-                selectedAddress === addr.id
-                  ? "border-[#059669] bg-[#059669]/5"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-medium">{addr.label}</h3>
-                    {selectedAddress === addr.id && (
-                      <span className="text-xs bg-[#059669] text-white px-2 py-0.5 rounded">Default</span>
-                    )}
+          {addresses.length === 0 ? (
+            <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+              <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+              <p className="text-sm text-gray-600 mb-3">No delivery address added</p>
+              <button
+                onClick={onAddAddress}
+                className="text-[#059669] text-sm font-medium hover:underline"
+              >
+                Add your first address
+              </button>
+            </div>
+          ) : (
+            addresses.map((addr) => (
+              <button
+                key={addr.id}
+                onClick={() => setSelectedAddress(addr.id)}
+                className={`w-full text-left p-3 rounded-lg border transition-all ${
+                  selectedAddress === addr.id
+                    ? "border-[#059669] bg-[#059669]/5"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-sm font-medium">{addr.label}</h3>
+                      {addr.is_default && (
+                        <span className="text-xs bg-[#059669] text-white px-2 py-0.5 rounded">Default</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600">{addr.fullName} - {addr.phone}</p>
+                    <p className="text-xs text-gray-600">{addr.address_line1}, {addr.address_line2}</p>
+                    <p className="text-xs text-gray-600">{addr.street}, {addr.city}</p>
+                    <p className="text-xs text-gray-600">{addr.district}, {addr.state} - {addr.postal_code}</p>
                   </div>
-                  <p className="text-xs text-gray-600">{addr.address}</p>
                 </div>
-                <button className="p-1 hover:bg-gray-100 rounded">
-                  <Edit2 className="w-4 h-4 text-gray-500" />
-                </button>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))
+          )}
         </div>
       </div>
 

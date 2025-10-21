@@ -22,6 +22,7 @@ import LoginPage from "./Components/LoginPage";
 import SignUpPage from "./Components/SignUpPage";
 import ForgotPassword from "./Components/ForgotPassword";
 import EditProfile from "./Components/EditProfile";
+import ManageAddresses from "./Components/ManageAddresses";
 
 const mockProducts = [
   { id: 1, name: "Oak Tree", price: 89, originalPrice: 120, image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=200&h=200&fit=crop", category: "Oak", inStock: true, rating: 4.5, reviews: 120 },
@@ -57,6 +58,38 @@ export default function MobileApp() {
     phone: "+1 234 567 8900",
     profileImage: null
   });
+  const [addresses, setAddresses] = useState([
+    {
+      id: 1,
+      label: "Home",
+      fullName: "Saad Ahmad",
+      phone: "+880 1234 567890",
+      address_line1: "ss road",
+      address_line2: "sirajganj",
+      street: "janpur bankpara",
+      city: "sirajganj",
+      district: "rajshahi",
+      state: "Rajshahi Division",
+      country: "Bangladesh",
+      postal_code: "5700",
+      is_default: true
+    },
+    {
+      id: 2,
+      label: "Work",
+      fullName: "Saad Ahmad",
+      phone: "+880 1234 567890",
+      address_line1: "Mirpur Road",
+      address_line2: "Dhaka",
+      street: "Block A, House 10",
+      city: "Dhaka",
+      district: "Dhaka",
+      state: "Dhaka Division",
+      country: "Bangladesh",
+      postal_code: "1216",
+      is_default: false
+    }
+  ]);
 
   const generateOrderId = () => {
     return "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -214,6 +247,7 @@ export default function MobileApp() {
             onSignUpClick={() => navigate("/mobile/signup")}
             onGuestContinue={() => navigate("/mobile/home")}
             onEditProfileClick={() => navigate("/mobile/edit-profile")}
+            onManageAddressesClick={() => navigate("/mobile/manage-addresses")}
             isLoggedIn={isLoggedIn}
             userName={userName}
             userProfile={userProfile}
@@ -264,11 +298,33 @@ export default function MobileApp() {
             }}
           />
         } />
+        <Route path="manage-addresses" element={
+          <ManageAddresses
+            onBack={() => navigate("/mobile/account")}
+            addresses={addresses}
+            onSave={(addressData, editingId, isDelete) => {
+              if (isDelete) {
+                setAddresses(addresses.filter(addr => addr.id !== editingId));
+                showToast("Address deleted successfully!", "cart");
+              } else if (editingId) {
+                setAddresses(addresses.map(addr => 
+                  addr.id === editingId ? addressData : addr
+                ));
+                showToast("Address updated successfully!", "cart");
+              } else {
+                setAddresses([...addresses, addressData]);
+                showToast("Address added successfully!", "cart");
+              }
+            }}
+          />
+        } />
         <Route path="checkout" element={
           <CheckoutPage
             items={cart}
+            addresses={addresses}
             onBack={() => navigate("/mobile/cart")}
             onPlaceOrder={() => navigate("/mobile/payment")}
+            onAddAddress={() => navigate("/mobile/manage-addresses")}
           />
         } />
         <Route path="payment" element={

@@ -19,7 +19,7 @@ import { useState } from "react";
 /**
  * AccountPage component - user account management page
  */
-export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, onEditProfileClick, isLoggedIn = false, userName = "", userProfile = {} }) {
+export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, onEditProfileClick, onManageAddressesClick, isLoggedIn = false, userName = "", userProfile = {} }) {
   const [expandedSection, setExpandedSection] = useState(null);
 
   const toggleSection = (section) => {
@@ -145,7 +145,7 @@ export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, 
         {/* Addresses */}
         <div className="bg-white rounded-xl overflow-hidden border border-border">
           <button
-            onClick={() => toggleSection("addresses")}
+            onClick={onManageAddressesClick}
             className="w-full px-4 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center gap-3">
