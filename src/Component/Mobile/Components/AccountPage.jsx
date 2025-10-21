@@ -19,7 +19,7 @@ import { useState } from "react";
 /**
  * AccountPage component - user account management page
  */
-export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, isLoggedIn = false, userName = "" }) {
+export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, onEditProfileClick, isLoggedIn = false, userName = "", userProfile = {} }) {
   const [expandedSection, setExpandedSection] = useState(null);
 
   const toggleSection = (section) => {
@@ -114,16 +114,27 @@ export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, 
         </div>
         
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
-            <User className="w-10 h-10 text-[#059669]" />
-          </div>
+          {userProfile.profileImage ? (
+            <img
+              src={userProfile.profileImage}
+              alt="Profile"
+              className="w-20 h-20 rounded-full object-cover border-2 border-white"
+            />
+          ) : (
+            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
+              <User className="w-10 h-10 text-[#059669]" />
+            </div>
+          )}
           <div className="text-white">
-            <h1 className="text-xl mb-1">Saad Ahmad</h1>
-            <p className="text-sm opacity-90">saad@example.com</p>
-            <p className="text-sm opacity-90">+1 234 567 8900</p>
+            <h1 className="text-xl mb-1">{userProfile.firstName} {userProfile.lastName}</h1>
+            <p className="text-sm opacity-90">{userProfile.email}</p>
+            <p className="text-sm opacity-90">{userProfile.phone}</p>
           </div>
         </div>
-        <button className="w-full bg-white/20 hover:bg-white/30 text-white py-2 rounded-lg flex items-center justify-center gap-2 backdrop-blur-sm transition-colors">
+        <button
+          onClick={onEditProfileClick}
+          className="w-full bg-white/20 hover:bg-white/30 text-white py-2 rounded-lg flex items-center justify-center gap-2 backdrop-blur-sm transition-colors"
+        >
           <Edit className="w-4 h-4" />
           Edit Profile
         </button>

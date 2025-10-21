@@ -21,6 +21,7 @@ import TrackOrder from "./Components/TrackOrder";
 import LoginPage from "./Components/LoginPage";
 import SignUpPage from "./Components/SignUpPage";
 import ForgotPassword from "./Components/ForgotPassword";
+import EditProfile from "./Components/EditProfile";
 
 const mockProducts = [
   { id: 1, name: "Oak Tree", price: 89, originalPrice: 120, image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=200&h=200&fit=crop", category: "Oak", inStock: true, rating: 4.5, reviews: 120 },
@@ -49,6 +50,13 @@ export default function MobileApp() {
   const [lastOrderId, setLastOrderId] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [userProfile, setUserProfile] = useState({
+    firstName: "Saad",
+    lastName: "Ahmad",
+    email: "saad@example.com",
+    phone: "+1 234 567 8900",
+    profileImage: null
+  });
 
   const generateOrderId = () => {
     return "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -205,8 +213,10 @@ export default function MobileApp() {
             onLoginClick={() => navigate("/mobile/login")}
             onSignUpClick={() => navigate("/mobile/signup")}
             onGuestContinue={() => navigate("/mobile/home")}
+            onEditProfileClick={() => navigate("/mobile/edit-profile")}
             isLoggedIn={isLoggedIn}
             userName={userName}
+            userProfile={userProfile}
           />
         } />
         <Route path="login" element={
@@ -239,6 +249,18 @@ export default function MobileApp() {
             onResetSuccess={() => {
               showToast("Password reset successful!", "cart");
               navigate("/mobile/login");
+            }}
+          />
+        } />
+        <Route path="edit-profile" element={
+          <EditProfile
+            onBack={() => navigate("/mobile/account")}
+            userProfile={userProfile}
+            onSave={(profileData) => {
+              setUserProfile(profileData);
+              setUserName(profileData.firstName);
+              showToast("Profile updated successfully!", "cart");
+              navigate("/mobile/account");
             }}
           />
         } />
