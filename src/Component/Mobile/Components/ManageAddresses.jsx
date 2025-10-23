@@ -1,45 +1,99 @@
 import { ArrowLeft, MapPin, Home, Briefcase, Plus, Edit2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+// import { addressAPI } from "../../../services/addressAPI"; // Import the address API service
+
+import { addressAPI } from "../../../services/addressAPI";
 
 /**
- * ManageAddresses Component
+ * ManageAddresses Component - Connected to Backend
  * Allows users to view, add, edit, and delete their saved addresses
  * Used for delivery address management in checkout flow
  */
-export default function ManageAddresses({ onBack, addresses = [], onSave }) {
+export default function ManageAddresses({ onBack, showToast }) {
+  // State to store addresses fetched from backend
+  const [addresses, setAddresses] = useState([]);
+  
   // State to track which address is being edited (null means adding new)
   const [editingId, setEditingId] = useState(null);
   
   // State to control add/edit form visibility
   const [showForm, setShowForm] = useState(false);
   
+  // Loading and error states
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  
   // Form state for address fields
   const [formData, setFormData] = useState({
-    label: "Home", // Address label (Home, Work, Other)
-    fullName: "",
+    label: "Home",
+    full_name: "",
     phone: "",
-    address_line1: "",
-    address_line2: "",
+    address_line_1: "",
+    address_line_2: "",
     street: "",
     city: "",
     district: "",
     state: "",
     country: "Bangladesh",
     postal_code: "",
-    is_default: false // Mark as default delivery address
+    is_default: false
   });
 
   /**
+   * Fetch addresses on component mount
+   */
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  /**
+   * Fetch all addresses from backend
+   */
+ const fetchAddresses = async () => {
+  setLoading(true);
+  setError(null);
+
+  const result = await addressAPI.getAddresses();
+
+  if (result.success) {
+    // Handle both formats: { addresses: [...] } or just [...]
+    const transformedAddresses = (result.data?.addresses || result.data || []).map(addr => ({
+      id: addr.id,
+      label: addr.label,
+      full_name: addr.full_name,
+      phone: addr.phone,
+      address_line_1: addr.address_line_1,
+      address_line_2: addr.address_line_2,
+      street: addr.street,
+      city: addr.city,
+      district: addr.district,
+      state: addr.state,
+      country: addr.country,
+      postal_code: addr.postal_code,
+      isDefault: addr.is_default
+    }));
+
+    setAddresses(transformedAddresses);
+  } else {
+    setError(result.error || "Failed to load addresses");
+    showToast && showToast("Failed to load addresses", "cart");
+  }
+
+  setLoading(false);
+};
+
+
+  /**
    * Handle opening form for adding new address
-   * Resets form data and shows the form
    */
   const handleAddNew = () => {
     setFormData({
       label: "Home",
-      fullName: "",
+      full_name: "",
       phone: "",
-      address_line1: "",
-      address_line2: "",
+      address_line_1: "",
+      address_line_2: "",
       street: "",
       city: "",
       district: "",
@@ -54,48 +108,107 @@ export default function ManageAddresses({ onBack, addresses = [], onSave }) {
 
   /**
    * Handle opening form for editing existing address
-   * Pre-fills form with selected address data
    */
   const handleEdit = (address) => {
-    setFormData(address);
+    setFormData({
+      label: address.label,
+      full_name: address.full_name,
+      phone: address.phone,
+      address_line_1: address.address_line_1,
+      address_line_2: address.address_line_2,
+      street: address.street,
+      city: address.city,
+      district: address.district,
+      state: address.state,
+      country: address.country,
+      postal_code: address.postal_code,
+      is_default: address.isDefault
+    });
     setEditingId(address.id);
     setShowForm(true);
   };
 
   /**
    * Handle form submission for add/edit
-   * Validates data and calls parent onSave callback
    */
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     
-    // Create address object with unique ID
-    const addressData = {
-      ...formData,
-      id: editingId || Date.now() // Use existing ID or generate new one
-    };
+    let result;
     
-    // Call parent callback to save address
-    onSave(addressData, editingId);
+    if (editingId) {
+      // Update existing address
+      result = await addressAPI.updateAddress(editingId, formData);
+    } else {
+      // Create new address
+      result = await addressAPI.createAddress(formData);
+    }
     
-    // Reset form and close
-    setShowForm(false);
-    setEditingId(null);
+    if (result.success) {
+      showToast && showToast(
+        editingId ? "Address updated successfully!" : "Address added successfully!",
+        "cart"
+      );
+      
+      // Refresh addresses list
+      await fetchAddresses();
+      
+      // Reset form and close
+      setShowForm(false);
+      setEditingId(null);
+    } else {
+      showToast && showToast(
+        result.error || "Failed to save address",
+        "cart"
+      );
+    }
+    
+    setSubmitting(false);
   };
 
   /**
    * Handle deleting an address
-   * Confirms with user before deletion
    */
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this address?")) {
-      onSave(null, id, true); // Pass true flag for deletion
+      const result = await addressAPI.deleteAddress(id);
+      
+      if (result.success) {
+        showToast && showToast("Address deleted successfully!", "cart");
+        
+        // Refresh addresses list
+        await fetchAddresses();
+      } else {
+        showToast && showToast(
+          result.error || "Failed to delete address",
+          "cart"
+        );
+      }
+    }
+  };
+
+  /**
+   * Handle setting address as default
+   */
+  const handleSetDefault = async (id) => {
+    const result = await addressAPI.setDefaultAddress(id);
+    
+    if (result.success) {
+      showToast && showToast("Default address updated!", "cart");
+      
+      // Refresh addresses list
+      await fetchAddresses();
+    } else {
+      showToast && showToast(
+        result.error || "Failed to set default address",
+        "cart"
+      );
     }
   };
 
   /**
    * Handle input field changes
-   * Updates form state dynamically
    */
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -112,8 +225,29 @@ export default function ManageAddresses({ onBack, addresses = [], onSave }) {
       </div>
 
       <div className="px-4 py-4">
-        {/* Show address list when form is hidden */}
-        {!showForm ? (
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#059669] mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading addresses...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-600">{error}</p>
+            <button
+              onClick={fetchAddresses}
+              className="text-red-600 underline mt-2"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        {/* Show address list when form is hidden and not loading */}
+        {!showForm && !loading && (
           <>
             {/* Address List Section */}
             <div className="space-y-3 mb-4">
@@ -170,14 +304,24 @@ export default function ManageAddresses({ onBack, addresses = [], onSave }) {
 
                     {/* Address Details */}
                     <div className="text-sm text-gray-600 space-y-1">
-                      <p className="font-medium text-gray-900">{address.fullName}</p>
+                      <p className="font-medium text-gray-900">{address.full_name}</p>
                       <p>{address.phone}</p>
-                      <p>{address.address_line1}</p>
-                      {address.address_line2 && <p>{address.address_line2}</p>}
+                      <p>{address.address_line_1}</p>
+                      {address.address_line_2 && <p>{address.address_line_2}</p>}
                       <p>{address.street}</p>
                       <p>{address.city}, {address.district}</p>
                       <p>{address.state}, {address.country} - {address.postal_code}</p>
                     </div>
+
+                    {/* Set as Default Button */}
+                    {!address.isDefault && (
+                      <button
+                        onClick={() => handleSetDefault(address.id)}
+                        className="mt-3 text-sm text-[#059669] hover:underline"
+                      >
+                        Set as default
+                      </button>
+                    )}
                   </div>
                 ))
               )}
@@ -192,10 +336,11 @@ export default function ManageAddresses({ onBack, addresses = [], onSave }) {
               Add New Address
             </button>
           </>
-        ) : (
-          /* Add/Edit Address Form */
+        )}
+
+        {/* Add/Edit Address Form */}
+        {showForm && (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Form Title */}
             <h2 className="text-lg font-medium mb-4">
               {editingId ? "Edit Address" : "Add New Address"}
             </h2>
@@ -388,21 +533,21 @@ export default function ManageAddresses({ onBack, addresses = [], onSave }) {
 
             {/* Form Action Buttons */}
             <div className="flex gap-3 pt-4">
-              {/* Cancel Button */}
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
                 className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 transition-colors font-medium"
+                disabled={submitting}
               >
                 Cancel
               </button>
               
-              {/* Save Button */}
               <button
                 type="submit"
-                className="flex-1 bg-[#059669] text-white py-3 rounded-xl hover:bg-[#047857] transition-colors font-medium"
+                className="flex-1 bg-[#059669] text-white py-3 rounded-xl hover:bg-[#047857] transition-colors font-medium disabled:opacity-50"
+                disabled={submitting}
               >
-                {editingId ? "Update" : "Save"} Address
+                {submitting ? "Saving..." : editingId ? "Update Address" : "Save Address"}
               </button>
             </div>
           </form>

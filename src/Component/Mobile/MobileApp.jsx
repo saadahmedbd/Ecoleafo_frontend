@@ -62,38 +62,7 @@ export default function MobileApp() {
     phone: "",
     profileImage: null
   });
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      label: "Home",
-      fullName: "Saad Ahmad",
-      phone: "+880 1234 567890",
-      address_line1: "ss road",
-      address_line2: "sirajganj",
-      street: "janpur bankpara",
-      city: "sirajganj",
-      district: "rajshahi",
-      state: "Rajshahi Division",
-      country: "Bangladesh",
-      postal_code: "5700",
-      is_default: true
-    },
-    {
-      id: 2,
-      label: "Work",
-      fullName: "Saad Ahmad",
-      phone: "+880 1234 567890",
-      address_line1: "Mirpur Road",
-      address_line2: "Dhaka",
-      street: "Block A, House 10",
-      city: "Dhaka",
-      district: "Dhaka",
-      state: "Dhaka Division",
-      country: "Bangladesh",
-      postal_code: "1216",
-      is_default: false
-    }
-  ]);
+ 
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -346,24 +315,11 @@ export default function MobileApp() {
             }}
           />
         } />
+       
         <Route path="manage-addresses" element={
           <ManageAddresses
             onBack={() => navigate("/mobile/account")}
-            addresses={addresses}
-            onSave={(addressData, editingId, isDelete) => {
-              if (isDelete) {
-                setAddresses(addresses.filter(addr => addr.id !== editingId));
-                showToast("Address deleted successfully!", "cart");
-              } else if (editingId) {
-                setAddresses(addresses.map(addr => 
-                  addr.id === editingId ? addressData : addr
-                ));
-                showToast("Address updated successfully!", "cart");
-              } else {
-                setAddresses([...addresses, addressData]);
-                showToast("Address added successfully!", "cart");
-              }
-            }}
+            showToast={showToast}
           />
         } />
         <Route path="security-settings" element={
@@ -378,7 +334,7 @@ export default function MobileApp() {
         <Route path="checkout" element={
           <CheckoutPage
             items={cart}
-            addresses={addresses}
+            
             onBack={() => navigate("/mobile/cart")}
             onPlaceOrder={() => navigate("/mobile/payment")}
             onAddAddress={() => navigate("/mobile/manage-addresses")}
