@@ -63,19 +63,30 @@ export default function MobileApp() {
     profileImage: null
   });
  
-
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
+  
+// Update the useEffect to load profile data properly
+useEffect(() => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
         const user = JSON.parse(userData);
-        setUserProfile(user);
-        setUserName(user.firstName);
+        setUserProfile({
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          email: user.email || "",
+          phone: user.phone || "",
+          profileImage: user.profileImage || null
+        });
+        setUserName(user.firstName || "User");
         setIsLoggedIn(true);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
       }
     }
-  }, []);
+  }
+}, []);
 
   const generateOrderId = () => {
     return "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -226,45 +237,59 @@ export default function MobileApp() {
             onProductClick={handleProductClick}
           />
         } />
-        <Route path="account" element={
-          <AccountPage
-            onHelpClick={() => navigate("/mobile/help")}
-            onLoginClick={() => navigate("/mobile/login")}
-            onSignUpClick={() => navigate("/mobile/signup")}
-            onGuestContinue={() => navigate("/mobile/home")}
-            onEditProfileClick={() => navigate("/mobile/edit-profile")}
-            onManageAddressesClick={() => navigate("/mobile/manage-addresses")}
-            onSecurityClick={() => navigate("/mobile/security-settings")}
-            onLogout={() => {
-              setIsLoggedIn(false);
-              setUserName("");
-              setUserProfile({ firstName: "", lastName: "", email: "", phone: "", profileImage: null });
-              showToast("Logged out successfully!", "cart");
-              navigate("/mobile/home");
-            }}
-            darkMode={darkMode}
-            onToggleDarkMode={() => setDarkMode(!darkMode)}
-            isLoggedIn={isLoggedIn}
-            userName={userName}
-            userProfile={userProfile}
-          />
-        } />
+        / Update the logout function in AccountPage route
+            <Route path="account" element={
+              <AccountPage
+                onHelpClick={() => navigate("/mobile/help")}
+                onLoginClick={() => navigate("/mobile/login")}
+                onSignUpClick={() => navigate("/mobile/signup")}
+                onGuestContinue={() => navigate("/mobile/home")}
+                onEditProfileClick={() => navigate("/mobile/edit-profile")}
+                onManageAddressesClick={() => navigate("/mobile/manage-addresses")}
+                onSecurityClick={() => navigate("/mobile/security-settings")}
+                onLogout={() => {
+                  // Clear all auth data
+                  localStorage.removeItem('authToken');
+                  localStorage.removeItem('userData');
+                  setIsLoggedIn(false);
+                  setUserName("");
+                  setUserProfile({ 
+                    firstName: "", 
+                    lastName: "", 
+                    email: "", 
+                    phone: "", 
+                    profileImage: null 
+                  });
+                  showToast("Logged out successfully!", "cart");
+                  navigate("/mobile/home");
+                }}
+                darkMode={darkMode}
+                onToggleDarkMode={() => setDarkMode(!darkMode)}
+                isLoggedIn={isLoggedIn}
+                userName={userName}
+                userProfile={userProfile}
+              />
+            } />
+
+        
+      // Update the login route to properly set profile
         <Route path="login" element={
           <LoginPage
             onBack={() => navigate("/mobile/account")}
             onLogin={(userData) => {
               localStorage.setItem('authToken', userData.token);
               const profile = {
-                firstName: userData.firstName,
-                lastName: userData.lastName,
-                email: userData.email,
-                phone: "",
-                profileImage: null
+                firstName: userData.firstName || "",
+                lastName: userData.lastName || "",
+                email: userData.email || "",
+                phone: userData.phone || "",
+                profileImage: userData.profileImage || null
               };
               localStorage.setItem('userData', JSON.stringify(profile));
               setIsLoggedIn(true);
               setUserName(userData.firstName || "User");
               setUserProfile(profile);
+              showToast("Login successful!", "cart");
               navigate("/mobile/home");
             }}
             onSignUpClick={() => navigate("/mobile/signup")}
@@ -273,6 +298,7 @@ export default function MobileApp() {
             showToast={showToast}
           />
         } />
+
         <Route path="signup" element={
           <SignUpPage
             onBack={() => navigate("/mobile/account")}
@@ -303,18 +329,41 @@ export default function MobileApp() {
             }}
           />
         } />
-        <Route path="edit-profile" element={
-          <EditProfile
-            onBack={() => navigate("/mobile/account")}
-            userProfile={userProfile}
-            onSave={(profileData) => {
-              setUserProfile(profileData);
-              setUserName(profileData.firstName);
-              showToast("Profile updated successfully!", "cart");
-              navigate("/mobile/account");
-            }}
-          />
-        } />
+                // Update the edit-profile route with proper prop passing
+          <Route path="edit-profile" element={
+            <EditProfile
+              onBack={() => {
+                // Reload profile data when going back
+                const userData = localStorage.getItem('userData');
+                if (userData) {
+                  try {
+                    const user = JSON.parse(userData);
+                    setUserProfile(user);
+                    setUserName(user.firstName || "User");
+                  } catch (error) {
+                    console.error("Error loading profile:", error);
+                  }
+                }
+                navigate("/mobile/account");
+              }}
+              userProfile={userProfile}
+              onSave={(updatedProfile) => {
+                console.log("Profile saved:", updatedProfile);
+                // Update all state with new profile data
+                setUserProfile({
+                  firstName: updatedProfile.firstName || "",
+                  lastName: updatedProfile.lastName || "",
+                  email: updatedProfile.email || "",
+                  phone: updatedProfile.phone || "",
+                  profileImage: updatedProfile.profileImage || null
+                });
+                setUserName(updatedProfile.firstName || "User");
+                // Show success toast
+                showToast("Profile updated successfully!", "cart");
+              }}
+              showToast={showToast}
+            />
+          } />
        
         <Route path="manage-addresses" element={
           <ManageAddresses
