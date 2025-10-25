@@ -1,0 +1,362 @@
+# Backend Integration Guide
+
+Complete guide to connect your React frontend with Go backend API.
+
+## 📁 File Structure
+
+```
+src/
+├── services/
+│   ├── cartService.js           # Cart API calls
+│   ├── wishlistService.js       # Wishlist API calls
+│   ├── saveForLaterService.js   # Save for later API calls
+│   └── index.js                 # Service exports
+├── Components/
+│   ├── CartPage.jsx             # Cart page (integrated)
+│   ├── WishlistPage.jsx         # Wishlist page (integrated)
+│   ├── CheckoutPage.jsx         # Checkout page (integrated)
+│   └── MobileApp.jsx            # Main app (integrated)
+└── ...
+```
+
+## 🚀 Setup Instructions
+
+### Step 1: Create Services Folder
+
+```bash
+mkdir src/services
+```
+
+### Step 2: Add Service Files
+
+Create the following files in `src/services/`:
+
+1. **cartService.js** - Cart API operations
+2. **wishlistService.js** - Wishlist API operations
+3. **saveForLaterService.js** - Save for later operations
+4. **index.js** - Central export point
+
+### Step 3: Update Components
+
+Replace or update these component files:
+
+1. **CartPage.jsx** - Backend integrated cart
+2. **WishlistPage.jsx** - Backend integrated wishlist
+3. **CheckoutPage.jsx** - Backend integrated checkout
+4. **MobileApp.jsx** - Main app with API integration
+
+### Step 4: Configure Backend URL
+
+In each service file, update the API base URL if different:
+
+```javascript
+const API_BASE_URL = 'http://localhost:3000'; // Change if needed
+```
+
+### Step 5: Enable CORS on Backend
+
+Your Go backend must allow requests from your frontend origin:
+
+```go
+// Add CORS middleware in your Go backend
+func corsMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // Your frontend URL
+        w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        w.Header().Set("Access-Control-Allow-Credentials", "true")
+        
+        if r.Method == "OPTIONS" {
+            w.WriteHeader(http.StatusOK)
+            return
+        }
+        
+        next.ServeHTTP(w, r)
+    })
+}
+```
+
+## 🔑 Authentication Flow
+
+### Login Process
+
+1. User logs in via `LoginPage.jsx`
+2. Backend returns JWT token
+3. Token stored in `localStorage`:
+   ```javascript
+   localStorage.setItem('authToken', token);
+   ```
+4. All API calls include token in Authorization header
+
+### API Request Headers
+
+```javascript
+headers: {
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${token}`
+}
+```
+
+## 📡 API Endpoints Used
+
+### Cart Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/cart` | Add item to cart |
+| GET | `/api/get/cart` | Get cart items |
+| GET | `/api/cart/summary` | Get cart summary |
+| PUT | `/api/cart/{productId}` | Update cart item |
+| DELETE | `/api/cart/{productId}` | Remove from cart |
+| DELETE | `/api/cart` | Clear entire cart |
+| POST | `/api/cart/{productId}/increment` | Increase quantity |
+| POST | `/api/cart/{productId}/decrement` | Decrease quantity |
+| GET | `/api/cart/count` | Get item count |
+| GET | `/api/cart/total` | Get cart total |
+| GET | `/api/cart/validate` | Validate cart |
+
+### Wishlist Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/wishlist` | Add to wishlist |
+| GET | `/api/wishlist` | Get wishlist items |
+| DELETE | `/api/wishlist/{productId}` | Remove from wishlist |
+| POST | `/api/wishlist/{productId}/move-to-cart` | Move to cart |
+| POST | `/api/cart/{productId}/move-to-wishlist` | Move to wishlist |
+
+### Save For Later Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/cart/{productId}/save-later` | Save for later |
+| GET | `/api/cart/saved-for-later` | Get saved items |
+| POST | `/api/cart/{productId}/move-to-cart` | Move to cart |
+
+## 💡 Usage Examples
+
+### Add Item to Cart
+
+```javascript
+import { addToCart } from './services/cartService';
+
+try {
+  await addToCart(productId, 1, false, '');
+  console.log('Item added to cart');
+} catch (error) {
+  console.error('Error:', error);
+}
+```
+
+### Get Cart Items
+
+```javascript
+import { getCart } from './services/cartService';
+
+try {
+  const cartData = await getCart();
+  console.log('Cart items:', cartData.items);
+} catch (error) {
+  console.error('Error:', error);
+}
+```
+
+### Update Quantity
+
+```javascript
+import { updateCartItem } from './services/cartService';
+
+try {
+  await updateCartItem(productId, newQuantity);
+  console.log('Quantity updated');
+} catch (error) {
+  console.error('Error:', error);
+}
+```
+
+### Add to Wishlist
+
+```javascript
+import { addToWishlist } from './services/wishlistService';
+
+try {
+  await addToWishlist(productId);
+  console.log('Added to wishlist');
+} catch (error) {
+  console.error('Error:', error);
+}
+```
+
+### Move Wishlist to Cart
+
+```javascript
+import { moveWishlistToCart } from './services/wishlistService';
+
+try {
+  await moveWishlistToCart(productId);
+  console.log('Moved to cart');
+} catch (error) {
+  console.error('Error:', error);
+}
+```
+
+## 🔄 Data Flow
+
+### Cart Operations Flow
+
+1. **User Action** → Click "Add to Cart"
+2. **Component** → Calls `handleAddToCart(product)`
+3. **Service** → `addToCart(productId, quantity)`
+4. **Backend** → Processes request, updates database
+5. **Response** → Success/error message
+6. **Update UI** → Reload cart data from backend
+7. **Feedback** → Show toast notification
+
+### Wishlist Operations Flow
+
+1. **User Action** → Click heart icon
+2. **Component** → Calls `handleToggleWishlist(productId)`
+3. **Service** → `addToWishlist(productId)` or `removeFromWishlist(productId)`
+4. **Backend** → Updates wishlist in database
+5. **Response** → Success/error message
+6. **Update UI** → Reload wishlist data
+7. **Feedback** → Show toast notification
+
+## 🛠️ Error Handling
+
+All service functions include try-catch blocks:
+
+```javascript
+try {
+  const result = await apiFunction();
+  // Handle success
+} catch (error) {
+  console.error('Error:', error);
+  // Show user-friendly message
+  showToast(error.message, 'error');
+}
+```
+
+## 🧪 Testing
+
+### Test Cart Operations
+
+```javascript
+// In browser console
+import { addToCart, getCart } from './services/cartService';
+
+// Add item
+await addToCart(1, 2);
+
+// Get cart
+const cart = await getCart();
+console.log(cart);
+```
+
+### Check Authentication
+
+```javascript
+// Check if user is logged in
+const token = localStorage.getItem('authToken');
+console.log('Auth token:', token ? 'Present' : 'Missing');
+```
+
+## 🐛 Troubleshooting
+
+### CORS Errors
+
+**Problem:** `Access to fetch blocked by CORS policy`
+
+**Solution:** Enable CORS on your Go backend (see Step 5)
+
+### 401 Unauthorized
+
+**Problem:** API returns 401 error
+
+**Solutions:**
+- Check if token exists: `localStorage.getItem('authToken')`
+- Verify token format in Authorization header
+- Check token expiration
+- Re-login if token expired
+
+### Network Errors
+
+**Problem:** `Failed to fetch` or connection refused
+
+**Solutions:**
+- Verify backend is running on port 3000
+- Check API_BASE_URL in service files
+- Ensure no firewall blocking connection
+
+### Empty Cart/Wishlist
+
+**Problem:** Data not loading
+
+**Solutions:**
+- Check browser console for errors
+- Verify API endpoints match backend routes
+- Check network tab for failed requests
+- Ensure user is logged in
+
+## 📊 State Management
+
+### Global State (in MobileApp.jsx)
+
+```javascript
+const [cart, setCart] = useState([]);           // Cart items
+const [wishlist, setWishlist] = useState([]);   // Wishlist items
+const [wishlistIds, setWishlistIds] = useState(new Set()); // Quick lookup
+const [cartCount, setCartCount] = useState(0);  // Cart badge count
+const [isLoggedIn, setIsLoggedIn] = useState(false); // Auth status
+```
+
+### Loading States
+
+```javascript
+const [loading, setLoading] = useState(false);
+const [isValidating, setIsValidating] = useState(false);
+```
+
+## 🎯 Best Practices
+
+1. **Always handle errors** - Show user-friendly messages
+2. **Loading indicators** - Show when API calls in progress
+3. **Reload data** - After mutations, reload from backend
+4. **Token management** - Check expiration, handle refresh
+5. **Optimistic updates** - Update UI before API response (optional)
+6. **Toast notifications** - Provide feedback for all actions
+7. **Validation** - Validate cart before checkout
+
+## 🔐 Security Notes
+
+- Never expose JWT tokens in logs
+- Store tokens only in localStorage
+- Clear tokens on logout
+- Validate all user inputs
+- Use HTTPS in production
+- Implement token refresh mechanism
+
+## 📝 Next Steps
+
+1. ✅ Set up service files
+2. ✅ Update components
+3. ✅ Configure CORS
+4. ✅ Test authentication
+5. ⬜ Add address management API
+6. ⬜ Add order creation API
+7. ⬜ Add payment processing
+8. ⬜ Deploy to production
+
+## 🆘 Support
+
+If you encounter issues:
+
+1. Check browser console for errors
+2. Check network tab for failed requests
+3. Verify backend is running
+4. Check API endpoint paths
+5. Review error messages
+
+---
+
+**Note:** This integration assumes your Go backend is running on `http://localhost:3000` and follows the API documentation provided.

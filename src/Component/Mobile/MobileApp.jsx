@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { CheckCircle2, Heart, X } from "lucide-react";
 import "./mobile.css";
+
+// Import Components
 import HomePage from "./Components/Hompage";
 import BottomNav from "./Components/BottomNav";
 import Header from "./Components/Header";
@@ -25,6 +27,23 @@ import EditProfile from "./Components/EditProfile";
 import ManageAddresses from "./Components/ManageAddresses";
 import SecuritySettings from "./Components/SecuritySettings";
 
+// Import API Service
+import {
+  addToCart as apiAddToCart,
+  getCart as apiGetCart,
+  updateCartItem as apiUpdateCartItem,
+  removeFromCart as apiRemoveFromCart,
+  clearCart as apiClearCart,
+  incrementQuantity as apiIncrementQuantity,
+  decrementQuantity as apiDecrementQuantity,
+  addToWishlist as apiAddToWishlist,
+  getWishlist as apiGetWishlist,
+  removeFromWishlist as apiRemoveFromWishlist,
+  moveWishlistToCart as apiMoveWishlistToCart,
+  getCartCount as apiGetCartCount,
+} from "../../services/apiService";
+
+// Mock products for browsing (replace with actual product API later)
 const mockProducts = [
   { id: 1, name: "Oak Tree", price: 89, originalPrice: 120, image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=200&h=200&fit=crop", category: "Oak", inStock: true, rating: 4.5, reviews: 120 },
   { id: 2, name: "Pine Tree", price: 65, image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=200&h=200&fit=crop", category: "Pine", inStock: true, rating: 4.3, reviews: 85 },
@@ -39,17 +58,24 @@ const mockProducts = [
 ];
 
 /**
- * Main mobile app component
+ * Main mobile app component with backend integration
  */
 export default function MobileApp() {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // State management
   const [cart, setCart] = useState([]);
-  const [wishlist, setWishlist] = useState(new Set());
+  const [wishlist, setWishlist] = useState([]);
+  const [wishlistIds, setWishlistIds] = useState(new Set());
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const [lastOrderId, setLastOrderId] = useState(null);
+  const [cartCount, setCartCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  
+  // User authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return !!localStorage.getItem('authToken');
   });
@@ -62,36 +88,125 @@ export default function MobileApp() {
     phone: "",
     profileImage: null
   });
- 
-  
-// Update the useEffect to load profile data properly
-useEffect(() => {
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        setUserProfile({
-          firstName: user.firstName || "",
-          lastName: user.lastName || "",
-          email: user.email || "",
-          phone: user.phone || "",
-          profileImage: user.profileImage || null
-        });
-        setUserName(user.firstName || "User");
-        setIsLoggedIn(true);
-      } catch (error) {
-        console.error("Error parsing user data:", error);
+
+  // Load user profile on mount
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          setUserProfile({
+            firstName: user.firstName || "",
+            lastName: user.lastName || "",
+            email: user.email || "",
+            phone: user.phone || "",
+            profileImage: user.profileImage || null
+          });
+          setUserName(user.firstName || "User");
+          setIsLoggedIn(true);
+        } catch (error) {
+          console.error("Error parsing user data:", error);
+        }
       }
     }
-  }
-}, []);
+  }, []);
 
-  const generateOrderId = () => {
-    return "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase();
+  // Load cart and wishlist data on mount and when login status changes
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadCartData();
+      loadWishlistData();
+      loadCartCount();
+    } else {
+      // Clear data when logged out
+      setCart([]);
+      setWishlist([]);
+      setWishlistIds(new Set());
+      setCartCount(0);
+    }
+  }, [isLoggedIn]);
+
+  /**
+   * Load cart data from backend
+   */
+  const loadCartData = async () => {
+    try {
+      setLoading(true);
+      const cartData = await apiGetCart();
+      
+      // Transform backend cart data to frontend format
+      if (cartData && cartData.items) {
+        const transformedCart = cartData.items.map(item => ({
+          id: item.product_id,
+          name: item.product_name || item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image || item.product_image,
+          seller: item.seller_name,
+          size: item.size,
+          inStock: item.in_stock !== false
+        }));
+        setCart(transformedCart);
+      }
+    } catch (error) {
+      console.error("Error loading cart:", error);
+      showToast("Error loading cart data", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  /**
+   * Load wishlist data from backend
+   */
+  const loadWishlistData = async () => {
+    try {
+      const wishlistData = await apiGetWishlist();
+      
+      // Transform backend wishlist data to frontend format
+      if (Array.isArray(wishlistData)) {
+        const transformedWishlist = wishlistData.map(item => ({
+          id: item.product_id,
+          name: item.product_name || item.name,
+          price: item.price,
+          originalPrice: item.original_price,
+          image: item.image || item.product_image,
+          category: item.category,
+          inStock: item.in_stock !== false,
+          rating: item.rating,
+          reviews: item.reviews
+        }));
+        setWishlist(transformedWishlist);
+        
+        // Create Set of wishlist IDs for quick lookup
+        const ids = new Set(wishlistData.map(item => item.product_id));
+        setWishlistIds(ids);
+      }
+    } catch (error) {
+      console.error("Error loading wishlist:", error);
+      showToast("Error loading wishlist data", "error");
+    }
+  };
+
+  /**
+   * Load cart item count from backend
+   */
+  const loadCartCount = async () => {
+    try {
+      const countData = await apiGetCartCount();
+      if (countData && typeof countData.count === 'number') {
+        setCartCount(countData.count);
+      }
+    } catch (error) {
+      console.error("Error loading cart count:", error);
+    }
+  };
+
+  /**
+   * Show toast notification
+   */
   const showToast = (message, type = "cart") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
@@ -99,52 +214,189 @@ useEffect(() => {
 
   const currentPage = location.pathname.split('/').pop() || 'home';
 
-  const handleAddToCart = (product) => {
-    const existing = cart.find((item) => item.id === product.id);
-    if (existing) {
-      setCart(cart.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item));
-    } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+  /**
+   * Add product to cart - Backend integrated
+   */
+  const handleAddToCart = async (product) => {
+    if (!isLoggedIn) {
+      showToast("Please login to add items to cart", "error");
+      navigate("/mobile/login");
+      return;
     }
-    showToast("Added to cart successfully!", "cart");
+
+    try {
+      setLoading(true);
+      
+      // Call backend API to add to cart
+      await apiAddToCart(product.id, 1, false, '');
+      
+      // Reload cart data from backend
+      await loadCartData();
+      await loadCartCount();
+      
+      showToast("Added to cart successfully!", "cart");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      showToast(error.message || "Failed to add to cart", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleToggleWishlist = (productId) => {
-    const newWishlist = new Set(wishlist);
-    const isAdding = !newWishlist.has(productId);
-    if (newWishlist.has(productId)) {
-      newWishlist.delete(productId);
-    } else {
-      newWishlist.add(productId);
+  /**
+   * Toggle wishlist - Backend integrated
+   */
+  const handleToggleWishlist = async (productId) => {
+    if (!isLoggedIn) {
+      showToast("Please login to manage wishlist", "error");
+      navigate("/mobile/login");
+      return;
     }
-    setWishlist(newWishlist);
-    showToast(
-      isAdding ? "Added to wishlist!" : "Removed from wishlist!",
-      "wishlist"
-    );
+
+    try {
+      setLoading(true);
+      const isAdding = !wishlistIds.has(productId);
+      
+      if (isAdding) {
+        // Add to wishlist
+        await apiAddToWishlist(productId);
+        showToast("Added to wishlist!", "wishlist");
+      } else {
+        // Remove from wishlist
+        await apiRemoveFromWishlist(productId);
+        showToast("Removed from wishlist!", "wishlist");
+      }
+      
+      // Reload wishlist data from backend
+      await loadWishlistData();
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      showToast(error.message || "Failed to update wishlist", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  /**
+   * Update cart item quantity - Backend integrated
+   */
+  const handleUpdateQuantity = async (productId, newQuantity) => {
+    if (newQuantity === 0) {
+      // Remove item if quantity is 0
+      await handleRemoveFromCart(productId);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Call backend API to update quantity
+      await apiUpdateCartItem(productId, newQuantity, false, '');
+      
+      // Reload cart data
+      await loadCartData();
+      await loadCartCount();
+      
+      showToast("Cart updated", "cart");
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      showToast(error.message || "Failed to update cart", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Remove item from cart - Backend integrated
+   */
+  const handleRemoveFromCart = async (productId) => {
+    try {
+      setLoading(true);
+      
+      // Call backend API to remove item
+      await apiRemoveFromCart(productId);
+      
+      // Reload cart data
+      await loadCartData();
+      await loadCartCount();
+      
+      showToast("Item removed from cart", "cart");
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+      showToast(error.message || "Failed to remove item", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Move wishlist item to cart - Backend integrated
+   */
+  const handleMoveWishlistToCart = async (productId) => {
+    try {
+      setLoading(true);
+      
+      // Call backend API to move item
+      await apiMoveWishlistToCart(productId);
+      
+      // Reload both cart and wishlist
+      await loadCartData();
+      await loadWishlistData();
+      await loadCartCount();
+      
+      showToast("Moved to cart successfully!", "cart");
+    } catch (error) {
+      console.error("Error moving to cart:", error);
+      showToast(error.message || "Failed to move item to cart", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Handle product click
+   */
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     navigate("/mobile/product-details");
   };
 
+  /**
+   * Handle order click
+   */
   const handleOrderClick = (order) => {
     setSelectedOrder(order);
     navigate("/mobile/order-details");
   };
 
+  /**
+   * Handle reorder
+   */
   const handleReorder = (order) => {
-    order.items.forEach((item) => {
-      handleAddToCart(item);
+    order.items.forEach(async (item) => {
+      await handleAddToCart(item);
     });
   };
 
-  const wishlistProducts = mockProducts.filter((p) => wishlist.has(p.id));
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  /**
+   * Generate order ID
+   */
+  const generateOrderId = () => {
+    return "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase();
+  };
 
   return (
     <div className={`max-w-md mx-auto min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#059669]"></div>
+          </div>
+        </div>
+      )}
+
+      {/* Header for non-main pages */}
       {!['mobile', 'home', 'orders', 'wishlist', 'cart', 'account'].includes(currentPage) && (
         <Header
           title={currentPage === "search" ? "Search" : currentPage === "product-details" ? "Product Details" : currentPage === "checkout" ? "Checkout" : currentPage === "order-success" ? "Order Placed" : currentPage === "notifications" ? "Notifications" : currentPage === "help" ? "Help & Support" : ""}
@@ -154,17 +406,20 @@ useEffect(() => {
       )}
 
       <Routes>
+        {/* Home Page */}
         <Route path="home" element={
           <HomePage
             products={mockProducts}
             onAddToCart={handleAddToCart}
             onToggleWishlist={handleToggleWishlist}
             onProductClick={handleProductClick}
-            wishlistIds={wishlist}
+            wishlistIds={wishlistIds}
             onSearchClick={() => navigate("/mobile/search")}
             onWishlistClick={() => navigate("/mobile/wishlist")}
           />
         } />
+
+        {/* Search Page */}
         <Route path="search" element={
           <SearchPage
             products={mockProducts}
@@ -172,9 +427,11 @@ useEffect(() => {
             onAddToCart={handleAddToCart}
             onToggleWishlist={handleToggleWishlist}
             onProductClick={handleProductClick}
-            wishlistIds={wishlist}
+            wishlistIds={wishlistIds}
           />
         } />
+
+        {/* Product Details Page */}
         <Route path="product-details" element={
           selectedProduct && <ProductDetails
             key={selectedProduct.id}
@@ -182,22 +439,18 @@ useEffect(() => {
             onBack={() => navigate("/mobile/home")}
             onAddToCart={handleAddToCart}
             onToggleWishlist={handleToggleWishlist}
-            isInWishlist={wishlist.has(selectedProduct.id)}
+            isInWishlist={wishlistIds.has(selectedProduct.id)}
             relatedProducts={mockProducts}
             onProductClick={handleProductClick}
           />
         } />
+
+        {/* Cart Page - Backend Integrated */}
         <Route path="cart" element={
           <CartPage
             items={cart}
-            onUpdateQuantity={(id, quantity) => {
-              if (quantity === 0) {
-                setCart(cart.filter((item) => item.id !== id));
-              } else {
-                setCart(cart.map((item) => item.id === id ? { ...item, quantity } : item));
-              }
-            }}
-            onRemoveItem={(id) => setCart(cart.filter((item) => item.id !== id))}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveFromCart}
             onCheckout={() => {
               if (isLoggedIn) {
                 navigate("/mobile/checkout");
@@ -208,14 +461,18 @@ useEffect(() => {
             isLoggedIn={isLoggedIn}
           />
         } />
+
+        {/* Wishlist Page - Backend Integrated */}
         <Route path="wishlist" element={
           <WishlistPage
-            products={wishlistProducts}
-            onAddToCart={handleAddToCart}
+            products={wishlist}
+            onAddToCart={handleMoveWishlistToCart}
             onRemoveFromWishlist={handleToggleWishlist}
             onProductClick={handleProductClick}
           />
         } />
+
+        {/* Orders Page */}
         <Route path="orders" element={
           <OrdersPage
             orders={[
@@ -226,6 +483,8 @@ useEffect(() => {
             onReorder={handleReorder}
           />
         } />
+
+        {/* Order Details Page */}
         <Route path="order-details" element={
           selectedOrder && <OrderDetails
             order={selectedOrder}
@@ -237,42 +496,47 @@ useEffect(() => {
             onProductClick={handleProductClick}
           />
         } />
-        / Update the logout function in AccountPage route
-            <Route path="account" element={
-              <AccountPage
-                onHelpClick={() => navigate("/mobile/help")}
-                onLoginClick={() => navigate("/mobile/login")}
-                onSignUpClick={() => navigate("/mobile/signup")}
-                onGuestContinue={() => navigate("/mobile/home")}
-                onEditProfileClick={() => navigate("/mobile/edit-profile")}
-                onManageAddressesClick={() => navigate("/mobile/manage-addresses")}
-                onSecurityClick={() => navigate("/mobile/security-settings")}
-                onLogout={() => {
-                  // Clear all auth data
-                  localStorage.removeItem('authToken');
-                  localStorage.removeItem('userData');
-                  setIsLoggedIn(false);
-                  setUserName("");
-                  setUserProfile({ 
-                    firstName: "", 
-                    lastName: "", 
-                    email: "", 
-                    phone: "", 
-                    profileImage: null 
-                  });
-                  showToast("Logged out successfully!", "cart");
-                  navigate("/mobile/home");
-                }}
-                darkMode={darkMode}
-                onToggleDarkMode={() => setDarkMode(!darkMode)}
-                isLoggedIn={isLoggedIn}
-                userName={userName}
-                userProfile={userProfile}
-              />
-            } />
 
-        
-      // Update the login route to properly set profile
+        {/* Account Page */}
+        <Route path="account" element={
+          <AccountPage
+            onHelpClick={() => navigate("/mobile/help")}
+            onLoginClick={() => navigate("/mobile/login")}
+            onSignUpClick={() => navigate("/mobile/signup")}
+            onGuestContinue={() => navigate("/mobile/home")}
+            onEditProfileClick={() => navigate("/mobile/edit-profile")}
+            onManageAddressesClick={() => navigate("/mobile/manage-addresses")}
+            onSecurityClick={() => navigate("/mobile/security-settings")}
+            onLogout={() => {
+              // Clear all auth data
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('userData');
+              setIsLoggedIn(false);
+              setUserName("");
+              setUserProfile({ 
+                firstName: "", 
+                lastName: "", 
+                email: "", 
+                phone: "", 
+                profileImage: null 
+              });
+              // Clear cart and wishlist
+              setCart([]);
+              setWishlist([]);
+              setWishlistIds(new Set());
+              setCartCount(0);
+              showToast("Logged out successfully!", "cart");
+              navigate("/mobile/home");
+            }}
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode(!darkMode)}
+            isLoggedIn={isLoggedIn}
+            userName={userName}
+            userProfile={userProfile}
+          />
+        } />
+
+        {/* Login Page */}
         <Route path="login" element={
           <LoginPage
             onBack={() => navigate("/mobile/account")}
@@ -299,6 +563,7 @@ useEffect(() => {
           />
         } />
 
+        {/* Sign Up Page */}
         <Route path="signup" element={
           <SignUpPage
             onBack={() => navigate("/mobile/account")}
@@ -320,6 +585,8 @@ useEffect(() => {
             showToast={showToast}
           />
         } />
+
+        {/* Forgot Password Page */}
         <Route path="forgot-password" element={
           <ForgotPassword
             onBack={() => navigate("/mobile/login")}
@@ -329,48 +596,48 @@ useEffect(() => {
             }}
           />
         } />
-                // Update the edit-profile route with proper prop passing
-          <Route path="edit-profile" element={
-            <EditProfile
-              onBack={() => {
-                // Reload profile data when going back
-                const userData = localStorage.getItem('userData');
-                if (userData) {
-                  try {
-                    const user = JSON.parse(userData);
-                    setUserProfile(user);
-                    setUserName(user.firstName || "User");
-                  } catch (error) {
-                    console.error("Error loading profile:", error);
-                  }
+
+        {/* Edit Profile Page */}
+        <Route path="edit-profile" element={
+          <EditProfile
+            onBack={() => {
+              const userData = localStorage.getItem('userData');
+              if (userData) {
+                try {
+                  const user = JSON.parse(userData);
+                  setUserProfile(user);
+                  setUserName(user.firstName || "User");
+                } catch (error) {
+                  console.error("Error loading profile:", error);
                 }
-                navigate("/mobile/account");
-              }}
-              userProfile={userProfile}
-              onSave={(updatedProfile) => {
-                console.log("Profile saved:", updatedProfile);
-                // Update all state with new profile data
-                setUserProfile({
-                  firstName: updatedProfile.firstName || "",
-                  lastName: updatedProfile.lastName || "",
-                  email: updatedProfile.email || "",
-                  phone: updatedProfile.phone || "",
-                  profileImage: updatedProfile.profileImage || null
-                });
-                setUserName(updatedProfile.firstName || "User");
-                // Show success toast
-                showToast("Profile updated successfully!", "cart");
-              }}
-              showToast={showToast}
-            />
-          } />
-       
+              }
+              navigate("/mobile/account");
+            }}
+            userProfile={userProfile}
+            onSave={(updatedProfile) => {
+              setUserProfile({
+                firstName: updatedProfile.firstName || "",
+                lastName: updatedProfile.lastName || "",
+                email: updatedProfile.email || "",
+                phone: updatedProfile.phone || "",
+                profileImage: updatedProfile.profileImage || null
+              });
+              setUserName(updatedProfile.firstName || "User");
+              showToast("Profile updated successfully!", "cart");
+            }}
+            showToast={showToast}
+          />
+        } />
+
+        {/* Manage Addresses Page */}
         <Route path="manage-addresses" element={
           <ManageAddresses
             onBack={() => navigate("/mobile/account")}
             showToast={showToast}
           />
         } />
+
+        {/* Security Settings Page */}
         <Route path="security-settings" element={
           <SecuritySettings
             onBack={() => navigate("/mobile/account")}
@@ -380,28 +647,42 @@ useEffect(() => {
             }}
           />
         } />
+
+        {/* Checkout Page - Backend Integrated */}
         <Route path="checkout" element={
           <CheckoutPage
             items={cart}
-            
             onBack={() => navigate("/mobile/cart")}
             onPlaceOrder={() => navigate("/mobile/payment")}
             onAddAddress={() => navigate("/mobile/manage-addresses")}
           />
         } />
+
+        {/* Payment Method Page */}
         <Route path="payment" element={
           <PaymentMethod
             total={cart.reduce((sum, item) => sum + item.price * item.quantity, 0) + 5}
             onBack={() => navigate("/mobile/checkout")}
-            onConfirmPayment={(method) => {
+            onConfirmPayment={async (method) => {
               const orderId = generateOrderId();
               setLastOrderId(orderId);
               console.log("Payment method:", method, "Order ID:", orderId);
+              
+              // Clear cart after successful order
+              try {
+                await apiClearCart();
+                setCart([]);
+                setCartCount(0);
+              } catch (error) {
+                console.error("Error clearing cart:", error);
+              }
+              
               navigate("/mobile/order-success");
-              setCart([]);
             }}
           />
         } />
+
+        {/* Order Success Page */}
         <Route path="order-success" element={
           <OrderSuccess
             orderId={lastOrderId || "ORD12347"}
@@ -409,32 +690,47 @@ useEffect(() => {
             onViewOrders={() => navigate("/mobile/track-order")}
           />
         } />
+
+        {/* Track Order Page */}
         <Route path="track-order" element={
           <TrackOrder
             orderId={lastOrderId}
             onBack={() => navigate("/mobile/orders")}
           />
         } />
+
+        {/* Notifications Page */}
         <Route path="notifications" element={
           <NotificationsPage onBack={() => navigate("/mobile/home")} />
         } />
+
+        {/* Help & Support Page */}
         <Route path="help" element={
           <HelpSupport onBack={() => navigate("/mobile/account")} />
         } />
       </Routes>
 
-      <BottomNav currentPage={currentPage} onNavigate={(page) => navigate(`/mobile/${page}`)} cartCount={cartCount} />
+      {/* Bottom Navigation */}
+      <BottomNav 
+        currentPage={currentPage} 
+        onNavigate={(page) => navigate(`/mobile/${page}`)} 
+        cartCount={cartCount} 
+      />
 
       {/* Toast Notification */}
       {toast.show && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
           <div className={`px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-md ${
-            toast.type === "cart" ? "bg-[#059669] text-white" : "bg-pink-500 text-white"
+            toast.type === "cart" ? "bg-[#059669] text-white" : 
+            toast.type === "wishlist" ? "bg-pink-500 text-white" :
+            "bg-red-500 text-white"
           }`}>
             {toast.type === "cart" ? (
               <CheckCircle2 className="w-5 h-5" />
-            ) : (
+            ) : toast.type === "wishlist" ? (
               <Heart className="w-5 h-5 fill-white" />
+            ) : (
+              <X className="w-5 h-5" />
             )}
             <span className="font-medium">{toast.message}</span>
             <button onClick={() => setToast({ show: false, message: "", type: "" })} className="ml-2">
