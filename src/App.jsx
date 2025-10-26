@@ -39,6 +39,8 @@ import SellerAccount from './Component/Mobile/Seller/SellerAccount'
 import SellerInventory from './Component/Mobile/Seller/SellerInventory'
 import SellerPayouts from './Component/Mobile/Seller/SellerPayouts'
 import SellerSettings from './Component/Mobile/Seller/SellerSettings'
+import SellerLogin from './Component/Mobile/Seller/SellerLogin'
+import SellerRegister from './Component/Mobile/Seller/SellerRegister'
 
 
 function App() {
@@ -104,8 +106,10 @@ function App() {
         <Route path="payouts" element={<SellerPayouts />} />
         <Route path="messages" element={<SellerMessages />} />
         <Route path="settings" element={<SellerSettings />} />
-        <Route path="account" element={<SellerAccount />} />
+        <Route path="account" element={<SellerAccount />} /> 
       </Route>
+      <Route path='seller/login' element={<SellerLogin/>}/>
+      <Route path='seller/register' element={<SellerRegister/>}/>
 
 
 
