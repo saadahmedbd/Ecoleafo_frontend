@@ -13,6 +13,7 @@ import BuyerAccountPage from './Pages/BuyerAccountPage'
 import  { OrderConfirmation } from './Pages/OrderConfirmation'
 import AddProductPage from './Pages/AddProductPage'
 import MobileApp from './Component/Mobile/MobileApp'
+import SellerApp from './Component/Mobile/SellerApp'  
 import AllProducts from './Pages/AllProducts'
 import ProductDetail from './Pages/Productdetail'
 import ShoppingCart from './Pages/ShoppingCart'
@@ -29,6 +30,15 @@ import TrackOrder from './BuyerProfilePages/TrackOrder'
 import ReturnRefund from './BuyerProfilePages/ReturnRefund'
 import CancelledOrders from './BuyerProfilePages/CancelledOrders'
 import Dashboard from './BuyerProfilePages/DashBoard'
+import SellerDashboard from './Component/Mobile/Seller/SellerDashboard'
+import SellerProducts from './Component/Mobile/Seller/SellerProducts'
+import SellerLayout from './Component/Mobile/Seller/SellerLayout'
+import SellerOrders from './Component/Mobile/Seller/SellerOrders'
+import SellerMessages from './Component/Mobile/Seller/SellerMessages'
+import SellerAccount from './Component/Mobile/Seller/SellerAccount'
+import SellerInventory from './Component/Mobile/Seller/SellerInventory'
+import SellerPayouts from './Component/Mobile/Seller/SellerPayouts'
+import SellerSettings from './Component/Mobile/Seller/SellerSettings'
 
 
 function App() {
@@ -82,6 +92,24 @@ function App() {
         <Route path='/buyer-account' element={<BuyerAccountPage/>}></Route>
         <Route path='/add-product' element={<AddProductPage/>}></Route>
         <Route path='/mobile/*' element={<MobileApp/>}></Route>
+        {/* <Route path='/seller/*' element={<SellerApp/>}></Route> */}
+        
+        {/* responsive for mobile and desjtop */}
+       <Route path="/seller" element={<SellerLayout />}>
+        <Route index element={<SellerDashboard />} />
+        <Route path="dashboard" element={<SellerDashboard />} />
+        <Route path="products" element={<SellerProducts />} />
+        <Route path="orders" element={<SellerOrders />} />
+        <Route path="inventory" element={<SellerInventory />} />
+        <Route path="payouts" element={<SellerPayouts />} />
+        <Route path="messages" element={<SellerMessages />} />
+        <Route path="settings" element={<SellerSettings />} />
+        <Route path="account" element={<SellerAccount />} />
+      </Route>
+
+
+
+
 
       </Routes>
     </>
