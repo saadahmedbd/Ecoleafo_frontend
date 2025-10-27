@@ -12,6 +12,8 @@ import {
   Store, Mail, Lock, User, Phone, Check, Building2, MapPin, 
   CreditCard, Eye, EyeOff, ChevronLeft, ArrowRight, AlertCircle, Info 
 } from 'lucide-react';
+import SellerAuthService from '../../../services/SellerAuthService';
+
 
 export default function SellerRegister() {
   const navigate = useNavigate();
@@ -193,95 +195,71 @@ const updateField = (field, value) => {
 
   /**
    * Submit registration form
-   * TODO: Connect to backend API POST /api/seller/register
+   * Calls backend API through SellerAuthService
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate current step
     if (!validateStep()) return;
     
     setIsLoading(true);
     setError('');
 
     try {
-      // TODO: Replace with actual API call
-      // Step 1: Register seller account
-      // const registerResponse = await fetch('/api/seller/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     email: formData.email,
-      //     password: formData.password,
-      //     confirm_password: formData.confirm_password,
-      //     first_name: formData.first_name,
-      //     last_name: formData.last_name,
-      //     store_name: formData.store_name,
-      //     phone: formData.phone,
-      //     agree_to_terms: formData.agree_to_terms
-      //   })
-      // });
-      // const registerData = await registerResponse.json();
+      // Call register API using SellerAuthService
+      // This will handle all 3 steps: registration, profile completion, payment method
+      const result = await SellerAuthService.register(formData);
       
-      // Step 2: Complete business profile
-      // const token = registerData.token;
-      // const profileResponse = await fetch('/api/seller/profile/complete', {
-      //   method: 'POST',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${token}`
-      //   },
-      //   body: JSON.stringify({
-      //     business_email: formData.business_email,
-      //     phone: formData.phone,
-      //     store_description: formData.store_description,
-      //     business_type: formData.business_type,
-      //     tax_number: formData.tax_number,
-      //     business_license: formData.business_license,
-      //     address: formData.address,
-      //     city: formData.city,
-      //     state: formData.state,
-      //     country: formData.country,
-      //     postal_code: formData.postal_code
-      //   })
-      // });
-      
-      // Step 3: Add payment method
-      // const paymentResponse = await fetch('/api/seller/payment-methods', {
-      //   method: 'POST',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${token}`
-      //   },
-      //   body: JSON.stringify({
-      //     type: formData.payment_type,
-      //     account_name: formData.account_name,
-      //     account_number: formData.account_number,
-      //     bank_name: formData.bank_name,
-      //     bank_code: formData.bank_code,
-      //     routing_number: formData.routing_number,
-      //     is_default: true
-      //   })
-      // });
-      
-      // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('Registration data:', formData);
-      
-      // TODO: Store token and redirect
-      // localStorage.setItem('seller_token', registerData.token);
-      
-      // Show success and redirect to approval waiting page
-      alert('Registration successful! Your account is pending admin approval. You will be notified via email once approved.');
-      navigate('/seller/login');
+      // Check if registration was successful
+      if (result.success) {
+        console.log('Registration successful:', result.data);
+        
+        // Show success message
+        alert(
+          'Registration Successful!\n\n' +
+          'Your seller account has been created and is now pending admin approval. ' +
+          'You will receive an email notification once your account is approved.\n\n' +
+          'You can now log in to check your approval status.'
+        );
+        
+        // Navigate to login page
+        navigate('/seller/login');
+        
+      } else {
+        // Registration failed, show error message
+        const errorMessage = result.error.message || 'Registration failed. Please try again.';
+        setError(errorMessage);
+        
+        // Scroll to top to show error
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Log detailed error in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Registration error details:', result.error);
+        }
+        
+        // Handle specific error cases
+        if (result.error.status === 409) {
+          // Email already exists
+          setError('This email is already registered. Please use a different email or try logging in.');
+        } else if (result.error.status === 422) {
+          // Validation error
+          setError('Please check your information and try again. ' + errorMessage);
+        }
+      }
       
     } catch (err) {
-      setError('Registration failed. Please try again.');
-      console.error('Registration error:', err);
+      // Catch unexpected errors
+      console.error('Unexpected registration error:', err);
+      setError('An unexpected error occurred. Please try again later.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setIsLoading(false);
     }
   };
+
+
 
   // ==========================================
   // PROGRESS BAR COMPONENT
@@ -327,10 +305,11 @@ const updateField = (field, value) => {
             </div>
           </div>
           {error && (
-                    <div className="flex items-center bg-red-50 text-red-700 p-3 rounded-lg mb-5">
-                      <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-                      <span className="text-sm">{error}</span>
-                    </div>
+                   
+         <div className="flex items-center bg-red-50 text-red-700 p-3 rounded-lg mb-5">
+                <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                  <span className="text-sm">{error}</span>
+          </div>
                   )}
         
 {/* 
