@@ -41,6 +41,7 @@ import SellerPayouts from './Component/Mobile/Seller/SellerPayouts'
 import SellerSettings from './Component/Mobile/Seller/SellerSettings'
 import SellerLogin from './Component/Mobile/Seller/SellerLogin'
 import SellerRegister from './Component/Mobile/Seller/SellerRegister'
+import SellerProductForm from './Component/Mobile/Seller/SellerProductForm'
 
 
 function App() {
@@ -107,6 +108,8 @@ function App() {
         <Route path="messages" element={<SellerMessages />} />
         <Route path="settings" element={<SellerSettings />} />
         <Route path="account" element={<SellerAccount />} /> 
+        <Route path="products/new" element={<SellerProductForm/>}/>
+        <Route path='products/edit/:id' element={<SellerProductForm/>}/>
       </Route>
       <Route path='seller/login' element={<SellerLogin/>}/>
       <Route path='seller/register' element={<SellerRegister/>}/>

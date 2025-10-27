@@ -13,21 +13,21 @@ import { toast, Toaster } from "sonner";
 import SellerLogin from "./Seller/SellerLogin";
 import SellerRegister from "./Seller/SellerRegister";
 
-
-
+// Layout Components
 import SellerSidebar from "./Seller/SellerSidebar";
 import SellerTopNav from "./Seller/SellerTopNav";
 import SellerBottomNav from "./Seller/SellerBottomNav";
+
+// Page Components
 import SellerDashboard from "./Seller/SellerDashboard";
 import SellerProducts from "./Seller/SellerProducts";
+import SellerProductForm from "./Seller/SellerProductForm";
 import SellerOrders from "./Seller/SellerOrders";
 import SellerInventory from "./Seller/SellerInventory";
 import SellerPayouts from "./Seller/SellerPayouts";
 import SellerMessages from "./Seller/SellerMessages";
 import SellerSettings from "./Seller/SellerSettings";
 import SellerAccount from "./Seller/SellerAccount";
-
-
 
 // Icons
 import { Plus } from "lucide-react";
@@ -303,24 +303,7 @@ export default function SellerApp() {
 /**
  * Directory Structure:
  * 
- * src/
- * ├── components/
- * │   ├── SellerApp.jsx (this file)
- * │   └── Seller/
- * │       ├── SellerLogin.jsx
- * │       ├── SellerRegister.jsx
- * │       ├── SellerSidebar.jsx
- * │       ├── SellerTopNav.jsx
- * │       ├── SellerBottomNav.jsx
- * │       ├── SellerDashboard.jsx
- * │       ├── SellerProducts.jsx
- * │       ├── SellerOrders.jsx
- * │       ├── SellerInventory.jsx
- * │       ├── SellerPayouts.jsx
- * │       ├── SellerMessages.jsx
- * │       ├── SellerSettings.jsx
- * │       └── SellerAccount.jsx
- * 
+ 
  * Routes:
  * - /seller/login - Login page (public)
  * - /seller/register - Registration page (public)
