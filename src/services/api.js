@@ -1,95 +1,118 @@
-// API Base URL - Update this to your Go backend URL
-const API_BASE_URL = 'http://localhost:3000/api';
+
+
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { API_BASE_URL, API_TAGS, STORAGE_KEYS } from '../utils/constants';
+import { logError } from '../utils/errorHandler';
 
 /**
- * API Service for TreeStore Backend
- * Handles all HTTP requests to Go backend
+ * Base query configuration with authentication and error handling
+ * Automatically attaches auth token to requests and handles common errors
  */
-
-// Helper function for API calls
-const apiCall = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+const baseQuery = fetchBaseQuery({
+  baseUrl: API_BASE_URL,
   
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  };
+  // Prepare headers for each request
+  prepareHeaders: (headers, { getState }) => {
+    // Get token from localStorage or Redux state
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    
+    // Alternatively, get from Redux state:
+    // const token = getState().auth.token;
+    
+    // Attach token to Authorization header if available
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    // Set default content type
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+    
+    return headers;
+  },
+  
+  // Credentials for CORS requests
+  credentials: 'include',
+});
 
-  // Add auth token if exists
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
+/**
+ * Base query with error handling and token refresh logic
+ * Wraps baseQuery to handle 401 errors and refresh tokens
+ */
+const baseQueryWithReauth = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions);
+  
+  // Handle 401 Unauthorized - Token expired
+  if (result.error && result.error.status === 401) {
+    logError(result.error, 'Authentication Error');
+    
+    // TODO: Implement token refresh logic
+    // const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+    // if (refreshToken) {
+    //   const refreshResult = await baseQuery(
+    //     { url: '/auth/refresh', method: 'POST', body: { refreshToken } },
+    //     api,
+    //     extraOptions
+    //   );
+    //   
+    //   if (refreshResult.data) {
+    //     localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, refreshResult.data.token);
+    //     result = await baseQuery(args, api, extraOptions);
+    //   } else {
+    //     // Refresh failed - logout user
+    //     localStorage.clear();
+    //     window.location.href = '/login';
+    //   }
+    // }
+    
+    // For now, clear auth and redirect to login
+    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+    
+    // Dispatch logout action if needed
+    // api.dispatch(logout());
   }
-
-  try {
-    const response = await fetch(url, config);
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'API request failed');
-    }
-
-    // Store token if returned
-    if (data.token) {
-      localStorage.setItem('authToken', data.token);
-    }
-
-    return { success: true, data };
-  } catch (error) {
-    return { success: false, error: error.message };
+  
+  // Log other errors in development
+  if (result.error) {
+    logError(result.error, `API Error: ${args.url}`);
   }
+  
+  return result;
 };
 
-// Authentication APIs
-export const authAPI = {
-  // Register new user
-  register: async (userData) => {
-    const result = await apiCall('/auth/registation', {
-      method: 'POST',
-      body: JSON.stringify({
-        first_name: userData.firstName,
-        last_name: userData.lastName,
-        email: userData.email,
-        password: userData.password,
-      }),
-    });
-    if (result.success && result.data.token) {
-      localStorage.setItem('authToken', result.data.token);
-    }
-    return result;
-  },
+/**
+ * Base API configuration using RTK Query
+ * This is the foundation for all API endpoints
+ * 
+ * Features:
+ * - Automatic caching
+ * - Request deduplication
+ * - Automatic refetching
+ * - Tag-based cache invalidation
+ */
+export const api = createApi({
+  reducerPath: 'api',
+  baseQuery: baseQueryWithReauth,
+  
+  // Define tag types for cache invalidation
+  tagTypes: Object.values(API_TAGS),
+  
+  // Keep unused data in cache for 60 seconds
+  keepUnusedDataFor: 60,
+  
+  // Refetch on mount if data is older than 60 seconds
+  refetchOnMountOrArgChange: 60,
+  
+  // Refetch on window focus
+  refetchOnFocus: false,
+  
+  // Refetch on network reconnect
+  refetchOnReconnect: true,
+  
+  // Endpoints will be injected by individual feature APIs
+  endpoints: () => ({}),
+});
 
-  // Login user
-  login: async (credentials) => {
-    const result = await apiCall('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        email: credentials.email,
-        password: credentials.password,
-      }),
-    });
-    if (result.success && result.data.token) {
-      localStorage.setItem('authToken', result.data.token);
-    }
-    return result;
-  },
-
-  // Logout user
-  logout: async () => {
-    try {
-      await apiCall('/auth/logout', {
-        method: 'POST',
-      });
-    } finally {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-    }
-  },
-};
-
-export default {
-  authAPI,
-};
+export default api;
