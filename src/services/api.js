@@ -40,48 +40,41 @@ const baseQuery = fetchBaseQuery({
  * Base query with error handling and token refresh logic
  * Wraps baseQuery to handle 401 errors and refresh tokens
  */
-const baseQueryWithReauth = async (args, api, extraOptions) => {
+  const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
   
-  // Handle 401 Unauthorized - Token expired
-  if (result.error && result.error.status === 401) {
-    logError(result.error, 'Authentication Error');
+  if (result.error?.status === 401) {
+    // Try to refresh token
+    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     
-    // TODO: Implement token refresh logic
-    // const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-    // if (refreshToken) {
-    //   const refreshResult = await baseQuery(
-    //     { url: '/auth/refresh', method: 'POST', body: { refreshToken } },
-    //     api,
-    //     extraOptions
-    //   );
-    //   
-    //   if (refreshResult.data) {
-    //     localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, refreshResult.data.token);
-    //     result = await baseQuery(args, api, extraOptions);
-    //   } else {
-    //     // Refresh failed - logout user
-    //     localStorage.clear();
-    //     window.location.href = '/login';
-    //   }
-    // }
-    
-    // For now, clear auth and redirect to login
-    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
-    
-    // Dispatch logout action if needed
-    // api.dispatch(logout());
-  }
-  
-  // Log other errors in development
-  if (result.error) {
-    logError(result.error, `API Error: ${args.url}`);
+    if (refreshToken) {
+      const refreshResult = await baseQuery(
+        {
+          url: '/auth/refresh',
+          method: 'POST',
+          body: { refresh_token: refreshToken },
+        },
+        api,
+        extraOptions
+      );
+      
+      if (refreshResult.data) {
+        // Store new token
+        const newToken = refreshResult.data.token;
+        api.dispatch(updateToken(newToken));
+        
+        // Retry original request
+        result = await baseQuery(args, api, extraOptions);
+      } else {
+        // Refresh failed - logout user
+        api.dispatch(logout());
+        window.location.href = '/login';
+      }
+    }
   }
   
   return result;
 };
-
 /**
  * Base API configuration using RTK Query
  * This is the foundation for all API endpoints

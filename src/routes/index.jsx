@@ -19,7 +19,8 @@ import AdminLayout from '@/layouts/AdminLayout';
 // Public Pages
 import HomePage from '@/pages/public/Home';
 import LoginPage from '@/pages/public/Login';
-import RegisterPage from '@/pages/public/Register';
+import SignUpPage from '@/pages/public/SignUp';
+import ForgotPasswordPage from '@/pages/public/ForgetPassword';
 import ProductsPage from '@/pages/public/Products';
 
 // Buyer Pages
@@ -78,24 +79,42 @@ const AppRoutes = () => {
       </Route>
 
       {/* ==================== GUEST-ONLY ROUTES ==================== */}
-      <Route element={<PublicLayout />}>
+      <Route
+        path="/login"
+        element={
+          <GuestGuard>
+            <LoginPage
+              onBack={() => navigate('/')}
+              onSignUpClick={() => navigate('/signup')}
+              onForgotPasswordClick={() => navigate('/forgot-password')}
+              onGuestContinue={() => navigate('/products')}
+            />
+          </GuestGuard>
+        }
+      />
+
         <Route
-          path="/login"
-          element={
-            <GuestGuard>
-              <LoginPage />
-            </GuestGuard>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <GuestGuard>
-              <RegisterPage />
-            </GuestGuard>
-          }
-        />
-      </Route>
+        path="/signup"
+        element={
+          <GuestGuard>
+            <SignUpPage
+              onBack={() => navigate('/')}
+              onLoginClick={() => navigate('/login')}
+            />
+          </GuestGuard>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <GuestGuard>
+            <ForgotPasswordPage
+              onBack={() => navigate('/login')}
+              onLoginClick={() => navigate('/login')}
+            />
+          </GuestGuard>
+        }
+      />
 
       {/* ==================== BUYER ROUTES ==================== */}
       <Route

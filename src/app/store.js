@@ -3,7 +3,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { api } from '../services/api';
-import authReducer from '../features/auth/buyerAuth/authSlice';
+import authReducer from '../features/auth/authSlice';
 // Import other feature slices as needed
 // import userReducer from '../features/users/userSlice';
 
