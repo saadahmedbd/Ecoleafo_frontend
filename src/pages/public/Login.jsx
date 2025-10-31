@@ -3,11 +3,11 @@
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation } from "@/features/auth/authApi";
+import { useLoginMutation } from "@/features/auth/buyerAuthApi";
 import { useAppDispatch } from "@/app/hooks";
 import { setCredentials, clearAuthError } from "@/features/auth/authSlice";
 import { validateLoginForm, sanitizeInput } from "@/utils/validation";
-
+import BuyerAuthService from "../../services/BuyerAuthService";
 /**
  * Buyer Login Page
  * Handles buyer authentication with backend integration
@@ -111,54 +111,47 @@ export default function LoginPage({
    * Validates form and calls login API
    */
   const handleLogin = async (e) => {
-    e.preventDefault();
-    
-    // Clear previous errors
-    setErrors({});
-    setApiError("");
-    
-    // Validate form
-    const validation = validateLoginForm(formData);
-    if (!validation.isValid) {
-      setErrors(validation.errors);
-      setTouched({ email: true, password: true });
-      return;
+  e.preventDefault();
+  setErrors({});
+  setApiError("");
+
+  // Validate form
+  const validation = validateLoginForm(formData);
+  if (!validation.isValid) {
+    setErrors(validation.errors);
+    setTouched({ email: true, password: true });
+    return;
+  }
+
+  try {
+    // ✅ Call RTK Query mutation and unwrap to catch errors
+    const result = await login({
+      email: formData.email.trim().toLowerCase(),
+      password: formData.password,
+    }).unwrap();  // <-- VERY IMPORTANT
+
+    // Handle remember me
+    if (rememberMe) {
+      localStorage.setItem("rememberedEmail", formData.email);
+    } else {
+      localStorage.removeItem("rememberedEmail");
     }
-    
-    try {
-      // Call login API
-      const result = await login({
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password,
-      }).unwrap();
-      
-      // Handle remember me
-      if (rememberMe) {
-        localStorage.setItem('rememberedEmail', formData.email);
-      } else {
-        localStorage.removeItem('rememberedEmail');
-      }
-      
-      // Save credentials to Redux store and localStorage
-      dispatch(setCredentials(result));
-      
-      // Navigate to buyer dashboard
-      navigate("/buyer/dashboard");
-    } catch (err) {
-      // Handle API errors
-      console.error("Login error:", err);
-      
-      const errorMessage = err?.message || err?.data?.message || 
-        "Login failed. Please check your credentials.";
-      setApiError(errorMessage);
-      
-      // Clear password field on error for security
-      setFormData(prev => ({ ...prev, password: "" }));
-      
-      // Scroll to top to show error
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
+
+    // Save credentials to Redux store and localStorage
+    dispatch(setCredentials(result));
+
+    // Navigate to dashboard
+    navigate("/buyer/dashboard");
+  } catch (err) {
+    console.error("Login error:", err);
+    const errorMessage = err?.data?.message || err?.message || "Login failed. Please check your credentials.";
+    setApiError(errorMessage);
+
+    setFormData(prev => ({ ...prev, password: "" }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+};
+
   
   /**
    * Handle Google Login
