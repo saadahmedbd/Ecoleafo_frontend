@@ -20,7 +20,7 @@ import useDeviceDetection from '@/hooks/useDeviceDetection';
  * 
  * @returns {React.ReactNode}
  */
-const BuyerLayout = () => {
+export function  BuyerLayout  () {
   const { toggleView } = useDeviceDetection();
 
   return (

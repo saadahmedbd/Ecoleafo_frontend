@@ -1,55 +1,58 @@
-// src/app/store.js
+// ==========================================
+// REDUX STORE CONFIGURATION
+// ==========================================
+// Purpose: Configure Redux store with all slices and middleware
+// Includes: Auth, Buyer API, Seller API, and other feature slices
+// ==========================================
 
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import { api } from '../services/api';
 import authReducer from '../features/auth/authSlice';
-// Import other feature slices as needed
-// import userReducer from '../features/users/userSlice';
+import { buyerAuthApi } from '../features/auth/buyerAuthApi';
+import { sellerAuthApi } from '../features/auth/sellerAuthApi';
 
 /**
- * Redux Store Configuration
- * 
- * Features:
- * - Redux Toolkit for simplified Redux setup
- * - RTK Query for API state management
- * - Redux DevTools integration (automatically enabled in development)
- * - Middleware for API caching and invalidation
+ * Configure Redux store
  */
 export const store = configureStore({
   reducer: {
-    // RTK Query API slice - handles all API state
-    [api.reducerPath]: api.reducer,
-    
-    // Feature slices - handle local state
+    // Authentication state
     auth: authReducer,
-    // users: userReducer,
-    // Add other feature reducers here
+    
+    // RTK Query API slices
+    [buyerAuthApi.reducerPath]: buyerAuthApi.reducer,
+    [sellerAuthApi.reducerPath]: sellerAuthApi.reducer,
+    
+    // Add other feature slices here as needed
+    // cart: cartReducer,
+    // products: productsReducer,
+    // etc.
   },
   
-  // Middleware configuration
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      // Middleware options
+      // Configure middleware options
       serializableCheck: {
-        // Ignore these action types for serialization check
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
-        // Ignore these paths in the state
-        ignoredPaths: ['api'],
+        // Ignore these action types for serializable checks
+        ignoredActions: [
+          'auth/setCredentials',
+          'auth/setProfileStatus',
+        ],
       },
-    }).concat(api.middleware), // Add RTK Query middleware
+    }).concat(
+      // Add RTK Query middleware
+      buyerAuthApi.middleware,
+      sellerAuthApi.middleware
+    ),
   
-  // Enable Redux DevTools in development
-  devTools: import.meta.env.DEV,
+  devTools: import.meta.env.MODE !== 'production', // Enable Redux DevTools in development
 });
 
 /**
- * Setup listeners for RTK Query
- * Enables automatic refetching on focus/reconnect
- * Must be called after store creation
+ * Setup listeners for refetchOnFocus/refetchOnReconnect behaviors
  */
 setupListeners(store.dispatch);
 
-// Export store type for TypeScript (if migrating later)
+// Export types for TypeScript (if needed in future)
 // export type RootState = ReturnType<typeof store.getState>;
 // export type AppDispatch = typeof store.dispatch;

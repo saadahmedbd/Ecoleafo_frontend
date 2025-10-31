@@ -3,6 +3,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL, API_TAGS, STORAGE_KEYS } from '../utils/constants';
 import { logError } from '../utils/errorHandler';
+import { updateToken, clearAuth } from '../features/auth/authSlice'
 
 /**
  * Base query configuration with authentication and error handling
@@ -40,13 +41,12 @@ const baseQuery = fetchBaseQuery({
  * Base query with error handling and token refresh logic
  * Wraps baseQuery to handle 401 errors and refresh tokens
  */
-  const baseQueryWithReauth = async (args, api, extraOptions) => {
+const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
-  
+
   if (result.error?.status === 401) {
-    // Try to refresh token
     const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-    
+
     if (refreshToken) {
       const refreshResult = await baseQuery(
         {
@@ -57,24 +57,37 @@ const baseQuery = fetchBaseQuery({
         api,
         extraOptions
       );
-      
-      if (refreshResult.data) {
-        // Store new token
+
+      if (refreshResult.data?.token) {
         const newToken = refreshResult.data.token;
+        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, newToken);
         api.dispatch(updateToken(newToken));
-        
-        // Retry original request
-        result = await baseQuery(args, api, extraOptions);
+
+        // Retry original request with new token
+        result = await baseQuery(
+          {
+            ...args,
+            headers: { 
+              ...args.headers, 
+              Authorization: `Bearer ${newToken}` 
+            },
+          },
+          api,
+          extraOptions
+        );
       } else {
-        // Refresh failed - logout user
-        api.dispatch(logout());
-        window.location.href = '/login';
+        api.dispatch(clearAuth());
+        // Use React Router navigation in your component instead
+        window.location.href = '/auth/login';
       }
     }
   }
-  
+
+  if (result.error) logError(result.error);
+
   return result;
 };
+
 /**
  * Base API configuration using RTK Query
  * This is the foundation for all API endpoints

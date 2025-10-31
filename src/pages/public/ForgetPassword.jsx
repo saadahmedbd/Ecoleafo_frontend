@@ -2,8 +2,9 @@
 
 import { ArrowLeft, Mail, CheckCircle, AlertCircle } from "lucide-react";
 import { useState } from "react";
-import { useForgotPasswordMutation } from "@/features/auth/authApi";
+import { useForgotPasswordMutation } from "@/features/auth/buyerAuthApi";
 import { validateEmail } from "@/utils/validation";
+import BuyerAuthService from "../../services/BuyerAuthService";
 
 /**
  * Forgot Password Page
@@ -43,7 +44,10 @@ export default function ForgotPasswordPage({ onBack, onLoginClick }) {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+     setError('');
+    setSuccess('');
+    setIsLoading(true);        
+       
     // Validate email
     const validation = validateEmail(email);
     if (!validation.isValid) {
@@ -53,21 +57,18 @@ export default function ForgotPasswordPage({ onBack, onLoginClick }) {
     }
     
     try {
-      // Call forgot password API
-      await forgotPassword({ email: email.trim().toLowerCase() }).unwrap();
-      
-      // Show success message
-      setSuccess(true);
-      setError("");
-    } catch (err) {
-      console.error("Forgot password error:", err);
-      
-      // Show error message
-      const errorMessage = err?.message || err?.data?.message || 
-        "Failed to send reset email. Please try again.";
-      setError(errorMessage);
-      setSuccess(false);
+    const response = await BuyerAuthService.requestPasswordReset(email);
+
+    if (response.success) {
+      setSuccess('Password reset email sent! Check your inbox.');
+    } else {
+      setError(response.error);
     }
+  } catch (err) {
+    setError('Failed to send reset email.');
+  } finally {
+    setIsLoading(false);
+  }
   };
   
   /**

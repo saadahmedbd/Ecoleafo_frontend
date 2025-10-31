@@ -1,260 +1,383 @@
-// src/features/auth/authSlice.js
+// ==========================================
+// UNIFIED AUTHENTICATION SLICE
+// ==========================================
+// Purpose: Manages authentication state for buyers, sellers, and admins
+// Handles: Login/logout, token management, user roles, profile completion status
+// ==========================================
 
 import { createSlice } from '@reduxjs/toolkit';
-import { STORAGE_KEYS } from '@/utils/constants';
+import { buyerAuthApi } from './buyerAuthApi';
+import { sellerAuthApi } from './sellerAuthApi';
 
 /**
- * Initial authentication state
- * Checks localStorage for existing auth data on app load
+ * Load initial state from localStorage
  */
-const getInitialState = () => {
+
+const loadInitialState = () => {
   try {
-    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-    const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
-    
+    const token = localStorage.getItem('auth_token');
+    const userData = localStorage.getItem('user_data');
+    const rememberMe = localStorage.getItem('remember_me') === 'true';
+
     if (token && userData) {
+      const user = JSON.parse(userData);
       return {
-        user: JSON.parse(userData),
-        token: token,
         isAuthenticated: true,
+        token,
+        user,
+        role: user?.userType || user?.role || null,
+        rememberMe,
         isLoading: false,
         error: null,
+        profileStatus: null,
       };
     }
   } catch (error) {
-    console.error('Error loading auth state:', error);
-    // Clear corrupted data
-    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+    console.error('Error loading auth state from localStorage:', error);
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
   }
-  
+
   return {
-    user: null,
-    token: null,
     isAuthenticated: false,
+    token: null,
+    user: null,
+    role: null,
+    rememberMe: false,
     isLoading: false,
     error: null,
+    profileStatus: null,
   };
 };
 
+
 /**
  * Authentication Slice
- * Manages buyer authentication state and actions
- * 
- * State Structure:
- * {
- *   user: {
- *     userType: "buyer",
- *     firstName: string,
- *     lastName: string,
- *     email: string,
- *     roles: ["buyer"],
- *     fullName: string
- *   },
- *   token: string,
- *   isAuthenticated: boolean,
- *   isLoading: boolean,
- *   error: string | null
- * }
  */
 const authSlice = createSlice({
   name: 'auth',
-  initialState: getInitialState(),
+  initialState: loadInitialState(),
+  
   reducers: {
     /**
-     * Set credentials after successful login/registration
-     * Stores token and user data in localStorage and state
-     * 
-     * @param {Object} payload - { user, token }
+     * Set credentials manually (for custom login flows)
      */
     setCredentials: (state, action) => {
-      const { user, token } = action.payload;
+      const { token, user, rememberMe } = action.payload;
       
-      // Validate user type for buyer app
-      if (user.userType !== 'buyer') {
-        state.error = 'Invalid user type. This portal is for buyers only.';
-        return;
-      }
-      
-      // Update state
-      state.user = user;
-      state.token = token;
       state.isAuthenticated = true;
+      state.token = token;
+      state.user = user;
+      // state.role =  user.role;
+      state.rememberMe = rememberMe || false;
       state.error = null;
-      
+
       // Persist to localStorage
-      try {
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
-        localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(user));
-      } catch (error) {
-        console.error('Error saving to localStorage:', error);
-      }
-    },
-    
-    /**
-     * Update user profile information
-     * Used when user updates their profile
-     * 
-     * @param {Object} payload - Partial user data to update
-     */
-    updateUser: (state, action) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-        
-        // Update full name if first or last name changed
-        if (action.payload.firstName || action.payload.lastName) {
-          state.user.fullName = `${state.user.firstName} ${state.user.lastName}`;
-        }
-        
-        // Persist updated user data
-        try {
-          localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(state.user));
-        } catch (error) {
-          console.error('Error updating localStorage:', error);
-        }
-      }
-    },
-    
-    /**
-     * Clear credentials and logout user
-     * Removes all auth data from state and localStorage
-     */
-    logout: (state) => {
-      // Clear state
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
-      state.error = null;
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('user_data', JSON.stringify(user));
       
-      // Clear localStorage
-      try {
-        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.USER_DATA);
-        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-        
-        // Clear device preference on logout
-        localStorage.removeItem('viewPreference');
-      } catch (error) {
-        console.error('Error clearing localStorage:', error);
+      if (rememberMe) {
+        localStorage.setItem('remember_me', 'true');
       }
     },
-    
+
+    /**
+     * Update profile completion status (for sellers)
+     */
+    setProfileStatus: (state, action) => {
+      state.profileStatus = action.payload;
+    },
+
+    /**
+     * Clear all authentication data
+     */
+    clearAuth: (state) => {
+      state.isAuthenticated = false;
+      state.token = null;
+      state.user = null;
+      state.role = null;
+      state.rememberMe = false;
+      state.error = null;
+      state.profileStatus = null;
+
+      // Clear localStorage
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      localStorage.removeItem('remember_me');
+    },
+
     /**
      * Set authentication error
-     * Used for displaying error messages to users
-     * 
-     * @param {string} payload - Error message
      */
     setAuthError: (state, action) => {
       state.error = action.payload;
       state.isLoading = false;
     },
-    
-    /**
-     * Set loading state
-     * Shows loading indicators during auth operations
-     * 
-     * @param {boolean} payload - Loading state
-     */
-    setAuthLoading: (state, action) => {
-      state.isLoading = action.payload;
-    },
-    
+
     /**
      * Clear authentication error
-     * Removes error message from state
      */
     clearAuthError: (state) => {
       state.error = null;
     },
-    
+
     /**
-     * Update token
-     * Used for token refresh functionality
-     * 
-     * @param {string} payload - New token
+     * Set loading state
+     */
+    setAuthLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
+  },
+
+  extraReducers: (builder) => {
+    // ==========================================
+    // BUYER AUTHENTICATION
+    // ==========================================
+    
+    // Buyer Registration
+    builder.addMatcher(
+      buyerAuthApi.endpoints.register.matchPending,
+      (state) => {
+        state.isLoading = true;
+        state.error = null;
+      }
+    );
+    builder.addMatcher(
+      buyerAuthApi.endpoints.register.matchFulfilled,
+      (state, action) => {
+        const { token, user } = action.payload;
+        
+        state.isAuthenticated = true;
+        state.token = token;
+        state.user = user;
+        state.role = 'buyer';
+        state.isLoading = false;
+        state.error = null;
+
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user_data', JSON.stringify(user));
+      }
+    );
+    builder.addMatcher(
+      buyerAuthApi.endpoints.register.matchRejected,
+      (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || action.error.message || 'Registration failed';
+      }
+    );
+
+    // Buyer Login
+    builder.addMatcher(
+      buyerAuthApi.endpoints.login.matchPending,
+      (state) => {
+        state.isLoading = true;
+        state.error = null;
+      }
+    );
+    builder.addMatcher(
+      buyerAuthApi.endpoints.login.matchFulfilled,
+      (state, action) => {
+        const { token, user, rememberMe } = action.payload;
+        
+        state.isAuthenticated = true;
+        state.token = token;
+        state.user = user;
+        state.role = 'buyer';
+        state.rememberMe = rememberMe || false;
+        state.isLoading = false;
+        state.error = null;
+
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user_data', JSON.stringify(user));
+        
+        if (rememberMe) {
+          localStorage.setItem('remember_me', 'true');
+        }
+      }
+    );
+    builder.addMatcher(
+      buyerAuthApi.endpoints.login.matchRejected,
+      (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || action.error.message || 'Login failed';
+      }
+    );
+
+    // ==========================================
+    // SELLER AUTHENTICATION
+    // ==========================================
+    
+    // Seller Registration
+    builder.addMatcher(
+      sellerAuthApi.endpoints.registerSeller.matchPending,
+      (state) => {
+        state.isLoading = true;
+        state.error = null;
+      }
+    );
+    builder.addMatcher(
+      sellerAuthApi.endpoints.registerSeller.matchFulfilled,
+      (state, action) => {
+        const { token, user_id, seller_id, profile_status } = action.payload;
+        
+        state.isAuthenticated = true;
+        state.token = token;
+        state.user = {
+          id: user_id,
+          seller_id: seller_id,
+          userType: 'seller',
+        };
+        state.role = 'seller';
+        state.profileStatus = profile_status;
+        state.isLoading = false;
+        state.error = null;
+
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user_data', JSON.stringify(state.user));
+      }
+    );
+    builder.addMatcher(
+      sellerAuthApi.endpoints.registerSeller.matchRejected,
+      (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || action.error.message || 'Registration failed';
+      }
+    );
+
+    // Seller Login
+    builder.addMatcher(
+      sellerAuthApi.endpoints.loginSeller.matchPending,
+      (state) => {
+        state.isLoading = true;
+        state.error = null;
+      }
+    );
+    builder.addMatcher(
+      sellerAuthApi.endpoints.loginSeller.matchFulfilled,
+      (state, action) => {
+        const { token, user, profile_status } = action.payload;
+        
+        state.isAuthenticated = true;
+        state.token = token;
+        state.user = user;
+        state.role = 'seller';
+        state.profileStatus = profile_status;
+        state.isLoading = false;
+        state.error = null;
+
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user_data', JSON.stringify(user));
+      }
+    );
+    builder.addMatcher(
+      sellerAuthApi.endpoints.loginSeller.matchRejected,
+      (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || action.error.message || 'Login failed';
+      }
+    );
+
+    // Profile Status Query
+    builder.addMatcher(
+      sellerAuthApi.endpoints.getProfileStatus.matchFulfilled,
+      (state, action) => {
+        state.profileStatus = action.payload;
+      }
+    );
+
+    // Profile Completion
+    builder.addMatcher(
+      sellerAuthApi.endpoints.completeProfile.matchFulfilled,
+      (state, action) => {
+        // Update profile status after completion
+        if (action.payload.profile_status) {
+          state.profileStatus = action.payload.profile_status;
+        }
+      }
+    );
+
+    // Payment Method Addition
+    builder.addMatcher(
+      sellerAuthApi.endpoints.addPaymentMethod.matchFulfilled,
+      (state) => {
+        // Mark payment method as added
+        if (state.profileStatus) {
+          state.profileStatus.has_payment_method = true;
+        }
+      }
+    );
+     /**
+     * Update token (for refresh flow)
      */
     updateToken: (state, action) => {
-      state.token = action.payload;
-      
-      try {
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, action.payload);
-      } catch (error) {
-        console.error('Error updating token:', error);
-      }
+      state.token = action.payload; // payload = new access token
+      localStorage.setItem('auth_token', action.payload);
     },
+    /**
+     * Logout user manually
+     */
+    logout; (state) => {
+    // call clearAuth logic internally
+    state.isAuthenticated = false;
+    state.token = null;
+    state.user = null;
+    state.role = null;
+    state.rememberMe = false;
+    state.error = null;
+    state.profileStatus = null;
+
+    // also clear localStorage
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
+    localStorage.removeItem('remember_me');
+  },
+
+
+
+    // Logout (both buyer and seller)
+    builder.addMatcher(
+      (action) => 
+        action.type === buyerAuthApi.endpoints.logout.matchFulfilled.type ||
+        action.type === sellerAuthApi.endpoints.logoutSeller.matchFulfilled.type,
+      (state) => {
+        state.isAuthenticated = false;
+        state.token = null;
+        state.user = null;
+        state.role = null;
+        state.rememberMe = false;
+        state.error = null;
+        state.profileStatus = null;
+
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        localStorage.removeItem('remember_me');
+      }
+    );
   },
 });
 
 // Export actions
 export const {
   setCredentials,
-  updateUser,
-  logout,
+  setProfileStatus,
+  clearAuth,
   setAuthError,
-  setAuthLoading,
-  clearAuthError,
+  logout,
   updateToken,
+  clearAuthError,
+  setAuthLoading,
 } = authSlice.actions;
 
-// Selectors
-/**
- * Select current user object
- * Returns null if not authenticated
- */
+// Export selectors
+export const selectAuth = (state) => state.auth;
+export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectUser = (state) => state.auth.user;
+export const selectUserRole = (state) => state.auth.role;
+export const selectProfileStatus = (state) => state.auth.profileStatus;
+export const selectAuthError = (state) => state.auth.error;
+export const selectAuthLoading = (state) => state.auth.isLoading;
 export const selectCurrentUser = (state) => state.auth.user;
 
-/**
- * Select authentication status
- * Returns true if user is logged in
- */
-export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
-
-/**
- * Select auth token
- * Returns null if not authenticated
- */
-export const selectAuthToken = (state) => state.auth.token;
-
-/**
- * Select authentication error
- * Returns null if no error
- */
-export const selectAuthError = (state) => state.auth.error;
-
-/**
- * Select loading state
- * Returns true during auth operations
- */
-export const selectAuthLoading = (state) => state.auth.isLoading;
-
-/**
- * Select user's full name
- * Returns empty string if not authenticated
- */
-export const selectUserFullName = (state) => state.auth.user?.fullName || '';
-
-/**
- * Select user's email
- * Returns empty string if not authenticated
- */
-export const selectUserEmail = (state) => state.auth.user?.email || '';
-
-/**
- * Select user's first name
- * Returns empty string if not authenticated
- */
-export const selectUserFirstName = (state) => state.auth.user?.firstName || '';
-
-/**
- * Check if user has specific role
- * 
- * @param {string} role - Role to check
- * @returns {boolean}
- */
-export const selectHasRole = (role) => (state) => {
-  return state.auth.user?.roles?.includes(role) || false;
-};
 
 // Export reducer
 export default authSlice.reducer;

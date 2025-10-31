@@ -8,7 +8,7 @@ import { useMemo } from 'react';
  * 
  * @returns {React.ReactNode}
  */
-export const Breadcrumb = () => {
+export default function Breadcrumb  () {
   const location = useLocation();
 
   /**
