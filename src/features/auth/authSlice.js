@@ -68,7 +68,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.token = token;
       state.user = user;
-      // state.role =  user.role;
+      state.role = user.userType || user.role || user.user_type;
       state.rememberMe = rememberMe || false;
       state.error = null;
 

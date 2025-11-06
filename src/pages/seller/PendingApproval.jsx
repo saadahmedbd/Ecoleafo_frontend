@@ -74,6 +74,8 @@ export default function PendingApproval() {
   }
 };
 
+
+
   // ==========================================
   // RENDER
   // ==========================================
@@ -164,7 +166,7 @@ export default function PendingApproval() {
           {/* Refresh Status Button */}
           <div className="flex justify-center mb-6">
             <button
-              onClick={handleRefresh}
+              onClick={handleRefreshStatus}
               disabled={isRefreshing || isLoading}
               className="flex items-center text-emerald-600 hover:text-emerald-700 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >

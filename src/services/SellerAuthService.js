@@ -85,6 +85,9 @@ class SellerAuthService {
         sellerAuthApi.endpoints.loginSeller.initiate(credentials)
       ).unwrap();
 
+      console.log('[SellerAuthService] Login result:', result);
+      console.log('[SellerAuthService] Profile status:', result.profile_status);
+
       // Store credentials
       this.storeAuthentication(
         result.token,
@@ -99,6 +102,7 @@ class SellerAuthService {
 
       // Determine redirect based on profile status
       const redirectTo = await this.determineRedirectAfterLogin(result.profile_status);
+      console.log('[SellerAuthService] Redirect determined:', redirectTo);
 
       return {
         success: true,
@@ -571,14 +575,15 @@ async getProfileStatus() {
    */
   async determineRedirectAfterLogin(profileStatus) {
     if (!profileStatus) {
-      return '/seller/dashboard';
+      return '/seller/account';
     }
 
-    // Check approval status
+    // Check approval status first - this is the most important check
     if (!profileStatus.is_approved) {
       if (profileStatus.approval_status === 'rejected') {
         return '/seller/account-rejected';
       }
+      // If not approved and not rejected, they're pending
       return '/seller/pending-approval';
     }
 
@@ -594,8 +599,8 @@ async getProfileStatus() {
       return '/seller/add-payment';
     }
 
-    // All checks passed
-    return '/seller/dashboard';
+    // All checks passed - redirect to account page
+    return '/seller/account';
   }
 
   /**
@@ -603,11 +608,14 @@ async getProfileStatus() {
    * @private
    */
   storeAuthentication(token, user, rememberMe = false) {
-    // Ensure user has seller type
+    // Ensure user has seller type and role
     const sellerUser = {
       ...user,
-      userType: 'seller'
+      userType: 'seller',
+      role: 'seller'
     };
+
+    console.log('[SellerAuthService] Storing user:', sellerUser);
 
     // Dispatch to Redux
     store.dispatch(setCredentials({
