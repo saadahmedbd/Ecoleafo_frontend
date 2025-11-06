@@ -48,97 +48,48 @@ export default function SellerGuard({ children }) {
    */
   const checkSellerStatus = async () => {
     setIsChecking(true);
+    console.log('[SellerGuard] Checking seller status...');
 
     // Check if user is authenticated
-    if (!SellerAuthService.isAuthenticated) {
+    if (!SellerAuthService.isAuthenticated()) {
+      console.log('[SellerGuard] Not authenticated, redirecting to login');
       setRedirectTo('/seller/login');
       setIsChecking(false);
       return;
     }
-    try {
-    // Get fresh profile status
-    const response = await SellerAuthService.getProfileStatus();
-    
-    if (!response.success) {
-      setRedirectTo('/seller/login');
-      setIsChecking(false);
-      return;
-    }
-
-    const status = response.data;
-    
-    // Determine redirect based on status
-    if (!status.is_approved) {
-      if (status.approval_status === 'rejected') {
-        setRedirectTo('/seller/account-rejected');
-      } else {
-        setRedirectTo('/seller/pending-approval');
-      }
-    } else if (!status.is_profile_complete) {
-      setRedirectTo('/seller/complete-profile');
-    } else if (!status.has_payment_method) {
-      setRedirectTo('/seller/add-payment');
-    } else {
-      // All good - no redirect needed
-      setRedirectTo(null);
-    }
-    } catch (err) {
-        console.error('Seller status check error:', err);
-        setRedirectTo('/seller/login');
-    } finally {
-        setIsChecking(false);
-    }
-
 
     // Check if user is a seller
     if (userRole !== 'seller') {
+      console.log('[SellerGuard] Not a seller role:', userRole);
       setRedirectTo('/unauthorized');
       setIsChecking(false);
       return;
     }
 
-    // Get token
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      setRedirectTo('/seller/login');
-      setIsChecking(false);
-      return;
-    }
-
     try {
-      // Fetch profile status from backend
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/seller/profile/status`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Token expired or invalid
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user_data');
-          setRedirectTo('/seller/login');
-          setIsChecking(false);
-          return;
-        }
-        throw new Error('Failed to fetch profile status');
+      // Get fresh profile status
+      const response = await SellerAuthService.getProfileStatus();
+      console.log('[SellerGuard] Profile status response:', response);
+      
+      if (!response.success) {
+        console.log('[SellerGuard] Failed to get profile status');
+        setRedirectTo('/seller/login');
+        setIsChecking(false);
+        return;
       }
 
-      const status = await response.json();
+      const status = response.data;
+      console.log('[SellerGuard] Profile status:', status);
       setProfileStatus(status);
-
-      // Determine redirect based on profile status
+      
+      // Determine redirect based on status and current path
       const redirect = determineRedirect(status, location.pathname);
+      console.log('[SellerGuard] Determined redirect:', redirect, 'Current path:', location.pathname);
       setRedirectTo(redirect);
 
-    } catch (error) {
-      console.error('Seller status check error:', error);
-      // On error, allow access but log the issue
-      setRedirectTo(null);
+    } catch (err) {
+      console.error('[SellerGuard] Seller status check error:', err);
+      setRedirectTo('/seller/login');
     } finally {
       setIsChecking(false);
     }
@@ -148,6 +99,8 @@ export default function SellerGuard({ children }) {
    * Determine where to redirect based on profile status
    */
   const determineRedirect = (status, currentPath) => {
+    console.log('[SellerGuard] determineRedirect called with:', { status, currentPath });
+    
     // Allow access to these pages without full profile
     const allowedIncompletePages = [
       '/seller/complete-profile',
@@ -157,36 +110,46 @@ export default function SellerGuard({ children }) {
     ];
 
     if (allowedIncompletePages.includes(currentPath)) {
-      // Already on an allowed page
+      console.log('[SellerGuard] Already on allowed incomplete page');
       return null;
     }
 
     // Check approval status
+    console.log('[SellerGuard] Checking approval status:', status.is_approved);
     if (!status.is_approved) {
       if (status.approval_status === 'rejected') {
+        console.log('[SellerGuard] Account rejected');
         return '/seller/account-rejected';
       }
+      console.log('[SellerGuard] Account pending approval');
       return '/seller/pending-approval';
     }
 
     // Check profile completion
+    console.log('[SellerGuard] Checking profile completion:', status.is_profile_complete);
     if (!status.is_profile_complete) {
       if (!status.has_business_info || !status.has_address) {
+        console.log('[SellerGuard] Profile incomplete');
         return '/seller/complete-profile';
       }
     }
 
     // Check payment method
+    console.log('[SellerGuard] Checking payment method:', status.has_payment_method);
     if (!status.has_payment_method) {
+      console.log('[SellerGuard] No payment method');
       return '/seller/add-payment';
     }
 
     // Check if seller can add products
+    console.log('[SellerGuard] Checking can_add_products:', status.can_add_products);
     if (!status.can_add_products) {
+      console.log('[SellerGuard] Cannot add products yet');
       return '/seller/pending-approval';
     }
 
     // All checks passed
+    console.log('[SellerGuard] All checks passed, allowing access');
     return null;
   };
 

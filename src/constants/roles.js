@@ -25,7 +25,7 @@ export const ROLE_LABELS = {
  */
 export const ROLE_DEFAULT_ROUTES = {
   [USER_ROLES.BUYER]: '/buyer/dashboard',
-  [USER_ROLES.SELLER]: '/seller/dashboard',
+  [USER_ROLES.SELLER]: '/seller/account',
   [USER_ROLES.ADMIN]: '/admin/dashboard',
 };
 

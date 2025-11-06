@@ -41,9 +41,9 @@ const Sidebar = ({ isOpen, menuItems, currentPath, role }) => {
 
   return (
     <aside
+      style={{ width: isOpen ? '180px' : '80px' }}
       className={`
         ${getSidebarColor()}
-        ${isOpen ? 'w-64' : 'w-20'}
         transition-all duration-300 ease-in-out
         flex flex-col
       `}
