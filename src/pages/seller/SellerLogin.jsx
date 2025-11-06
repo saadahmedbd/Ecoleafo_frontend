@@ -152,7 +152,7 @@ export default function SellerLogin() {
       }
 
       // All checks passed - go to dashboard
-      navigate('/seller/dashboard');
+      navigate('/seller/account');
 
     } catch (err) {
       console.error('Profile check error:', err);
@@ -171,25 +171,28 @@ export default function SellerLogin() {
     if (!validateForm()) return;
 
     try {
-      const response= await SellerAuthService.login({
+      const response = await SellerAuthService.login({
         email: formData.email,
         password: formData.password,
         remember_me: formData.remember_me
       });
 
-        if (response.success) {
-      // Login successful - redirect based on profile status
-      if (response.redirectTo) {
-        navigate(response.redirectTo);
+      console.log('Login response:', response);
+
+      if (response.success) {
+        const redirectPath = response.redirectTo || '/seller/account';
+        console.log('Redirecting to:', redirectPath);
+        
+        // Small delay to ensure Redux state is fully updated
+        setTimeout(() => {
+          navigate(redirectPath, { replace: true });
+        }, 100);
       } else {
-        navigate('/seller/dashboard');
+        setError(response.error || response.message);
       }
-    } else {
-      setError(response.error);
-    }
 
     } catch (err) {
-      // Handle specific error cases
+      console.error('Login error:', err);
       if (err.status === 401) {
         setError('Invalid email or password');
       } else if (err.status === 403) {
@@ -197,7 +200,6 @@ export default function SellerLogin() {
       } else {
         setError(err?.data?.message || 'Login failed. Please try again.');
       }
-      console.error('Login error:', err);
     }
   };
 
