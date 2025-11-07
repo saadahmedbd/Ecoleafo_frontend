@@ -11,6 +11,7 @@ import authReducer from '../features/auth/authSlice';
 import { buyerAuthApi } from '../features/auth/buyerAuthApi';
 import { sellerAuthApi } from '../features/auth/sellerAuthApi';
 import { dashboardApi } from '../features/seller_dashboard/dashboardAPI';
+import { productApi } from '../features/product/productApi';
 
 /**
  * Configure Redux store
@@ -24,6 +25,7 @@ export const store = configureStore({
     [buyerAuthApi.reducerPath]: buyerAuthApi.reducer,
     [sellerAuthApi.reducerPath]: sellerAuthApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [productApi.reducerPath]: productApi.reducer,
     
     // Add other feature slices here as needed
     // cart: cartReducer,
@@ -45,7 +47,8 @@ export const store = configureStore({
       // Add RTK Query middleware
       buyerAuthApi.middleware,
       sellerAuthApi.middleware,
-      dashboardApi.middleware
+      dashboardApi.middleware,
+      productApi.middleware,
     ),
   
   devTools: import.meta.env.MODE !== 'production', // Enable Redux DevTools in development

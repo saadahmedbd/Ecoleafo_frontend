@@ -12,6 +12,7 @@ import PendingApproval from '@/pages/seller/PendingApproval';
 import SellerAccount from '@/pages/seller/SellerAccount';
 import SellerDashboard from '@/pages/seller/SellerDashboard';
 import SellerSettings from '../pages/seller/SellerSettings';
+import SellerProducts from '../pages/seller/SellerProducts';
 
 const sellerRoutes = [
   // Seller Authentication
@@ -74,6 +75,8 @@ const sellerRoutes = [
       { path: 'dashboard', element: <SellerDashboard /> },
       { path: 'account', element: <SellerAccount /> },
       { path: 'setting', element: <SellerSettings /> },
+      { path: 'products', element: <SellerProducts /> },
+
 
 
     ],
