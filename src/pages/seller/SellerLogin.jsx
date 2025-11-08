@@ -152,7 +152,7 @@ export default function SellerLogin() {
       }
 
       // All checks passed - go to dashboard
-      navigate('/seller/account');
+      navigate('/seller/dashboard');
 
     } catch (err) {
       console.error('Profile check error:', err);
