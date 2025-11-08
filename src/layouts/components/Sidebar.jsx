@@ -41,11 +41,13 @@ const Sidebar = ({ isOpen, menuItems, currentPath, role }) => {
 
   return (
     <aside
-      style={{ width: isOpen ? '180px' : '80px' }}
+      style={{ width: isOpen ? '240px' : '80px' }}
       className={`
         ${getSidebarColor()}
         transition-all duration-300 ease-in-out
         flex flex-col
+        h-screen sticky top-0
+        flex-shrink-0
       `}
     >
       {/* Logo/Brand */}
@@ -66,7 +68,7 @@ const Sidebar = ({ isOpen, menuItems, currentPath, role }) => {
       </div>
 
       {/* Navigation menu */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
         {menuItems.map((item) => {
           const isActive = currentPath === item.path;
           
@@ -85,7 +87,7 @@ const Sidebar = ({ isOpen, menuItems, currentPath, role }) => {
               title={!isOpen ? item.name : ''}
             >
               <span className="flex-shrink-0">{item.icon}</span>
-              {isOpen && <span>{item.name}</span>}
+              {isOpen && <span className="text-sm">{item.name}</span>}
             </Link>
           );
         })}
