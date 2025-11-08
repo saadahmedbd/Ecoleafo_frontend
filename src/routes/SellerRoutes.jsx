@@ -13,6 +13,8 @@ import SellerAccount from '@/pages/seller/SellerAccount';
 import SellerDashboard from '@/pages/seller/SellerDashboard';
 import SellerSettings from '../pages/seller/SellerSettings';
 import SellerProducts from '../pages/seller/SellerProducts';
+import SellerOrders from '../pages/seller/SellerOrders';
+import HomeSellerAccount from '../pages/seller/HomeSellerAccount';
 
 const sellerRoutes = [
   // Seller Authentication
@@ -32,16 +34,6 @@ const sellerRoutes = [
       <AuthGuard>
         <RoleGuard allowedRoles={['seller']}>
           <CompleteProfile />
-        </RoleGuard>
-      </AuthGuard>
-    ),
-  },
-  {
-    path: '/seller/add-payment',
-    element: (
-      <AuthGuard>
-        <RoleGuard allowedRoles={['seller']}>
-          <AddPayment />
         </RoleGuard>
       </AuthGuard>
     ),
@@ -71,14 +63,17 @@ const sellerRoutes = [
       </AuthGuard>
     ),
     children: [
-      { index: true, element: <Navigate to="/seller/account" replace /> },
+      { index: true, element: <Navigate to="/seller/dashboard" replace /> },
       { path: 'dashboard', element: <SellerDashboard /> },
-      { path: 'account', element: <SellerAccount /> },
+      { path: 'account', element: <HomeSellerAccount /> },
+      { path: 'account/information', element: <SellerAccount /> },
+      { path: 'add-payment', element: <AddPayment /> },
       { path: 'setting', element: <SellerSettings /> },
       { path: 'products', element: <SellerProducts /> },
-
-
-
+      { path: 'orders', element: <SellerOrders /> },
+      { path: 'inventory', element: <div className="p-4"><h1 className="text-2xl font-bold">Manage Inventory</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
+      { path: 'reviews', element: <div className="p-4"><h1 className="text-2xl font-bold">Customer Reviews</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
+      { path: 'messages', element: <div className="p-4"><h1 className="text-2xl font-bold">Messages</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
     ],
   },
 ];
