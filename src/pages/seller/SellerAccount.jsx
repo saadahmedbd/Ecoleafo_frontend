@@ -375,11 +375,11 @@ export default function SellerAccount() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-[#374151]">Account Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your account information and security</p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-[#374151]">Account Settings</h1>
+        <p className="text-sm sm:text-base text-gray-500 mt-1">Manage your account information and security</p>
       </div>
 
       {/* Success/Error Messages */}
@@ -398,11 +398,11 @@ export default function SellerAccount() {
       )}
 
       {/* Profile Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-[#374151] mb-6">Profile Information</h2>
         
         {/* Profile Photo */}
-        <div className="flex items-center gap-6 mb-6 pb-6 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 mb-6 pb-6 border-b border-gray-200">
           <div className="relative">
             {formData.profile_photo ? (
               <img
@@ -426,7 +426,7 @@ export default function SellerAccount() {
               />
             </label>
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h3 className="font-medium text-[#374151] mb-1">Profile Photo</h3>
             <p className="text-sm text-gray-500 mb-3">PNG or JPG (max. 2MB)</p>
           </div>
@@ -503,7 +503,7 @@ export default function SellerAccount() {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2 bg-[#FF9900] text-white rounded-lg hover:bg-[#E68A00] transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-6 py-2 bg-[#FF9900] text-white rounded-lg hover:bg-[#E68A00] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>
@@ -522,7 +522,7 @@ export default function SellerAccount() {
       </div>
 
       {/* Password Change */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-[#374151] mb-2">Change Password</h2>
         <p className="text-sm text-gray-500 mb-6">Update your password to keep your account secure</p>
 
@@ -598,7 +598,7 @@ export default function SellerAccount() {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2 bg-[#FF9900] text-white rounded-lg hover:bg-[#E68A00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-6 py-2 bg-[#FF9900] text-white rounded-lg hover:bg-[#E68A00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? 'Updating...' : 'Update Password'}
             </button>
@@ -607,12 +607,12 @@ export default function SellerAccount() {
       </div>
 
       {/* Security Settings */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-[#374151] mb-2">Security Settings</h2>
         <p className="text-sm text-gray-500 mb-6">Manage your account security preferences</p>
 
         {/* Two-Factor Authentication */}
-        <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg mb-4">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4 p-4 bg-gray-50 rounded-lg mb-4">
           <div className="flex items-start gap-3">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
               twoFactorEnabled ? 'bg-green-100' : 'bg-gray-200'
@@ -634,7 +634,7 @@ export default function SellerAccount() {
           <button
             onClick={handleToggle2FA}
             disabled={isSaving}
-            className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${
+            className={`w-full sm:w-auto px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${
               twoFactorEnabled
                 ? 'bg-red-100 text-red-700 hover:bg-red-200'
                 : 'bg-[#FF9900] text-white hover:bg-[#E68A00]'
@@ -650,7 +650,7 @@ export default function SellerAccount() {
           <div className="space-y-3">
             {loginActivity.length > 0 ? (
               loginActivity.slice(0, 3).map((activity, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 border-b border-gray-100 last:border-0">
                   <div>
                     <p className="text-sm font-medium text-[#374151]">{activity.device || 'Unknown Device'}</p>
                     <p className="text-xs text-gray-500">
@@ -672,7 +672,7 @@ export default function SellerAccount() {
       </div>
 
       {/* Danger Zone */}
-      <div className="bg-white rounded-xl border border-red-200 p-6">
+      <div className="bg-white rounded-xl border border-red-200 p-4 sm:p-6">
         <div className="flex items-start gap-3 mb-6">
           <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
           <div>
@@ -683,7 +683,7 @@ export default function SellerAccount() {
 
         <div className="space-y-3">
           {/* Deactivate Account */}
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border border-gray-200 rounded-lg">
             <div>
               <p className="font-medium text-[#374151]">Deactivate Account</p>
               <p className="text-sm text-gray-500">Temporarily disable your seller account</p>
@@ -691,14 +691,14 @@ export default function SellerAccount() {
             <button
               onClick={handleDeactivate}
               disabled={isSaving}
-              className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
             >
               Deactivate
             </button>
           </div>
 
           {/* Delete Account */}
-          <div className="flex items-center justify-between p-4 border border-red-200 bg-red-50 rounded-lg">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border border-red-200 bg-red-50 rounded-lg">
             <div>
               <p className="font-medium text-red-600">Delete Account</p>
               <p className="text-sm text-red-600">Permanently delete your account and all data</p>
@@ -706,7 +706,7 @@ export default function SellerAccount() {
             <button
               onClick={handleDelete}
               disabled={isSaving}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
             >
               Delete
             </button>
@@ -715,7 +715,7 @@ export default function SellerAccount() {
       </div>
 
       {/* Logout Button */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
         <button
           onClick={handleLogout}
           disabled={isSaving}
