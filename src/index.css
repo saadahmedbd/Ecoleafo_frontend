@@ -14,3 +14,18 @@ body {
     line-height: 1.6;
     color: #333;
 }
+
+/* Hide scrollbar */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Safe area for mobile bottom navigation */
+.safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+}
