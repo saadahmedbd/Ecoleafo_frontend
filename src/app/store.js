@@ -13,6 +13,8 @@ import { sellerAuthApi } from '../features/auth/sellerAuthApi';
 import { dashboardApi } from '../features/seller_dashboard/dashboardAPI';
 import { productApi } from '../features/product/productApi';
 import { orderApi } from '../features/seller_order_management/orderApi';
+import { inventoryApi } from '../features/seller_inventory/InventoryApi';
+import reducer from '../features/auth/authSlice';
 
 /**
  * Configure Redux store
@@ -28,6 +30,7 @@ export const store = configureStore({
     [dashboardApi.reducerPath]: dashboardApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
+    [inventoryApi.reducerPath]:inventoryApi.reducer,
     
     // Add other feature slices here as needed
     // cart: cartReducer,
@@ -52,6 +55,7 @@ export const store = configureStore({
       dashboardApi.middleware,
       productApi.middleware,
       orderApi.middleware,
+      inventoryApi.middleware,
     ),
   
   devTools: import.meta.env.MODE !== 'production', // Enable Redux DevTools in development

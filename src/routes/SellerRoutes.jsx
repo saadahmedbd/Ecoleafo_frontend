@@ -15,6 +15,7 @@ import SellerSettings from '../pages/seller/SellerSettings';
 import SellerProducts from '../pages/seller/SellerProducts';
 import SellerOrders from '../pages/seller/SellerOrders';
 import HomeSellerAccount from '../pages/seller/HomeSellerAccount';
+import SellerInventory from '../pages/seller/SellerInventory';
 
 const sellerRoutes = [
   // Seller Authentication
@@ -71,7 +72,7 @@ const sellerRoutes = [
       { path: 'setting', element: <SellerSettings /> },
       { path: 'products', element: <SellerProducts /> },
       { path: 'orders', element: <SellerOrders /> },
-      { path: 'inventory', element: <div className="p-4"><h1 className="text-2xl font-bold">Manage Inventory</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
+      { path: 'inventory', element:<SellerInventory/> },
       { path: 'reviews', element: <div className="p-4"><h1 className="text-2xl font-bold">Customer Reviews</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
       { path: 'messages', element: <div className="p-4"><h1 className="text-2xl font-bold">Messages</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
     ],
