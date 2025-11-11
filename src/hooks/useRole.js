@@ -1,7 +1,7 @@
 // src/hooks/useRole.js
 
 import { useAppSelector } from '@/app/hooks';
-import { selectCurrentUser } from '@/features/auth/authSlice';
+import { selectUser, selectUserRole } from '@/features/auth/authSlice';
 import { USER_ROLES, hasPermission, canAccessRoute } from '@/constants/roles';
 
 /**
@@ -11,8 +11,8 @@ import { USER_ROLES, hasPermission, canAccessRoute } from '@/constants/roles';
  * @returns {Object} Role utilities and checks
  */
 const useRole = () => {
-  const user = useAppSelector(selectCurrentUser);
-  const role = user?.role;
+  const user = useAppSelector(selectUser);
+  const role = useAppSelector(selectUserRole);
 
   /**
    * Check if user has a specific role

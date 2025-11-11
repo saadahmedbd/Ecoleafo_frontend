@@ -32,34 +32,29 @@ class SellerAuthService {
    *   agree_to_terms: true
    * });
    */
-  async register(credentials) {
-    try {
-      const result = await store.dispatch(
-        sellerAuthApi.endpoints.registerSeller.initiate(credentials)
-      ).unwrap();
-
-      // Store credentials and profile status
-      this.storeAuthentication(result.token, {
-        id: result.user_id,
-        seller_id: result.seller_id,
-        userType: 'seller'
-      });
-
-      // Store profile status
-      if (result.profile_status) {
-        store.dispatch(setProfileStatus(result.profile_status));
+   async register(credentials) {
+      try {
+        const result = await store.dispatch(
+          sellerAuthApi.endpoints.registerSeller.initiate(credentials)
+        ).unwrap();
+  
+        // Store with refresh token
+        this.storeAuthentication(
+          result.token, 
+          result.refresh_token, // ADD THIS
+          result.user, 
+          false
+        );
+  
+        return {
+          success: true,
+          data: result,
+          message: 'Registration successful'
+        };
+      } catch (error) {
+        return this.handleError(error, 'Registration failed');
       }
-
-      return {
-        success: true,
-        data: result,
-        token: result.token,
-        message: 'Registration successful'
-      };
-    } catch (error) {
-      return this.handleError(error, 'Registration failed');
     }
-  }
   
 
   /**
@@ -80,40 +75,28 @@ class SellerAuthService {
    * }
    */
   async login(credentials) {
-    try {
-      const result = await store.dispatch(
-        sellerAuthApi.endpoints.loginSeller.initiate(credentials)
-      ).unwrap();
-
-      console.log('[SellerAuthService] Login result:', result);
-      console.log('[SellerAuthService] Profile status:', result.profile_status);
-
-      // Store credentials
-      this.storeAuthentication(
-        result.token,
-        result.user,
-        credentials.remember_me || false
-      );
-
-      // Store profile status
-      if (result.profile_status) {
-        store.dispatch(setProfileStatus(result.profile_status));
+      try {
+        const result = await store.dispatch(
+          sellerAuthApi.endpoints.loginSeller.initiate(credentials)
+        ).unwrap();
+  
+        // Store with refresh token
+        this.storeAuthentication(
+          result.token,
+          result.refresh_token, // ADD THIS
+          result.user,
+          credentials.remember_me || false
+        );
+  
+        return {
+          success: true,
+          data: result,
+          message: 'Login successful'
+        };
+      } catch (error) {
+        return this.handleError(error, 'Login failed');
       }
-
-      // Determine redirect based on profile status
-      const redirectTo = await this.determineRedirectAfterLogin(result.profile_status);
-      console.log('[SellerAuthService] Redirect determined:', redirectTo);
-
-      return {
-        success: true,
-        data: result,
-        redirectTo,
-        message: 'Login successful'
-      };
-    } catch (error) {
-      return this.handleError(error, 'Login failed');
     }
-  }
 
   /**
    * Logout current seller
@@ -632,20 +615,21 @@ async getProfileStatus() {
       localStorage.setItem('remember_me', 'true');
     }
   }
-
-  /**
-   * Clear all authentication data
-   * @private
-   */
-  clearAuthentication() {
-    // Clear Redux state
-    store.dispatch(clearAuth());
-
-    // Clear localStorage
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-    localStorage.removeItem('remember_me');
-  }
+    /** 
+    * Clear all authentication data
+     * @private
+     */
+      /**
+     * Clear authentication - UPDATED
+     */
+    clearAuthentication() {
+      store.dispatch(clearAuth());
+  
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token'); // ADD THIS
+      localStorage.removeItem('user_data');
+      localStorage.removeItem('remember_me');
+    }
 
   /**
    * Handle and format errors
@@ -666,6 +650,26 @@ async getProfileStatus() {
       message: errorMessage
     };
   }
+  /**
+     * Store authentication with refresh token
+     * @private
+     */
+    storeAuthentication(token, refreshToken, user, rememberMe) {
+      store.dispatch(setCredentials({
+        token,
+        refresh_token: refreshToken, // ADD THIS
+        user: { ...user, userType: 'seller' },
+        rememberMe
+      }));
+  
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('refresh_token', refreshToken); // ADD THIS
+      localStorage.setItem('user_data', JSON.stringify({ ...user, userType: 'seller' }));
+      
+      if (rememberMe) {
+        localStorage.setItem('remember_me', 'true');
+      }
+    }
 }
 
 // Export singleton instance

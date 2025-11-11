@@ -2,7 +2,7 @@
 
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/app/hooks';
-import { selectIsAuthenticated, selectCurrentUser, logout } from '@/features/auth/authSlice';
+import { selectIsAuthenticated,logout,selectUser, selectUserRole } from '@/features/auth/authSlice';
 
 /**
  * Reusable Header Component
@@ -16,7 +16,7 @@ const Header = ({ variant = 'public' }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const user = useAppSelector(selectCurrentUser);
+  const user = useAppSelector(selectUser);
 
   /**
    * Handle logout

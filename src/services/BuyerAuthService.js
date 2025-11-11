@@ -34,8 +34,13 @@ class BuyerAuthService {
         buyerAuthApi.endpoints.registerBuyer.initiate(credentials)
       ).unwrap();
 
-      // Store credentials in Redux and localStorage
-      this.storeAuthentication(result.token, result.user, false);
+      // Store with refresh token
+      this.storeAuthentication(
+        result.token, 
+        result.refresh_token, // ADD THIS
+        result.user, 
+        false
+      );
 
       return {
         success: true,
@@ -59,15 +64,19 @@ class BuyerAuthService {
    *   remember_me: true
    * });
    */
+   /**
+   * Updated login method
+   */
   async login(credentials) {
     try {
       const result = await store.dispatch(
         buyerAuthApi.endpoints.loginBuyer.initiate(credentials)
       ).unwrap();
 
-      // Store credentials
+      // Store with refresh token
       this.storeAuthentication(
         result.token,
+        result.refresh_token, // ADD THIS
         result.user,
         credentials.remember_me || false
       );
@@ -81,6 +90,7 @@ class BuyerAuthService {
       return this.handleError(error, 'Login failed');
     }
   }
+
 
   /**
    * Logout current buyer
@@ -354,12 +364,14 @@ class BuyerAuthService {
    * Clear all authentication data
    * @private
    */
+    /**
+   * Clear authentication - UPDATED
+   */
   clearAuthentication() {
-    // Clear Redux state
     store.dispatch(clearAuth());
 
-    // Clear localStorage
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('refresh_token'); // ADD THIS
     localStorage.removeItem('user_data');
     localStorage.removeItem('remember_me');
   }
@@ -417,6 +429,29 @@ class BuyerAuthService {
       return false;
     }
   }
+  /**
+   * Store authentication with refresh token
+   * @private
+   */
+  storeAuthentication(token, refreshToken, user, rememberMe) {
+    store.dispatch(setCredentials({
+      token,
+      refresh_token: refreshToken, // ADD THIS
+      user: { ...user, userType: 'buyer' },
+      rememberMe
+    }));
+
+    localStorage.setItem('auth_token', token);
+    localStorage.setItem('refresh_token', refreshToken); // ADD THIS
+    localStorage.setItem('user_data', JSON.stringify({ ...user, userType: 'buyer' }));
+    
+    if (rememberMe) {
+      localStorage.setItem('remember_me', 'true');
+    }
+  }
+  
+  
+
 }
 
 // Export singleton instance

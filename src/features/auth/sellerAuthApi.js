@@ -7,23 +7,29 @@
 // ==========================================
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { updateToken, clearAuth } from '@/features/auth/authSlice';
 
 /**
  * Base query configuration with automatic token injection
  */
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseUrl: API_BASE_URL,
   prepareHeaders: (headers, { getState }) => {
-    // Get token from Redux state or localStorage
-    const token = getState().auth.token || localStorage.getItem('auth_token');
+    const token = getState().auth.token;
     
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
     
-    headers.set('Content-Type', 'application/json');
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+    
     return headers;
   },
+  credentials: 'include',
 });
 
 /**
@@ -75,11 +81,22 @@ export const sellerAuthApi = createApi({
       }),
       invalidatesTags: ['SellerProfile', 'ProfileStatus'],
       transformResponse: (response) => {
-        // Store token immediately after registration
-        if (response.token) {
-          localStorage.setItem('auth_token', response.token);
+        const data = response.data || response;
+        const token = data.access_token;
+        const refresh_token = data.refresh_token;
+        
+        if (token) {
+          localStorage.setItem('auth_token', token);
+          localStorage.setItem('refresh_token', refresh_token);
         }
-        return response;
+        
+        return {
+          token,
+          refresh_token,
+          user_id: data.user_id,
+          seller_id: data.seller_id,
+          profile_status: data.profile_status,
+        };
       },
     }),
 
@@ -95,14 +112,31 @@ export const sellerAuthApi = createApi({
       }),
       invalidatesTags: ['SellerProfile', 'ProfileStatus'],
       transformResponse: (response) => {
-        // Store token and user data
-        if (response.token) {
-          localStorage.setItem('auth_token', response.token);
+        const data = response.data || response;
+        const token = data.access_token;
+        const refresh_token = data.refresh_token;
+        
+        if (token) {
+          localStorage.setItem('auth_token', token);
+          localStorage.setItem('refresh_token', refresh_token);
         }
-        if (response.user) {
-          localStorage.setItem('user_data', JSON.stringify(response.user));
-        }
-        return response;
+        
+        const user = {
+          userType: data.user_type || 'seller',
+          firstName: data.first_name,
+          lastName: data.last_name,
+          email: data.email,
+          seller_id: data.seller_id,
+        };
+        
+        localStorage.setItem('user_data', JSON.stringify(user));
+        
+        return {
+          token,
+          refresh_token,
+          user,
+          profile_status: data.profile_status,
+        };
       },
     }),
 

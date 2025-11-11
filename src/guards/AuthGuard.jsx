@@ -17,7 +17,10 @@ const AuthGuard = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const userRole = user?.userType || user?.role || "buyer";
+  // Determine role from user data or from current path
+  const userRole = user?.userType || user?.role || 
+    (location.pathname.startsWith('/buyer') ? 'buyer' : 
+     location.pathname.startsWith('/seller') ? 'seller' : 'buyer');
 
   // If not authenticated, redirect to login
   if (!isAuthenticated) {
@@ -30,32 +33,29 @@ const AuthGuard = ({ children }) => {
     );
   }
 
-  // Check session refresh token on mount
-  useEffect(() => {
-    const checkSession = async () => {
-      let isValid = true;
+  // Optional: Check session on mount (commented out to prevent redirect issues)
+  // useEffect(() => {
+  //   const checkSession = async () => {
+  //     let isValid = true;
 
-      try {
-        if (userRole === "buyer") {
-          isValid = await BuyerAuthService.refreshSession();
-        } else if (userRole === "seller") {
-          isValid = await SellerAuthService.refreshSession();
-        }
-        // } else if (userRole === "admin") {
-        //   isValid = await AdminAuthService.refreshSession();
-        // }
+  //     try {
+  //       if (userRole === "buyer") {
+  //         isValid = await BuyerAuthService.refreshSession();
+  //       } else if (userRole === "seller") {
+  //         isValid = await SellerAuthService.refreshSession();
+  //       }
 
-        if (!isValid) {
-          navigate(`/${userRole}/login`, { replace: true });
-        }
-      } catch (err) {
-        console.error("Session check failed:", err);
-        navigate(`/${userRole}/login`, { replace: true });
-      }
-    };
+  //       if (!isValid) {
+  //         navigate(`/${userRole}/login`, { replace: true });
+  //       }
+  //     } catch (err) {
+  //       console.error("Session check failed:", err);
+  //       navigate(`/${userRole}/login`, { replace: true });
+  //     }
+  //   };
 
-    checkSession();
-  }, [userRole, navigate]);
+  //   checkSession();
+  // }, [userRole, navigate]);
 
   // Authenticated -> render children
   return children;
