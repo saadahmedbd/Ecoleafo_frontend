@@ -15,6 +15,10 @@ import { productApi } from '../features/product/productApi';
 import { orderApi } from '../features/seller_order_management/orderApi';
 import { inventoryApi } from '../features/seller_inventory/InventoryApi';
 import reducer from '../features/auth/authSlice';
+import { cartApi } from '../features/cart/cartApi';
+import { wishlistApi } from '../features/wishlist/wishlistApi';
+import { categoriesApi } from '../features/categories/categoriesApi';
+import { buyerProductApi } from '../features/BuyerProduct/buyerProductApi';
 
 /**
  * Configure Redux store
@@ -28,9 +32,13 @@ export const store = configureStore({
     [buyerAuthApi.reducerPath]: buyerAuthApi.reducer,
     [sellerAuthApi.reducerPath]: sellerAuthApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
-    [productApi.reducerPath]: productApi.reducer,
+    [productApi.reducerPath]:productApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
     [inventoryApi.reducerPath]:inventoryApi.reducer,
+    [buyerProductApi.reducerPath]: buyerProductApi.reducer,
+    [cartApi.reducerPath]: cartApi.reducer,
+    [wishlistApi.reducerPath]: wishlistApi.reducer,
+    [categoriesApi.reducerPath]: categoriesApi.reducer,
     
     // Add other feature slices here as needed
     // cart: cartReducer,
@@ -56,6 +64,10 @@ export const store = configureStore({
       productApi.middleware,
       orderApi.middleware,
       inventoryApi.middleware,
+      buyerProductApi.middleware,
+      cartApi.middleware,
+      wishlistApi.middleware,
+      categoriesApi.middleware,
     ),
   
   devTools: import.meta.env.MODE !== 'production', // Enable Redux DevTools in development

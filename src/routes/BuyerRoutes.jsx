@@ -11,8 +11,10 @@ import CreateReview from '@/pages/buyer/CreateReview';
 import MyReviews from '@/pages/buyer/MyReviews';
 import EditReview from '@/pages/buyer/EditReview';
 import Buyerlayout from '@/layouts/BuyerLayout';
+import ProductDetails from '@/pages/public/ProductDetails';
 // import BuyerDashboard from '../pages/buyer/Dashboard';
-// import Cart from '../pages/buyer/Cart';
+import Cart from '../pages/buyer/Cart';
+import Wishlist from '../pages/buyer/Wishlist';
 // import Orders from '../pages/buyer/Orders';
 // import BuyerProfile from '../pages/buyer/Profile';
 // import BuyerLayoutWrapper from '@/layouts/BuyerLayoutWrapper';
@@ -52,9 +54,11 @@ const buyerRoutes = [
             </AuthGuard>
         ),
         children: [
-            { index: true, element: <Navigate to="/buyer/dashboard" replace /> },
+            { index: true, element: <Navigate to="" replace /> },
             // { path: 'dashboard', element: <BuyerDashboard /> },
-            // { path: 'cart', element: <Cart /> },
+            { path: 'cart', element: <Cart /> },
+            {path :'wishlist', element:<Wishlist/>},
+            { path: 'products/:slug', element: <ProductDetails /> },
             // { path: 'orders', element: <Orders /> },
             // { path: 'profile', element: <BuyerProfile /> },
             {

@@ -1,33 +1,43 @@
 // src/layouts/PublicLayout.jsx
 
-import { Outlet } from 'react-router-dom';
-import Header from './components/Header';
+import { Outlet, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import DesktopHeader from './components/DesktopHeader';
+import MobileHeader from './components/MobileHeader';
 import Footer from './components/Footer';
 
 /**
  * Public Layout
- * Layout for non-authenticated pages (home, products, login, register)
- * 
- * Features:
- * - Simple header with login/register links
- * - Full-width content area
- * - Footer with site information
- * 
- * @returns {React.ReactNode}
+ * Layout for public pages with responsive header/footer
  */
 const PublicLayout = () => {
+  const location = useLocation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Pages that should NOT show header/footer
+  const noLayoutPages = ['/buyer/login', '/buyer/register', '/seller/login', '/seller/register'];
+  const showLayout = !noLayoutPages.includes(location.pathname);
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header with navigation */}
-      <Header variant="public" />
+      {/* Conditional Header */}
+      {showLayout && (
+        isMobile ? <MobileHeader title="TreeShop" /> : <DesktopHeader />
+      )}
       
-      {/* Main content area */}
+      {/* Main content */}
       <main className="flex-1 bg-gray-50">
         <Outlet />
       </main>
       
-      {/* Footer */}
-      <Footer />
+      {/* Conditional Footer */}
+      {showLayout && <Footer />}
     </div>
   );
 };
