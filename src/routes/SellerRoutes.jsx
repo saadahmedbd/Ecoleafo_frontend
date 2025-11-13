@@ -16,6 +16,9 @@ import SellerProducts from '../pages/seller/SellerProducts';
 import SellerOrders from '../pages/seller/SellerOrders';
 import HomeSellerAccount from '../pages/seller/HomeSellerAccount';
 import SellerInventory from '../pages/seller/SellerInventory';
+import AddProduct from '../pages/seller/AddProduct';
+import ProductDetail from '../pages/seller/ProductDetail';
+import EditProduct from '../pages/seller/EditProduct';
 
 const sellerRoutes = [
   // Seller Authentication
@@ -71,6 +74,10 @@ const sellerRoutes = [
       { path: 'add-payment', element: <AddPayment /> },
       { path: 'setting', element: <SellerSettings /> },
       { path: 'products', element: <SellerProducts /> },
+      { path: 'products/add', element: <AddProduct /> },
+      { path: 'products/:productId', element: <ProductDetail /> },
+      { path: 'products/:productId/edit', element: <EditProduct /> },
+
       { path: 'orders', element: <SellerOrders /> },
       { path: 'inventory', element:<SellerInventory/> },
       { path: 'reviews', element: <div className="p-4"><h1 className="text-2xl font-bold">Customer Reviews</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
