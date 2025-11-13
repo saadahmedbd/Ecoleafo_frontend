@@ -6,8 +6,8 @@ export const productApi = createApi({
   reducerPath: 'productApi',
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem('auth_token');
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState()?.auth?.token || localStorage.getItem('auth_token');
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
@@ -87,7 +87,7 @@ export const productApi = createApi({
     // Upload multiple images
     uploadMultipleProductImages: builder.mutation({
       query: ({ productId, formData }) => ({
-        url: `/products/${productId}/images/multiple`, // matches backend {ImageId}
+        url: `/products/${productId}/images/multiple`,
         method: 'POST',
         body: formData,
       }),
