@@ -1,73 +1,108 @@
-import { 
+// src/hooks/useWishlist.js - FIXED WITH PROPER API INTEGRATION
+import { useState } from 'react';
+import {
   useAddToWishlistMutation,
   useRemoveFromWishlistMutation,
-  useMoveWishlistItemToCartMutation,
   useGetWishlistQuery,
+  useGetWishlistCountQuery,
+  useMoveWishlistItemToCartMutation,
 } from '@/features/wishlist/wishlistApi';
 
-export function useWishlist() {
-  const token = localStorage.getItem('auth_token');
-  const isAuthenticated = !!token;
+export const useWishlist = () => {
+  const [isLoading, setIsLoading] = useState(false);
 
   const [addToWishlistMutation] = useAddToWishlistMutation();
   const [removeFromWishlistMutation] = useRemoveFromWishlistMutation();
   const [moveToCartMutation] = useMoveWishlistItemToCartMutation();
-  
-  const { data: wishlistData, isLoading } = useGetWishlistQuery(undefined, {
-    skip: !isAuthenticated,
-  });
-  const wishlistItems = Array.isArray(wishlistData) ? wishlistData : [];
+
+  const { data: wishlistData, isLoading: wishlistQueryLoading, error: wishlistError, refetch: refetchWishlist } = useGetWishlistQuery();
+  const { data: wishlistCountData, isLoading: countQueryLoading, refetch: refetchCount } = useGetWishlistCountQuery();
+
+  const wishlist = wishlistData?.items || [];
+  const wishlistCount = wishlistData?.total_items || wishlistCountData?.count || 0;
+
+  // Debug logging - check if user is authenticated
+  const token = localStorage.getItem('auth_token');
+ 
+
+  // If no token, return empty wishlist
+  if (!token) {
+    return {
+      addToWishlist: async () => ({ success: false, error: 'Please login to add items to wishlist' }),
+      removeFromWishlist: async () => ({ success: false, error: 'Please login to remove items from wishlist' }),
+      toggleWishlist: async () => ({ success: false, error: 'Please login to toggle wishlist items' }),
+      moveToCart: async () => ({ success: false, error: 'Please login to move items to cart' }),
+      isInWishlist: () => false,
+      wishlistCount: 0,
+      wishlist: [],
+      isLoading: false,
+      wishlistLoading: false,
+      wishlistError: null,
+      refetchWishlist: () => {},
+      refetchCount: () => {}
+    };
+  }
+
+  const isInWishlist = (productId) => {
+    return wishlist.some(item =>
+      (item.product?.id || item.product_id) === productId
+    );
+  };
 
   const addToWishlist = async (productId) => {
-    if (!isAuthenticated) {
-      return { success: false, error: 'Please login to add items to wishlist' };
-    }
+    setIsLoading(true);
     try {
-      const result = await addToWishlistMutation({ product_id: productId }).unwrap();
-      return { success: true, data: result };
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error.data?.message || error.message || 'Failed to add to wishlist' 
+      await addToWishlistMutation({
+        product_id: productId
+      }).unwrap();
+
+      // Refetch both wishlist and count
+      await Promise.all([refetchWishlist(), refetchCount()]);
+
+      return {
+        success: true
       };
+    } catch (error) {
+    
+
+      // Handle case where product is already in wishlist (backend returns plain text)
+      if (error?.data?.includes && error.data.includes('product already in wishlist')) {
+        // Refetch to ensure UI is in sync
+        await Promise.all([refetchWishlist(), refetchCount()]);
+        return {
+          success: true,
+          alreadyInWishlist: true
+        };
+      }
+
+      return {
+        success: false,
+        error: error?.data?.message || error?.message || 'Failed to add to wishlist'
+      };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const removeFromWishlist = async (productId) => {
-    if (!isAuthenticated) {
-      return { success: false, error: 'Please login to manage wishlist' };
-    }
+    setIsLoading(true);
     try {
-      const result = await removeFromWishlistMutation(productId).unwrap();
-      return { success: true, data: result };
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error.data?.message || error.message || 'Failed to remove from wishlist' 
+      await removeFromWishlistMutation(productId).unwrap();
+      
+      // Refetch both wishlist and count
+      await Promise.all([refetchWishlist(), refetchCount()]);
+      
+      return {
+        success: true
       };
-    }
-  };
-
-  const moveToCart = async (productId) => {
-    if (!isAuthenticated) {
-      return { success: false, error: 'Please login to move items to cart' };
-    }
-    try {
-      const result = await moveToCartMutation(productId).unwrap();
-      return { success: true, data: result };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.data?.message || error.message || 'Failed to move to cart' 
+      return {
+        success: false,
+        error: error?.data?.message || error?.message || 'Failed to remove from wishlist'
       };
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const isInWishlist = (productId) => {
-    if (!Array.isArray(wishlistItems)) return false;
-    return wishlistItems.some(item => 
-      item.product_id === productId || item.id === productId
-    );
   };
 
   const toggleWishlist = async (productId) => {
@@ -78,14 +113,39 @@ export function useWishlist() {
     }
   };
 
+  const moveToCart = async (productId) => {
+    setIsLoading(true);
+    try {
+      await moveToCartMutation(productId).unwrap();
+
+      // Refetch both wishlist and count
+      await Promise.all([refetchWishlist(), refetchCount()]);
+
+      return {
+        success: true
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error?.data?.message || error?.message || 'Failed to move to cart'
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     addToWishlist,
     removeFromWishlist,
-    moveToCart,
     toggleWishlist,
+    moveToCart,
     isInWishlist,
-    wishlistCount: wishlistItems.length,
-    wishlistItems,
+    wishlistCount,
+    wishlist,
     isLoading,
+    wishlistLoading: wishlistQueryLoading,
+    wishlistError,
+    refetchWishlist,
+    refetchCount
   };
-}
+};

@@ -1,4 +1,4 @@
-
+// src/features/wishlist/wishlistApi.js - COMPLETE WITH COUNT ENDPOINT
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -15,47 +15,54 @@ export const wishlistApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Wishlist', 'Cart'],
+  tagTypes: ['Wishlist', 'WishlistCount', 'Cart'],
   endpoints: (builder) => ({
-    // 13. ADD TO WISHLIST - POST /api/wishlist
+    // GET WISHLIST - GET /api/wishlist
+    getWishlist: builder.query({
+      query: () => '/wishlist',
+      providesTags: ['Wishlist'],
+    }),
+
+    // GET WISHLIST COUNT - GET /api/wishlist/count
+    getWishlistCount: builder.query({
+      query: () => '/wishlist/count',
+      providesTags: ['WishlistCount'],
+    }),
+
+    // ADD TO WISHLIST - POST /api/wishlist
     addToWishlist: builder.mutation({
       query: (data) => ({
         url: '/wishlist',
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Wishlist'],
+      invalidatesTags: ['Wishlist', 'WishlistCount'],
     }),
 
-    // 14. GET WISHLIST - GET /api/wishlist
-    getWishlist: builder.query({
-      query: () => '/wishlist',
-      providesTags: ['Wishlist'],
-    }),
-
-    // 16. MOVE WISHLIST ITEM TO CART - POST /api/wishlist/{productId}/move-to-cart
-    moveWishlistItemToCart: builder.mutation({
-      query: (productId) => ({
-        url: `/wishlist/${productId}/move-to-cart`,
-        method: 'POST',
-      }),
-      invalidatesTags: ['Wishlist', 'Cart'],
-    }),
-
-    // 17. REMOVE FROM WISHLIST - DELETE /api/wishlist/{productId}
+    // REMOVE FROM WISHLIST - DELETE /api/wishlist/{productId}
     removeFromWishlist: builder.mutation({
       query: (productId) => ({
         url: `/wishlist/${productId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Wishlist'],
+      invalidatesTags: ['Wishlist', 'WishlistCount'],
+    }),
+
+    // MOVE WISHLIST ITEM TO CART - POST /api/wishlist/{productId}/move-to-cart
+    moveWishlistItemToCart: builder.mutation({
+      query: (productId) => ({
+        url: `/wishlist/${productId}/move-to-cart`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Wishlist', 'WishlistCount', 'Cart'],
     }),
   }),
 });
 
 export const {
-  useAddToWishlistMutation,
   useGetWishlistQuery,
-  useMoveWishlistItemToCartMutation,
+  useGetWishlistCountQuery,
+  useAddToWishlistMutation,
   useRemoveFromWishlistMutation,
+  useMoveWishlistItemToCartMutation,
 } = wishlistApi;

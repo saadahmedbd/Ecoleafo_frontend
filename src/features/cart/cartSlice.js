@@ -33,15 +33,15 @@ const cartSlice = createSlice({
     builder.addMatcher(
       cartApi.endpoints.getCart.matchFulfilled,
       (state, { payload }) => {
-        // Your backend returns cart summary with structure like:
-        // { items: [], saved_for_later: [], item_count, saved_item_count, subtotal, discount, total }
+        // Backend returns cart summary with structure like:
+        // { items: [...], saved_for_later: [...], item_count, saved_item_count, subtotal, discount, total_amount, ... }
         state.items = payload.items || [];
         state.savedForLater = payload.saved_for_later || [];
         state.itemCount = payload.item_count || 0;
         state.savedItemCount = payload.saved_item_count || 0;
         state.subtotal = payload.subtotal || 0;
         state.discount = payload.discount || 0;
-        state.total = payload.total || 0;
+        state.total = payload.total_amount || payload.total || 0;
         state.isLoading = false;
       }
     );

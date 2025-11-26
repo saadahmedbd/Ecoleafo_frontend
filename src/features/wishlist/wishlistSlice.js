@@ -1,9 +1,10 @@
-
+// src/features/wishlist/wishlistSlice.js - COMPLETE WISHLIST SLICE
 import { createSlice } from '@reduxjs/toolkit';
 import { wishlistApi } from './wishlistApi';
 
 const initialState = {
   items: [],
+  count: 0,
   isLoading: false,
   error: null,
 };
@@ -14,6 +15,7 @@ const wishlistSlice = createSlice({
   reducers: {
     clearLocalWishlist: (state) => {
       state.items = [];
+      state.count = 0;
     },
   },
   extraReducers: (builder) => {
@@ -21,9 +23,9 @@ const wishlistSlice = createSlice({
     builder.addMatcher(
       wishlistApi.endpoints.getWishlist.matchFulfilled,
       (state, { payload }) => {
-        // Your backend returns array of wishlist items
-        state.items = payload || [];
+        state.items = payload.data || [];
         state.isLoading = false;
+        state.error = null;
       }
     );
 
@@ -32,6 +34,7 @@ const wishlistSlice = createSlice({
       wishlistApi.endpoints.getWishlist.matchPending,
       (state) => {
         state.isLoading = true;
+        state.error = null;
       }
     );
 
@@ -41,6 +44,14 @@ const wishlistSlice = createSlice({
       (state, { error }) => {
         state.isLoading = false;
         state.error = error.message;
+      }
+    );
+
+    // Handle getWishlistCount query success
+    builder.addMatcher(
+      wishlistApi.endpoints.getWishlistCount.matchFulfilled,
+      (state, { payload }) => {
+        state.count = payload.count || 0;
       }
     );
   },
