@@ -19,6 +19,10 @@ import { cartApi } from '../features/cart/cartApi';
 import { wishlistApi } from '../features/wishlist/wishlistApi';
 import { categoriesApi } from '../features/categories/categoriesApi';
 import { buyerProductApi } from '../features/BuyerProduct/buyerProductApi';
+import { buyerProfileApi } from '../features/buyerProfile/buyerProfileApi';
+import { checkoutApi } from '../features/checkout/checkoutApi';
+import checkoutReducer from '../features/checkout/checkoutSlice';
+import { ordersApi } from '../features/orders/ordersApi';
 
 /**
  * Configure Redux store
@@ -39,7 +43,13 @@ export const store = configureStore({
     [cartApi.reducerPath]: cartApi.reducer,
     [wishlistApi.reducerPath]: wishlistApi.reducer,
     [categoriesApi.reducerPath]: categoriesApi.reducer,
-    
+    [buyerProfileApi.reducerPath]:buyerProfileApi.reducer,
+    [checkoutApi.reducerPath]:checkoutApi.reducer,
+    [ordersApi.reducerPath]: ordersApi.reducer,
+
+    // Checkout state
+    checkout: checkoutReducer,
+
     // Add other feature slices here as needed
     // cart: cartReducer,
     // products: productsReducer,
@@ -68,6 +78,9 @@ export const store = configureStore({
       cartApi.middleware,
       wishlistApi.middleware,
       categoriesApi.middleware,
+      buyerProfileApi.middleware,
+      checkoutApi.middleware,
+      ordersApi.middleware,
     ),
   
   devTools: import.meta.env.MODE !== 'production', // Enable Redux DevTools in development

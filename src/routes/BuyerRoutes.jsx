@@ -12,12 +12,17 @@ import MyReviews from '@/pages/buyer/MyReviews';
 import EditReview from '@/pages/buyer/EditReview';
 import Buyerlayout from '@/layouts/BuyerLayout';
 import ProductDetails from '@/pages/public/ProductDetails';
-// import BuyerDashboard from '../pages/buyer/Dashboard';
+import HomePage from '@/pages/public/HomePage';
 import Cart from '../pages/buyer/Cart';
 import Wishlist from '../pages/buyer/Wishlist';
-// import Orders from '../pages/buyer/Orders';
-// import BuyerProfile from '../pages/buyer/Profile';
-// import BuyerLayoutWrapper from '@/layouts/BuyerLayoutWrapper';
+import AccountPage from '../pages/buyer/AccountPage';
+import BuyerProfilePage from '../pages/buyer/BuyerProfilepage';
+import BuyerPasswordPage from '../pages/buyer/BuyerPasswordPage';
+import BuyerAddressesPage from '../pages/buyer/BuyerAddressesPage';
+import CheckoutPage from '../pages/buyer/CheckoutPage';
+import Orders from '../pages/buyer/Orders'
+import MyOrders from '../pages/buyer/MyOrders'
+// import OrdersPage from '../pages/buyer/OrdersPage';
 
 const buyerRoutes = [
     {
@@ -54,13 +59,21 @@ const buyerRoutes = [
             </AuthGuard>
         ),
         children: [
-            { index: true, element: <Navigate to="" replace /> },
-            // { path: 'dashboard', element: <BuyerDashboard /> },
+            { index: true, element: <HomePage /> },
+            // { path: 'orders', element: <OrdersPage /> },
             { path: 'cart', element: <Cart /> },
-            {path :'wishlist', element:<Wishlist/>},
+            { path: 'wishlist', element: <Wishlist /> },
             { path: 'products/:slug', element: <ProductDetails /> },
-            // { path: 'orders', element: <Orders /> },
-            // { path: 'profile', element: <BuyerProfile /> },
+            { path: 'account', element: <AccountPage /> },
+            { path: 'profile', element: <BuyerProfilePage /> },
+            { path: 'password', element: <BuyerPasswordPage /> },
+            { path: 'addresses', element: <BuyerAddressesPage /> },
+            { path: 'checkout', element: <CheckoutPage /> },
+            { path: 'orders/:orderId', element: <Orders /> },
+            { path: 'orders', element: <MyOrders /> },
+
+
+
             {
                 path: 'reviews',
                 children: [
