@@ -460,89 +460,134 @@ export default function AddProduct() {
               Pricing & Inventory
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Price */}
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Price ($) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900] ${
-                    errors.price ? "border-red-300 bg-red-50" : "border-gray-200"
-                  }`}
-                  disabled={loading}
-                  required
-                />
-                {errors.price && (
-                  <p className="text-red-600 text-sm mt-1">{errors.price}</p>
+            <div className="space-y-6">
+              {/* Pricing Section */}
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border border-orange-200">
+                <h3 className="text-sm font-semibold text-[#374151] mb-4 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-[#FF9900] rounded-full"></span>
+                  Product Pricing
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Original Price */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#374151] mb-2">
+                      Original Price <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">৳</span>
+                      <input
+                        type="number"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleChange}
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0"
+                        className={`w-full pl-10 pr-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900] font-medium text-lg ${
+                          errors.price ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+                        }`}
+                        disabled={loading}
+                        required
+                      />
+                    </div>
+                    {errors.price && (
+                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        {errors.price}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500 mt-1.5">Regular selling price in BDT</p>
+                  </div>
+
+                  {/* Discount Price */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#374151] mb-2">
+                      Discount Price <span className="text-gray-400 text-xs">(Optional)</span>
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">৳</span>
+                      <input
+                        type="number"
+                        name="discount_price"
+                        value={formData.discount_price}
+                        onChange={handleChange}
+                        onBlur={calculateDiscountPercent}
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0"
+                        className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900] font-medium text-lg"
+                        disabled={loading}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1.5">Discounted price for customers</p>
+                  </div>
+                </div>
+
+                {/* Price Preview */}
+                {formData.price && (
+                  <div className="mt-5 p-4 bg-white rounded-lg border-2 border-dashed border-orange-300">
+                    <p className="text-xs font-medium text-gray-500 mb-2">Customer will see:</p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {formData.discount_price && parseFloat(formData.discount_price) < parseFloat(formData.price) ? (
+                        <>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold text-[#B12704]">৳{parseFloat(formData.discount_price).toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            <span className="text-sm text-gray-500 line-through">৳{parseFloat(formData.price).toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                          </div>
+                          {formData.discount_percent && (
+                            <span className="px-2.5 py-1 bg-[#B12704] text-white text-xs font-bold rounded">
+                              -{formData.discount_percent}%
+                            </span>
+                          )}
+                          <span className="text-xs text-green-700 font-medium">
+                            Save ৳{(parseFloat(formData.price) - parseFloat(formData.discount_price)).toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-2xl font-bold text-[#374151]">৳{parseFloat(formData.price).toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
 
-              {/* Discount Price */}
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Discount Price ($)
-                </label>
-                <div className="flex gap-2">
+              {/* Inventory Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                {/* Quantity */}
+                <div>
+                  <label className="block text-sm font-medium text-[#374151] mb-2">
+                    Stock Quantity
+                  </label>
                   <input
                     type="number"
-                    name="discount_price"
-                    value={formData.discount_price}
+                    name="quantity"
+                    value={formData.quantity}
                     onChange={handleChange}
-                    onBlur={calculateDiscountPercent}
-                    placeholder="0.00"
-                    step="0.01"
+                    placeholder="0"
                     min="0"
-                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
                     disabled={loading}
                   />
-                  {formData.discount_percent && (
-                    <div className="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                      {formData.discount_percent}% off
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              {/* Quantity */}
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Stock Quantity
-                </label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  placeholder="0"
-                  min="0"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
-                  disabled={loading}
-                />
-              </div>
-
-              {/* Min Quantity */}
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Minimum Order Quantity
-                </label>
-                <input
-                  type="number"
-                  name="min_quantity"
-                  value={formData.min_quantity}
-                  onChange={handleChange}
-                  placeholder="1"
-                  min="1"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
-                  disabled={loading}
-                />
+                {/* Min Quantity */}
+                <div>
+                  <label className="block text-sm font-medium text-[#374151] mb-2">
+                    Minimum Order Quantity
+                  </label>
+                  <input
+                    type="number"
+                    name="min_quantity"
+                    value={formData.min_quantity}
+                    onChange={handleChange}
+                    placeholder="1"
+                    min="1"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
+                    disabled={loading}
+                  />
+                </div>
               </div>
             </div>
           </div>

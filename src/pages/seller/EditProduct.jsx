@@ -165,6 +165,7 @@ export default function EditProduct() {
 
       setNewImageFiles((prev) => [...prev, ...validFiles]);
       setNewImages((prev) => [...prev, ...newPreviews]);
+      toast.success(`${validFiles.length} image(s) added`);
 
       if (errors.images) {
         setErrors((prev) => ({ ...prev, images: "" }));
@@ -176,8 +177,12 @@ export default function EditProduct() {
 
   // Remove existing image (mark for deletion)
   const handleRemoveExistingImage = (imageId) => {
+    const imageToDelete = existingImages.find((img) => img.id === imageId);
+    if (imageToDelete) {
+      setImagesToDelete((prev) => [...prev, imageToDelete]);
+      toast.success("Image marked for deletion");
+    }
     setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
-    setImagesToDelete((prev) => [...prev, imageId]);
 
     // Update primary if needed
     if (primaryImageId === imageId) {
@@ -197,6 +202,7 @@ export default function EditProduct() {
     URL.revokeObjectURL(newImages[index].preview);
     setNewImages((prev) => prev.filter((_, i) => i !== index));
     setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+    toast.success("New image removed");
 
     if (primaryImageId === `new-${index}`) {
       if (existingImages.length > 0) {
@@ -231,16 +237,37 @@ export default function EditProduct() {
     e.preventDefault();
     setErrors({});
 
+    // Validate mandatory fields
+    if (!formData.name.trim()) {
+      toast.error("Product name is required");
+      return;
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      toast.error("Valid price is required");
+      return;
+    }
+
     try {
       setSaving(true);
 
       // Step 1: Delete marked images
       if (imagesToDelete.length > 0) {
         toast.loading("Deleting old images...");
-        await Promise.all(
-          imagesToDelete.map((imgId) => deleteProductImage(productId, imgId))
-        );
-        toast.dismiss();
+        const validImages = imagesToDelete.filter(img => img && img.id);
+        if (validImages.length > 0) {
+          try {
+            await Promise.all(
+              validImages.map((img) => deleteProductImage(productId, img.id, img.public_id))
+            );
+            toast.dismiss();
+            toast.success(`${validImages.length} image(s) deleted`);
+          } catch (deleteError) {
+            toast.dismiss();
+            toast.error("Failed to delete some images");
+          }
+        } else {
+          toast.dismiss();
+        }
       }
 
       // Step 2: Upload new images if any
@@ -248,12 +275,27 @@ export default function EditProduct() {
         setUploadingImages(true);
         toast.loading("Uploading new images...");
         
+        let uploadedCount = 0;
+        let failedCount = 0;
+        
         for (const file of newImageFiles) {
-          await uploadImageToCloudinary(file, productId);
+          try {
+            await uploadImageToCloudinary(file, productId);
+            uploadedCount++;
+          } catch (uploadError) {
+            console.error('Failed to upload image:', file.name, uploadError);
+            failedCount++;
+          }
         }
 
         setUploadingImages(false);
         toast.dismiss();
+        
+        if (failedCount > 0) {
+          toast.warning(`${uploadedCount} image(s) uploaded, ${failedCount} failed`);
+        } else if (uploadedCount > 0) {
+          toast.success(`${uploadedCount} new image(s) uploaded`);
+        }
       }
 
       // Step 3: Prepare update data
@@ -279,14 +321,25 @@ export default function EditProduct() {
 
       // Step 4: Update product
       toast.loading("Updating product...");
-      await updateProduct(productId, updateData);
+      try {
+        await updateProduct(productId, updateData);
+        toast.dismiss();
+        toast.success("Product updated successfully!");
 
-      toast.dismiss();
-      toast.success("Product updated successfully!");
-
-      setTimeout(() => {
-        navigate(`/seller/products/${productId}`);
-      }, 1000);
+        setTimeout(() => {
+          navigate(`/seller/products/${productId}`);
+        }, 1000);
+      } catch (updateError) {
+        toast.dismiss();
+        if (updateError.message.includes('name')) {
+          toast.error("Product name is invalid or already exists");
+        } else if (updateError.message.includes('price')) {
+          toast.error("Invalid price value");
+        } else {
+          toast.error(updateError.message || "Failed to update product");
+        }
+        throw updateError;
+      }
 
     } catch (error) {
       console.error("Update error:", error);
@@ -544,7 +597,7 @@ export default function EditProduct() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Price ($) <span className="text-red-500">*</span>
+                  Price (BDT) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -561,7 +614,7 @@ export default function EditProduct() {
 
               <div>
                 <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Discount Price ($)
+                  Discount Price (BDT)
                 </label>
                 <div className="flex gap-2">
                   <input

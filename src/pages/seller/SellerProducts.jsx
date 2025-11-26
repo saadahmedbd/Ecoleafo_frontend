@@ -297,26 +297,43 @@ export default function SellerProducts() {
                       {product.name}
                     </h3>
 
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        {product.discount_price > 0 ? (
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-semibold text-[#FF9900]">
-                              ${product.discount_price.toFixed(2)}
-                            </span>
-                            <span className="text-sm text-gray-400 line-through">
-                              ${product.price.toFixed(2)}
-                            </span>
+                    <div className="mb-3">
+                      {(() => {
+                        const price = parseFloat(product.price);
+                        const discountPercent = product.discount_percent || 0;
+                        const discountPrice = product.discount_price ? parseFloat(product.discount_price) : (discountPercent > 0 ? price * (1 - discountPercent / 100) : null);
+                        const hasDiscount = discountPrice && discountPrice > 0 && discountPrice < price;
+                        
+                        return hasDiscount ? (
+                          <div className="space-y-1">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-xl font-bold text-[#FE691E]">
+                                ৳{discountPrice.toLocaleString('en-BD', {minimumFractionDigits: 2})}
+                              </span>
+                              <span className="text-xs px-1.5 py-0.5 bg-[#FE691E] text-white rounded font-semibold">
+                                -{discountPercent}%
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-500 line-through">
+                                ৳{price.toLocaleString('en-BD', {minimumFractionDigits: 2})}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                Stock: {product.quantity}
+                              </span>
+                            </div>
                           </div>
                         ) : (
-                          <span className="text-lg font-semibold text-[#FF9900]">
-                            ${product.price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-sm text-gray-500">
-                        Stock: {product.quantity}
-                      </span>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xl font-bold text-[#374151]">
+                              ৳{price.toLocaleString('en-BD', {minimumFractionDigits: 2})}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              Stock: {product.quantity}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     <div className="text-xs text-gray-500 mb-3">SKU: {product.sku}</div>

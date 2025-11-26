@@ -224,10 +224,12 @@ export const addProductImageByURL = async (productId, imageData) => {
  * @param {number} imageId - Image ID
  * @returns {Promise<Object>}
  */
-export const deleteProductImage = async (productId, imageId) => {
+export const deleteProductImage = async (productId, imageId, public_id) => {
   try {
     const api = createAuthAxios();
-    const response = await api.delete(`/product/${productId}/images/${imageId}`);
+    const response = await api.delete(`/products/${productId}/images/${imageId}`, {
+      data: { public_id }, //  this sends the body
+    });
     return response.data;
   } catch (error) {
     console.error('Delete product image error:', error);

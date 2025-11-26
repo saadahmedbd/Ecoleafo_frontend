@@ -321,24 +321,36 @@ export default function ProductDetails() {
               </h2>
 
               {/* Pricing */}
-              <div className="flex items-center gap-4 mb-6">
-                {product.discount_price > 0 ? (
-                  <>
-                    <span className="text-3xl font-bold text-[#FF9900]">
-                      ${product.discount_price.toFixed(2)}
+              <div className="mb-6">
+                {(() => {
+                  const price = parseFloat(product.price);
+                  const discountPercent = product.discount_percent || 0;
+                  const discountPrice = product.discount_price ? parseFloat(product.discount_price) : (discountPercent > 0 ? price * (1 - discountPercent / 100) : null);
+                  const hasDiscount = discountPrice && discountPrice > 0 && discountPrice < price;
+                  
+                  return hasDiscount ? (
+                    <div className="space-y-2">
+                      <div className="flex items-baseline gap-3 flex-wrap">
+                        <span className="text-4xl font-bold text-[#FE691E]">
+                          ৳{discountPrice.toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                        </span>
+                        <span className="text-lg text-gray-500 line-through">
+                          ৳{price.toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                        </span>
+                        <span className="px-3 py-1.5 bg-[#FE691E] text-white rounded-md text-sm font-bold">
+                          -{discountPercent}% OFF
+                        </span>
+                      </div>
+                      <p className="text-sm text-green-700 font-medium">
+                        You save ৳{(price - discountPrice).toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="text-4xl font-bold text-[#374151]">
+                      ৳{price.toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                     </span>
-                    <span className="text-xl text-gray-400 line-through">
-                      ${product.price.toFixed(2)}
-                    </span>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-                      {product.discount_percent.toFixed(0)}% OFF
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-3xl font-bold text-[#FF9900]">
-                    ${product.price.toFixed(2)}
-                  </span>
-                )}
+                  );
+                })()}
               </div>
 
               {/* Description */}
