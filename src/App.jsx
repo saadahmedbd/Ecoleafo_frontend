@@ -4,11 +4,13 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './app/store';
 import React, { useEffect } from 'react';
+import { Toaster } from 'sonner';
 
 import AppRoutes from './routes/index';
 import './index.css';
 import BuyerAuthService from './services/BuyerAuthService';
 import SellerAuthService from './services/SellerAuthService';
+import { initTokenRefresh, stopTokenRefresh } from './utils/tokenRefresh';
 
 /**
  * Main Application Component
@@ -34,12 +36,15 @@ function App() {
     };
 
     validateAuth();
+    initTokenRefresh();
+
+    return () => stopTokenRefresh();
   }, []);
   
   return (
     <Provider store={store}>
-        <AppRoutes />
-    
+      <Toaster position="top-right" richColors />
+      <AppRoutes />
     </Provider>
   );
 }
