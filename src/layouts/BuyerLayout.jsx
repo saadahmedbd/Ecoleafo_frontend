@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import BottomNav from '@/pages/buyer/mobile/BottomNav';
+import BottomNav from './components/BottomNav';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
 
 export function BuyerLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: cartCountData } = useGetCartCountQuery();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -22,7 +22,7 @@ export function BuyerLayout() {
     if (path.includes('/cart')) return 'cart';
     if (path.includes('/wishlist')) return 'wishlist';
     if (path.includes('/orders')) return 'orders';
-    if (path.includes('/account') || path.includes('/profile')) return 'account';
+    if (path.includes('/profile') || path.includes('/profile')) return 'account';
     return 'home';
   };
 
@@ -39,7 +39,7 @@ export function BuyerLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <main className="flex-1">
+      <main className={`flex-1 ${isMobile ? 'pb-20' : ''}`}>
         <Outlet />
       </main>
       {isMobile && (

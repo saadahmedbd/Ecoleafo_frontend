@@ -3,6 +3,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/app/hooks';
 import { selectIsAuthenticated,logout,selectUser, selectUserRole } from '@/features/auth/authSlice';
+import { useGetCartCountQuery } from '@/features/cart/cartApi';
 
 /**
  * Reusable Header Component
@@ -17,6 +18,8 @@ const Header = ({ variant = 'public' }) => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectUser);
+  const { data: cartCountData } = useGetCartCountQuery();
+  const cartCount = cartCountData?.count || 0;
 
   /**
    * Handle logout
@@ -146,9 +149,11 @@ const Header = ({ variant = 'public' }) => {
                   />
                 </svg>
                 {/* Cart count badge */}
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  3
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
 
               {/* Notifications */}

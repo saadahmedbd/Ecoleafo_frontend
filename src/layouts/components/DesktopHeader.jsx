@@ -1,20 +1,28 @@
-
+// src/layouts/components/DesktopHeader.jsx - FIXED WITH PROPER COUNT APIS
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Heart, User, Bell } from 'lucide-react';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
-import { useGetWishlistQuery } from '@/features/wishlist/wishlistApi';
+import { useGetWishlistCountQuery } from '@/features/wishlist/wishlistApi';
 
 export default function DesktopHeader() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Get cart and wishlist counts from backend
+  // Get cart and wishlist counts from backend - PROPER APIS
   const { data: cartCountData } = useGetCartCountQuery();
-  const { data: wishlistData } = useGetWishlistQuery();
+  const { data: wishlistCountData } = useGetWishlistCountQuery();
   
   const cartCount = cartCountData?.count || 0;
-  const wishlistCount = wishlistData?.data?.length || 0;
+  const wishlistCount = wishlistCountData?.count || 0;
+
+  // Get user data from localStorage
+  const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+  const userName = userData?.name || userData?.full_name || '';
+  const userAvatar = userData?.avatar || userData?.profile_picture || '';
+  
+  // Get first letter of name for avatar fallback
+  const userInitial = userName ? userName.charAt(0).toUpperCase() : 'U';
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -29,7 +37,7 @@ export default function DesktopHeader() {
         <div className="flex items-center justify-between gap-6 py-4">
           {/* Logo - Left Side */}
           <div 
-            onClick={() => navigate('/buyer/dashboard')}
+            onClick={() => navigate('/')}
             className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <div className="bg-[#16a34a] p-2 rounded-lg">
@@ -95,13 +103,28 @@ export default function DesktopHeader() {
               <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
             </button>
 
-            {/* Account */}
+            {/* Account - Enhanced with user avatar/initial */}
             <button
               onClick={() => navigate('/buyer/profile')}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors group"
+              className="relative p-1 hover:bg-gray-100 rounded-full transition-colors group"
               title="Account"
             >
-              <User className="w-6 h-6 text-gray-600 group-hover:text-[#16a34a] transition-colors" />
+              {userAvatar ? (
+                <img 
+                  src={userAvatar} 
+                  alt={userName}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 group-hover:border-[#16a34a]"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div 
+                className={`w-8 h-8 rounded-full bg-[#16a34a] text-white font-semibold flex items-center justify-center text-sm group-hover:bg-[#15803d] transition-colors ${userAvatar ? 'hidden' : 'flex'}`}
+              >
+                {userInitial}
+              </div>
             </button>
           </div>
         </div>
