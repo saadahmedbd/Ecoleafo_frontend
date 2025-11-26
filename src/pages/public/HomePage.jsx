@@ -1,10 +1,12 @@
+// src/pages/buyer/Homepage.jsx - COMPLETE & PRODUCTION READY (No Headers/Footers)
 import React, { useState, useEffect } from 'react';
-import { Search, Mic, ChevronRight, Clock, Heart, ShoppingCart, Star, Menu, Bell, User, ShoppingBag, Loader2 } from 'lucide-react';
+import { ChevronRight, Clock, X, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useGetProductsQuery } from '@/features/BuyerProduct/buyerProductApi';
 import { useGetFeaturedCategoriesQuery } from '@/features/categories/categoriesApi';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
+import ProductCard from '@/layouts/components/ProductCard';
 
 const banners = [
   { id: 1, title: "Spring Sale", subtitle: "Up to 50% off on selected trees", color: "#10b981" },
@@ -12,116 +14,51 @@ const banners = [
   { id: 3, title: "Bonsai Special", subtitle: "Buy 2 Get 1 Free", color: "#8b5cf6" }
 ];
 
-// Unified Product Card (Desktop Design for All Devices)
-function ProductCard({ product, onAddToCart, onToggleWishlist, onProductClick, isInWishlist }) {
-  const discountPercentage = product.discount_price 
-    ? Math.round(((product.discount_price - product.price) / product.discount_price) * 100)
-    : 0;
-
-  // Get primary image or first image from images array
-  const primaryImage = product.images?.find(img => img.is_primary)?.image_url 
-    || product.images?.[0]?.image_url 
-    || product.image_url 
-    || 'https://via.placeholder.com/400x300?text=No+Image';
-
-  return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden group flex flex-col border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-      <div className="relative">
-        <img
-          src={primaryImage}
-          alt={product.name}
-          className="w-full h-44 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
-          onClick={() => onProductClick(product)}
-          onError={(e) => {
-            e.target.src = 'https://via.placeholder.com/400x300?text=No+Image';
-          }}
-        />
-        {discountPercentage > 0 && (
-          <div className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-red-500 text-white text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-full">
-            -{discountPercentage}%
-          </div>
-        )}
-        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(product);
-            }}
-            disabled={product.quantity === 0}
-            className="bg-white/80 backdrop-blur-sm p-1.5 sm:p-2 rounded-full hover:text-[#16a34a] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleWishlist(product);
-            }}
-            className="bg-white/80 backdrop-blur-sm p-1.5 sm:p-2 rounded-full hover:text-red-500 transition-colors shadow-md"
-          >
-            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isInWishlist ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
-          </button>
-        </div>
-      </div>
-      <div className="p-3 sm:p-4 flex flex-col flex-grow">
-        <h4 
-          className="font-semibold text-sm sm:text-lg text-gray-800 cursor-pointer hover:text-[#16a34a] line-clamp-2 min-h-[40px] sm:min-h-[56px]"
-          onClick={() => onProductClick(product)}
-        >
-          {product.name}
-        </h4>
-        <div className="flex items-center mt-1 text-xs sm:text-sm text-gray-500">
-          <Star className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400 fill-amber-400" />
-          <span className="ml-1 font-semibold text-gray-700">{product.average_rating?.toFixed(1) || '0.0'}</span>
-          <span className="ml-1">({product.review_count || 0} reviews)</span>
-        </div>
-        {product.quantity !== undefined && product.quantity < 10 && product.quantity > 0 ? (
-          <p className="text-red-600 text-xs sm:text-sm font-medium mt-2">Only {product.quantity} left in stock</p>
-        ) : product.quantity === 0 ? (
-          <p className="text-red-600 text-xs sm:text-sm font-medium mt-2">Out of stock</p>
-        ) : (
-          <p className="text-gray-500 text-xs sm:text-sm font-medium mt-2">In stock</p>
-        )}
-        <div className="mt-auto pt-3 sm:pt-4 flex items-baseline space-x-2">
-          <span className="text-lg sm:text-2xl font-bold text-[#16a34a]">${product.price?.toFixed(2)}</span>
-          {product.discount_price && (
-            <span className="text-sm sm:text-base text-gray-400 line-through">${product.discount_price?.toFixed(2)}</span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Loading Skeleton
+// Loading Skeleton Component
 function ProductSkeleton() {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden animate-pulse">
-      <div className="bg-gray-200 h-44 sm:h-56"></div>
-      <div className="p-3 sm:p-4">
-        <div className="bg-gray-200 h-4 rounded mb-2"></div>
-        <div className="bg-gray-200 h-3 rounded w-3/4 mb-2"></div>
-        <div className="bg-gray-200 h-3 rounded w-1/2 mb-4"></div>
-        <div className="bg-gray-200 h-6 rounded w-20"></div>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+      <div className="bg-gray-200 h-40 sm:h-56"></div>
+      <div className="p-3 space-y-3">
+        <div className="bg-gray-200 h-4 rounded w-3/4"></div>
+        <div className="bg-gray-200 h-3 rounded w-1/2"></div>
+        <div className="bg-gray-200 h-6 rounded w-24"></div>
+        <div className="bg-gray-200 h-9 rounded"></div>
       </div>
     </div>
   );
 }
 
-// Main Homepage Component
+// Toast Component
+function Toast({ type, message, onClose }) {
+  const colors = {
+    success: 'bg-green-50 border-green-200 text-green-800',
+    error: 'bg-red-50 border-red-200 text-red-800',
+    info: 'bg-blue-50 border-blue-200 text-blue-800',
+  };
+
+  return (
+    <div className={`fixed bottom-20 md:bottom-6 right-4 left-4 md:left-auto md:max-w-md z-50 p-4 rounded-lg border shadow-lg ${colors[type]} flex items-start gap-3 animate-slide-up`}>
+      <p className="text-sm font-medium flex-1">{message}</p>
+      <button onClick={onClose} className="text-current opacity-70 hover:opacity-100 flex-shrink-0">
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
 export default function Homepage() {
   const navigate = useNavigate();
-  
-  // Use custom hooks for cart and wishlist
-  const { addToCart, cartCount, isLoading: cartLoading } = useCart();
-  const { toggleWishlist, isInWishlist, isLoading: wishlistLoading } = useWishlist();
-
   const [currentBanner, setCurrentBanner] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 30 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [toast, setToast] = useState(null);
 
-  // **BACKEND INTEGRATION** - Fetch products from API
+  // Custom hooks for cart and wishlist
+  const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist, refetchWishlist, refetchCount } = useWishlist();
+
+  // Fetch products from API
   const { 
     data: productsData, 
     isLoading: productsLoading, 
@@ -129,25 +66,32 @@ export default function Homepage() {
     refetch: refetchProducts
   } = useGetProductsQuery({ 
     page: 1, 
-    limit: 20, 
+    limit: 50, 
     sort: 'newest' 
   });
 
-  // **BACKEND INTEGRATION** - Fetch categories from API
+  // Fetch categories from API
   const { 
     data: categoriesData, 
     isLoading: categoriesLoading 
   } = useGetFeaturedCategoriesQuery(6);
 
-  // Extract data from API responses
+  // Extract data
   const products = productsData?.data || [];
   const categories = categoriesData?.data || [];
   
-  // Filter flash deals and trending from real API data
-  const flashDeals = products.filter((p) => p.discount_price).slice(0, 4);
-  const trending = products.slice(0, 8);
+  // Filter products - Fixed discount check
+  const flashDeals = products.filter((p) => {
+    const discountPrice = p.discount_price || p['discount price'];
+    const regularPrice = p.price || 0;
+    const hasDiscount = discountPrice && discountPrice > 0 && discountPrice < regularPrice;
+    return hasDiscount;
+  }).slice(0, 6);
+  
+  const trending = products.filter((p) => p.is_featured || p.sale_count > 0).slice(0, 8);
+  const allProducts = products.slice(0, 20);
 
-  // Detect mobile/desktop
+  // Detect screen size
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
@@ -175,36 +119,60 @@ export default function Homepage() {
     return () => clearInterval(timer);
   }, []);
 
+  // Auto-hide toast
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  // Handle add to cart
   const handleAddToCart = async (product) => {
-    if (product.quantity > 0) {
-      const result = await addToCart(product, 1);
-      if (result.success) {
-        setToast({ type: 'success', message: `${product.name} added to cart!` });
-      } else {
-        setToast({ type: 'error', message: result.error || 'Failed to add to cart' });
-      }
-      // Auto-hide toast after 3 seconds
-      setTimeout(() => setToast(null), 3000);
-    } else {
+    if (product.quantity === 0) {
       setToast({ type: 'error', message: 'Product is out of stock' });
-      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
+    const result = await addToCart(product, 1);
+    
+    if (result.success) {
+      setToast({ type: 'success', message: `${product.name} added to cart!` });
+    } else if (result.alreadyInCart) {
+      setToast({ type: 'info', message: `${product.name} is already in your cart` });
+    } else {
+      setToast({ type: 'error', message: result.error || 'Failed to add to cart' });
     }
   };
 
+  // Handle toggle wishlist - FIXED
   const handleToggleWishlist = async (product) => {
+    const wasInWishlist = isInWishlist(product.id);
+    
     const result = await toggleWishlist(product.id);
+    
     if (result.success) {
-      const isNowInWishlist = isInWishlist(product.id);
+      await Promise.all([refetchWishlist(), refetchCount()]);
+      
+      if (wasInWishlist) {
+        setToast({ 
+          type: 'success', 
+          message: `${product.name} removed from wishlist!`
+        });
+      } else {
+        setToast({ 
+          type: 'success', 
+          message: `${product.name} added to wishlist!`
+        });
+      }
+    } else if (result.alreadyInWishlist) {
       setToast({ 
-        type: 'success', 
-        message: isNowInWishlist 
-          ? `${product.name} added to wishlist!` 
-          : `${product.name} removed from wishlist!`
+        type: 'info', 
+        message: `${product.name} is already in your wishlist`
       });
     } else {
       setToast({ type: 'error', message: result.error || 'Failed to update wishlist' });
     }
-    setTimeout(() => setToast(null), 3000);
   };
 
   const handleProductClick = (product) => {
@@ -215,72 +183,31 @@ export default function Homepage() {
     navigate(`/category/${category.id}`);
   };
 
-  // Toast Component
-  const Toast = ({ type, message }) => {
-    const colors = {
-      success: 'bg-green-50 border-green-200 text-green-800',
-      error: 'bg-red-50 border-red-200 text-red-800',
-    };
-
-    return (
-      <div className={`fixed bottom-20 md:bottom-4 right-4 z-50 max-w-md w-full p-4 rounded-lg border shadow-lg ${colors[type]} animate-slide-up`}>
-        <p className="text-sm font-medium">{message}</p>
-      </div>
-    );
-  };
-
-  // **LOADING STATE**
+  // Loading state
   if (productsLoading || categoriesLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        {!isMobile && (
-          <header className="bg-white border-b border-gray-200">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between py-4">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-[#16a34a] p-2 rounded-lg">
-                    <span className="text-white text-2xl">🌳</span>
-                  </div>
-                  <h1 className="text-2xl font-bold text-gray-800">TreeShop</h1>
-                </div>
-              </div>
-            </div>
-          </header>
-        )}
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-[#16a34a] mx-auto mb-4" />
-            <p className="text-gray-600">Loading products...</p>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, i) => (
+              <ProductSkeleton key={i} />
+            ))}
           </div>
         </div>
       </div>
     );
   }
 
-  // **ERROR STATE**
+  // Error state
   if (productsError) {
     return (
       <div className="min-h-screen bg-gray-50">
-        {!isMobile && (
-          <header className="bg-white border-b border-gray-200">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between py-4">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-[#16a34a] p-2 rounded-lg">
-                    <span className="text-white text-2xl">🌳</span>
-                  </div>
-                  <h1 className="text-2xl font-bold text-gray-800">TreeShop</h1>
-                </div>
-              </div>
-            </div>
-          </header>
-        )}
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
-            <p className="text-red-600 mb-4">Failed to load products</p>
+            <p className="text-red-600 mb-4 text-lg font-medium">Failed to load products</p>
             <button
               onClick={() => refetchProducts()}
-              className="px-6 py-3 bg-[#16a34a] text-white rounded-lg hover:bg-[#15803d] transition-colors"
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
             >
               Try Again
             </button>
@@ -293,31 +220,13 @@ export default function Homepage() {
   // MOBILE VIEW
   if (isMobile) {
     return (
-      <div className="pb-20 bg-gray-50">
-        {/* Toast Notification */}
-        {toast && <Toast type={toast.type} message={toast.message} />}
-        
-        {/* Mobile Greeting */}
-        <div className="bg-white px-4 py-4">
-          <h1 className="text-xl font-semibold">Hi Saad 👋</h1>
-          <p className="text-sm text-gray-600">Let's find your perfect tree</p>
-        </div>
+      <div className="bg-gray-50 pb-20">
+        {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
 
-        {/* Mobile Search Bar */}
-        <div className="px-4 py-4 bg-white mb-2">
-          <div 
-            onClick={() => navigate('/search')}
-            className="flex items-center gap-3 bg-gray-100 rounded-xl px-4 py-3 cursor-pointer"
-          >
-            <Search className="w-5 h-5 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search trees..."
-              className="flex-1 bg-transparent outline-none text-sm pointer-events-none"
-              readOnly
-            />
-            <Mic className="w-5 h-5 text-[#059669]" />
-          </div>
+        {/* Mobile Greeting */}
+        <div className="bg-white px-4 py-4 mb-2">
+          <h1 className="text-xl font-semibold text-gray-800">Hi! 👋</h1>
+          <p className="text-sm text-gray-600">Let's find your perfect tree</p>
         </div>
 
         {/* Mobile Banner */}
@@ -335,7 +244,7 @@ export default function Homepage() {
                 <div className="p-6 text-white h-full flex flex-col justify-center">
                   <h2 className="text-xl font-bold mb-1">{banner.title}</h2>
                   <p className="text-sm opacity-90 mb-3">{banner.subtitle}</p>
-                  <button className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-semibold self-start">
+                  <button className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-semibold self-start hover:bg-gray-100 transition-colors">
                     Shop Now
                   </button>
                 </div>
@@ -358,10 +267,10 @@ export default function Homepage() {
         {categories.length > 0 && (
           <div className="px-4 mb-6">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold">Categories</h2>
+              <h2 className="text-lg font-bold text-gray-800">Categories</h2>
               <button 
                 onClick={() => navigate('/categories')}
-                className="text-[#059669] text-sm flex items-center gap-1 font-medium"
+                className="text-green-600 text-sm flex items-center gap-1 font-medium hover:text-green-700"
               >
                 See All <ChevronRight className="w-4 h-4" />
               </button>
@@ -371,7 +280,7 @@ export default function Homepage() {
                 <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category)}
-                  className="bg-white p-4 rounded-xl border border-gray-200 flex flex-col items-center gap-2 hover:border-[#059669] hover:shadow-md transition-all"
+                  className="bg-white p-4 rounded-xl border border-gray-200 flex flex-col items-center gap-2 hover:border-green-600 hover:shadow-md transition-all active:scale-95"
                 >
                   {category.icon ? (
                     <span className="text-3xl">{category.icon}</span>
@@ -382,7 +291,7 @@ export default function Homepage() {
                       className="w-10 h-10 object-cover rounded-full"
                     />
                   )}
-                  <span className="text-sm font-medium text-center">{category.name}</span>
+                  <span className="text-xs font-medium text-center text-gray-700">{category.name}</span>
                 </button>
               ))}
             </div>
@@ -393,8 +302,8 @@ export default function Homepage() {
         {flashDeals.length > 0 && (
           <div className="px-4 mb-6">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold">Flash Deals</h2>
-              <div className="flex items-center gap-2 text-[#f97316] text-sm font-medium">
+              <h2 className="text-lg font-bold text-gray-800">Flash Deals</h2>
+              <div className="flex items-center gap-2 text-orange-600 text-sm font-medium">
                 <Clock className="w-4 h-4" />
                 <span>
                   {String(timeLeft.hours).padStart(2, "0")}:{String(timeLeft.minutes).padStart(2, "0")}:
@@ -421,10 +330,10 @@ export default function Homepage() {
         {trending.length > 0 && (
           <div className="px-4 mb-6">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold">Trending Now</h2>
+              <h2 className="text-lg font-bold text-gray-800">Trending Now</h2>
               <button 
                 onClick={() => navigate('/products')}
-                className="text-[#059669] text-sm flex items-center gap-1 font-medium"
+                className="text-green-600 text-sm flex items-center gap-1 font-medium hover:text-green-700"
               >
                 See All <ChevronRight className="w-4 h-4" />
               </button>
@@ -444,52 +353,39 @@ export default function Homepage() {
           </div>
         )}
 
+        {/* Mobile All Products */}
+        {allProducts.length > 0 && (
+          <div className="px-4 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold text-gray-800">All Products</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {allProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  onToggleWishlist={handleToggleWishlist}
+                  onProductClick={handleProductClick}
+                  isInWishlist={isInWishlist(product.id)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Empty State */}
         {products.length === 0 && (
           <div className="text-center py-12 px-4">
             <p className="text-gray-600 mb-4">No products available</p>
             <button
               onClick={() => refetchProducts()}
-              className="px-6 py-3 bg-[#16a34a] text-white rounded-lg hover:bg-[#15803d]"
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
             >
               Refresh
             </button>
           </div>
         )}
-
-        {/* Mobile Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-          <div className="flex justify-around items-center py-2">
-            <button 
-              onClick={() => navigate('/buyer/dashboard')}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-[#059669]"
-            >
-              <span className="text-2xl">🏠</span>
-              <span className="text-xs font-medium">Home</span>
-            </button>
-            <button 
-              onClick={() => navigate('/categories')}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600"
-            >
-              <Menu className="w-6 h-6" />
-              <span className="text-xs">Categories</span>
-            </button>
-            <button 
-              onClick={() => navigate('/buyer/orders')}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600"
-            >
-              <ShoppingBag className="w-6 h-6" />
-              <span className="text-xs">Orders</span>
-            </button>
-            <button 
-              onClick={() => navigate('/buyer/profile')}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600"
-            >
-              <User className="w-6 h-6" />
-              <span className="text-xs">Account</span>
-            </button>
-          </div>
-        </nav>
       </div>
     );
   }
@@ -497,130 +393,95 @@ export default function Homepage() {
   // DESKTOP VIEW
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Toast Notification */}
-      {toast && <Toast type={toast.type} message={toast.message} />}
-      
-      {/* Desktop Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <div 
-              onClick={() => navigate('/buyer/dashboard')}
-              className="flex items-center space-x-3 cursor-pointer"
-            >
-              <div className="bg-[#16a34a] p-2 rounded-lg">
-                <span className="text-white text-2xl">🌳</span>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800">TreeShop</h1>
-            </div>
-            <nav className="flex items-center space-x-6">
-              <button 
-                onClick={() => navigate('/buyer/orders')}
-                className="text-gray-600 hover:text-[#16a34a] transition-colors"
-              >
-                Orders
-              </button>
-              <button 
-                onClick={() => navigate('/buyer/wishlist')}
-                className="text-gray-600 hover:text-[#16a34a] transition-colors"
-              >
-                Wishlist
-              </button>
-              <button 
-                onClick={() => navigate('/buyer/cart')}
-                className="text-gray-600 hover:text-[#16a34a] transition-colors relative"
-              >
-                Cart
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
-              <button 
-                onClick={() => navigate('/buyer/profile')}
-                className="text-gray-600 hover:text-[#16a34a] transition-colors"
-              >
-                Account
-              </button>
-              <button className="relative text-gray-600 hover:text-[#16a34a] transition-colors">
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Desktop Search Bar */}
-        <div className="max-w-2xl mx-auto my-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              className="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-full text-gray-700 focus:ring-2 focus:ring-[#16a34a] focus:border-transparent transition"
-              placeholder="Search trees..."
-              type="text"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && e.target.value.trim()) {
-                  navigate(`/search?q=${encodeURIComponent(e.target.value)}`);
-                }
+        {/* Desktop Banner */}
+        <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-8 shadow-lg">
+          {banners.map((banner, index) => (
+            <div
+              key={banner.id}
+              className="absolute inset-0 transition-opacity duration-500"
+              style={{
+                opacity: currentBanner === index ? 1 : 0,
+                backgroundColor: banner.color,
               }}
-            />
+            >
+              <div className="h-full flex flex-col items-center justify-center text-white text-center px-6">
+                <h2 className="text-4xl md:text-5xl font-bold mb-3">{banner.title}</h2>
+                <p className="text-lg md:text-xl mb-6 max-w-2xl">{banner.subtitle}</p>
+                <button className="bg-white text-gray-900 font-semibold px-8 py-3 rounded-full hover:bg-gray-100 transition-colors shadow-lg">
+                  Shop Now
+                </button>
+              </div>
+            </div>
+          ))}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+            {banners.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentBanner(index)}
+                className={`transition-all ${
+                  currentBanner === index ? "bg-white w-8 h-3" : "bg-white/50 w-3 h-3"
+                } rounded-full`}
+              />
+            ))}
           </div>
         </div>
 
-        {/* Desktop Banner */}
-        <div className="bg-[#16a34a] rounded-lg p-8 md:p-12 my-8 text-white flex flex-col items-center text-center">
-          <h2 className="text-4xl font-bold mb-2">Spring Sale</h2>
-          <p className="text-lg mb-6 max-w-md">Up to 50% off on selected trees. Find your new leafy friend today!</p>
-          <button className="bg-white text-[#16a34a] font-semibold px-6 py-2 rounded-full hover:bg-gray-100 transition-colors">
-            Shop Now
-          </button>
-        </div>
-
-        {/* Desktop Categories - By Environment */}
+        {/* Desktop Categories */}
         {categories.length > 0 && (
-          <section className="my-12">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">By Environment</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {categories.slice(0, 4).map((category) => (
-                <div 
-                  key={category.id} 
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-800">Shop by Category</h3>
+              <button 
+                onClick={() => navigate('/categories')}
+                className="text-green-600 font-medium flex items-center gap-1 hover:text-green-700"
+              >
+                View All <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
                   onClick={() => handleCategoryClick(category)}
-                  className="relative rounded-lg overflow-hidden group h-32 cursor-pointer"
+                  className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center gap-3 hover:border-green-600 hover:shadow-lg transition-all group"
                 >
-                  <img
-                    alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    src={category.image || 'https://via.placeholder.com/300x200?text=Category'}
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/300x200?text=Category';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black/40 flex items-end p-4">
-                    <h4 className="text-white text-lg font-semibold">{category.name}</h4>
-                  </div>
-                </div>
+                  {category.icon ? (
+                    <span className="text-4xl group-hover:scale-110 transition-transform">{category.icon}</span>
+                  ) : (
+                    <img 
+                      src={category.image || 'https://via.placeholder.com/100'} 
+                      alt={category.name}
+                      className="w-16 h-16 object-cover rounded-full group-hover:scale-110 transition-transform"
+                    />
+                  )}
+                  <span className="text-sm font-medium text-center text-gray-700 group-hover:text-green-600">
+                    {category.name}
+                  </span>
+                </button>
               ))}
             </div>
           </section>
         )}
 
-        {/* Desktop Popular Deals */}
+        {/* Desktop Flash Deals */}
         {flashDeals.length > 0 && (
-          <section className="my-12">
+          <section className="mb-12">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-800">Popular Deals</h3>
-              <button 
-                onClick={() => navigate('/products?filter=deals')}
-                className="text-[#16a34a] font-medium flex items-center space-x-1 hover:underline"
-              >
-                <span>See All</span>
-                <ChevronRight className="w-5 h-5" />
-              </button>
+              <h3 className="text-2xl font-bold text-gray-800">Flash Deals</h3>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-orange-600 font-semibold">
+                  <Clock className="w-5 h-5" />
+                  <span>
+                    Ends in {String(timeLeft.hours).padStart(2, "0")}:{String(timeLeft.minutes).padStart(2, "0")}:
+                    {String(timeLeft.seconds).padStart(2, "0")}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {flashDeals.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -635,14 +496,47 @@ export default function Homepage() {
           </section>
         )}
 
-        {/* Desktop Explore All Trees */}
+        {/* Desktop Trending */}
         {trending.length > 0 && (
-          <section className="my-12">
+          <section className="mb-12">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-800">Explore All Trees</h3>
+              <h3 className="text-2xl font-bold text-gray-800">Trending Products</h3>
+              <button 
+                onClick={() => navigate('/products?filter=trending')}
+                className="text-green-600 font-medium flex items-center gap-1 hover:text-green-700"
+              >
+                View All <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
               {trending.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  onToggleWishlist={handleToggleWishlist}
+                  onProductClick={handleProductClick}
+                  isInWishlist={isInWishlist(product.id)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Desktop All Products */}
+        {allProducts.length > 0 && (
+          <section className="mb-12">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-800">All Products</h3>
+              <button 
+                onClick={() => navigate('/products')}
+                className="text-green-600 font-medium flex items-center gap-1 hover:text-green-700"
+              >
+                View All <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {allProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
@@ -658,13 +552,13 @@ export default function Homepage() {
 
         {/* Empty State */}
         {products.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">No products available at the moment</p>
+          <div className="text-center py-20">
+            <p className="text-gray-600 text-lg mb-6">No products available</p>
             <button
               onClick={() => refetchProducts()}
-              className="px-6 py-3 bg-[#16a34a] text-white rounded-lg hover:bg-[#15803d]"
+              className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium shadow-lg"
             >
-              Refresh
+              Refresh Products
             </button>
           </div>
         )}
