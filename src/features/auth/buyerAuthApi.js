@@ -1,5 +1,6 @@
 import { api } from '@/services/api';
 import { API_TAGS } from '@/utils/constants';
+import { clearAuth } from './authSlice';
 
 export const buyerAuthApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -78,7 +79,7 @@ export const buyerAuthApi = api.injectEndpoints({
       transformResponse: (response, meta, arg) => {
         const data = response.data || response;
         
-        console.log('Login response:', data);
+        // console.log('Login response:', data);
         
         if (!data?.access_token && !data?.token) {
           throw new Error('Invalid credentials');
@@ -117,23 +118,41 @@ export const buyerAuthApi = api.injectEndpoints({
     }),
 
     // ==========================
-    // Logout - UPDATED to send refresh token
+    // Logout
     // ==========================
     logout: builder.mutation({
-      query: (_, { getState }) => {
-        // Get refresh token from Redux state
-        const refreshToken = getState().auth.refreshToken;
-        
-        return {
-          url: '/auth/logout',
-          method: 'POST',
-          body: { 
-            refresh_token: refreshToken  // ADDED: send refresh token to revoke
-          },
-        };
-      },
-      invalidatesTags: [API_TAGS.AUTH],
-    }),
+  query: () => {
+    const refreshToken = localStorage.getItem('refresh_token'); // directly from localStorage
+
+    return {
+      url: '/auth/logout',
+      method: 'POST',
+      body: { refresh_token: refreshToken || null }, // fallback in case null
+    };
+  },
+
+  async onQueryStarted(_, { dispatch, queryFulfilled }) {
+    try {
+      await queryFulfilled;
+    } catch (err) {
+      console.warn('Logout error:', err);
+      // you can show a toast if needed
+    } finally {
+      // Always clear auth state locally, even if backend fails
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_data');
+      localStorage.removeItem('remember_me');
+
+      dispatch(clearAuth()); // now works because imported
+    }
+  },
+
+  invalidatesTags: [API_TAGS.AUTH],
+}),
+
+
+
 
     // ==========================
     // Refresh Token - NEW ENDPOINT

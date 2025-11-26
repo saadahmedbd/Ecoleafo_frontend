@@ -35,6 +35,17 @@ const baseQuery = fetchBaseQuery({
   
   // Credentials for CORS requests
   credentials: 'include',
+  
+  // Custom response handler to handle both JSON and text responses
+  responseHandler: async (response) => {
+    const text = await response.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      // If not JSON, return as text
+      return text;
+    }
+  },
 });
 
 /**
@@ -58,28 +69,28 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         extraOptions
       );
 
-      if (refreshResult.data?.token) {
-        const newToken = refreshResult.data.token;
+      const newToken = refreshResult.data?.access_token || refreshResult.data?.token;
+      const newRefreshToken = refreshResult.data?.refresh_token;
+
+      if (newToken) {
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, newToken);
-        api.dispatch(updateToken(newToken));
+        if (newRefreshToken) {
+          localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
+        }
+        api.dispatch(updateToken({ 
+          access_token: newToken, 
+          refresh_token: newRefreshToken || refreshToken 
+        }));
 
         // Retry original request with new token
-        result = await baseQuery(
-          {
-            ...args,
-            headers: { 
-              ...args.headers, 
-              Authorization: `Bearer ${newToken}` 
-            },
-          },
-          api,
-          extraOptions
-        );
+        result = await baseQuery(args, api, extraOptions);
       } else {
         api.dispatch(clearAuth());
-        // Use React Router navigation in your component instead
         window.location.href = '/auth/login';
       }
+    } else {
+      api.dispatch(clearAuth());
+      window.location.href = '/auth/login';
     }
   }
 
