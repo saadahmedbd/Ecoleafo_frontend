@@ -140,8 +140,8 @@ export default function LoginPage({
     // Save credentials to Redux store and localStorage
     dispatch(setCredentials(result));
 
-    // Navigate to dashboard
-    navigate("/buyer/dashboard");
+    // Navigate to homepage
+    navigate("/");
   } catch (err) {
     console.error("Login error:", err);
     const errorMessage = err?.data?.message || err?.message || "Login failed. Please check your credentials.";
