@@ -9,6 +9,7 @@
 import { store } from '../app/store';
 import { setCredentials, clearAuth, setAuthError, setProfileStatus } from '../features/auth/authSlice';
 import { sellerAuthApi } from '../features/auth/sellerAuthApi';
+import { initTokenRefresh, stopTokenRefresh } from '../utils/tokenRefresh';
 
 /**
  * Seller Authentication Service
@@ -46,6 +47,8 @@ class SellerAuthService {
           false
         );
   
+        initTokenRefresh();
+
         return {
           success: true,
           data: result,
@@ -88,6 +91,8 @@ class SellerAuthService {
           credentials.remember_me || false
         );
   
+        initTokenRefresh();
+
         return {
           success: true,
           data: result,
@@ -112,6 +117,7 @@ class SellerAuthService {
       ).unwrap();
 
       this.clearAuthentication();
+      stopTokenRefresh();
 
       return {
         success: true,
@@ -120,6 +126,7 @@ class SellerAuthService {
     } catch (error) {
       // Even if API fails, clear local data
       this.clearAuthentication();
+      stopTokenRefresh();
       return {
         success: true,
         message: 'Logged out'
