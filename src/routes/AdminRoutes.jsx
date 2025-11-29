@@ -28,3 +28,56 @@
 // };
 
 // export default adminRoutes;
+
+import React from 'react';
+import AdminLayout from '@/layouts/AdminLayout'
+import AdminLogin from '@/pages/admin/Login'
+import Homepage from '../pages/public/HomePage';
+import AdminDashboard from '@/pages/admin/Dashboard'
+import ForgotPassword from '../pages/admin/ForgotPassword';
+import ActivityLogsPage from '../pages/admin/ActivityLogPage';
+import AdminManagementPage from '../pages/admin/AdminManagementPage';
+import EarningsPage from '../pages/admin/EarningsPage';
+import OrderDetailPage from '../pages/admin/OrderDetailPage';
+import OrdersListPage from '../pages/admin/OrderListPage';
+import PayoutsPage from '../pages/admin/PayoutsPage';
+import { path } from 'framer-motion/client';
+import ProductsListPage from '../pages/admin/ProductsListPage';
+import ProductDetailPage from '../pages/admin/ProductDetailsPage';
+import ReportsPage from '../pages/admin/ReportsPage';
+import ReviewsPage from '../pages/admin/ReviewPage';
+import SellerDetailPage from '../pages/admin/SellerDetailPage';
+import SellersListPage from '../pages/admin/SellerListPage';
+import SettingsPage from '../pages/admin/SettingPage';
+
+// import Products from '../pages/public/Products';
+
+const AdminRoutes = {
+  path: '/',
+   element: <AdminLayout />,
+  children: [
+    { index: true, element: <Homepage/> },
+    { path: 'admin/login', element: <AdminLogin /> },
+    {path:'admin/forgot-password', element: <ForgotPassword/>},
+    {path:'admin/management', element: <AdminManagementPage/>},
+    {path:'admin/earnings', element: <EarningsPage/>},
+    {path:'admin/orders/:id', element: <OrderDetailPage/>},
+    {path:'admin/orders', element: <OrdersListPage/>},
+    {path:'admin/payouts', element: <PayoutsPage/>},
+    {path:'admin/products', element: <ProductsListPage/>},
+    {path:'admin/products/:id', element: <ProductDetailPage/>},
+    {path:'admin/products/:id', element: <ProductDetailPage/>},
+    {path:'admin/reports', element: <ReportsPage/>},
+    {path:'admin/reviews', element: <ReviewsPage/>},
+    {path:'admin/sellers/:id', element: <SellerDetailPage/>},
+    {path:'admin/sellers', element: <SellersListPage/>},
+    {path:'admin/settings', element: <SettingsPage/>},
+
+    {path:'admin/activity/logs', element: <ActivityLogsPage/>},
+
+    { path: 'admin/dashboard', element: <AdminDashboard /> },
+
+  ],
+};
+
+export default AdminRoutes;
