@@ -11,7 +11,7 @@ const router = createBrowserRouter([
   publicRoutes,
   ...buyerRoutes,
   ...sellerRoutes,  // spread because sellerRoutes is an array
-  adminRoutes,
+  ...adminRoutes,
   // {
   //   path: '/unauthorized',
   //   element: <Unauthorized />,

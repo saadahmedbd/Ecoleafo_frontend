@@ -1,7 +1,7 @@
-
 import { createSlice } from '@reduxjs/toolkit';
 import { buyerAuthApi } from './buyerAuthApi';
 import { sellerAuthApi } from './sellerAuthApi';
+import { adminAuthApi } from './adminAuthApi';
 
 const loadInitialState = () => {
   try {
@@ -83,6 +83,33 @@ const authSlice = createSlice({
       state.profileStatus = action.payload;
     },
 
+    setAdminAuth: (state, action) => {
+      const { token, refresh_token, user } = action.payload;
+      state.isAuthenticated = true;
+      state.token = token;
+      state.refreshToken = refresh_token;
+      state.user = user;
+      state.role = 'admin';
+      state.error = null;
+      
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('refresh_token', refresh_token);
+      localStorage.setItem('user_data', JSON.stringify(user));
+    },
+
+    clearAdminAuth: (state) => {
+      state.isAuthenticated = false;
+      state.token = null;
+      state.refreshToken = null;
+      state.user = null;
+      state.role = null;
+      state.error = null;
+
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_data');
+    },
+
     clearAuth: (state) => {
       state.isAuthenticated = false;
       state.token = null;
@@ -99,7 +126,6 @@ const authSlice = createSlice({
       localStorage.removeItem('remember_me');
     },
 
-    // FIX: Correct syntax for logout
     logout: (state) => {
       state.isAuthenticated = false;
       state.token = null;
@@ -184,7 +210,7 @@ const authSlice = createSlice({
         
         state.isAuthenticated = true;
         state.token = token;
-        state.refreshToken = refresh_token; // ADD THIS
+        state.refreshToken = refresh_token; 
         state.user = {
           id: user_id,
           seller_id: seller_id,
@@ -221,16 +247,56 @@ const authSlice = createSlice({
         localStorage.setItem('user_data', JSON.stringify(user));
       }
     );
+     // Admin Login
+    builder.addMatcher(
+      adminAuthApi.endpoints.adminLogin.matchFulfilled,
+      (state, action) => {
+        const { token, refresh_token, user } = action.payload;
+        
+        state.isAuthenticated = true;
+        state.token = token;
+        state.refreshToken = refresh_token;
+        state.user = user;
+        state.role = 'admin';
+        state.isLoading = false;
+        state.error = null;
+
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('refresh_token', refresh_token);
+        localStorage.setItem('user_data', JSON.stringify(user));
+      }
+    );
+
+    // Admin Registration
+    builder.addMatcher(
+      adminAuthApi.endpoints.registerAdmin.matchFulfilled,
+      (state, action) => {
+        const { token, refresh_token, user } = action.payload;
+        
+        state.isAuthenticated = true;
+        state.token = token;
+        state.refreshToken = refresh_token;
+        state.user = user;
+        state.role = 'admin';
+        state.isLoading = false;
+        state.error = null;
+
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('refresh_token', refresh_token);
+        localStorage.setItem('user_data', JSON.stringify(user));
+      }
+    );
 
     // Logout
     builder.addMatcher(
       (action) => 
         action.type === buyerAuthApi.endpoints.logout.matchFulfilled.type ||
-        action.type === sellerAuthApi.endpoints.logoutSeller.matchFulfilled.type,
+        action.type === sellerAuthApi.endpoints.logoutSeller.matchFulfilled.type ||
+        action.type === adminAuthApi.endpoints.adminLogout.matchFulfilled.type,
       (state) => {
         state.isAuthenticated = false;
         state.token = null;
-        state.refreshToken = null; // ADD THIS
+        state.refreshToken = null; 
         state.user = null;
         state.role = null;
         state.rememberMe = false;
@@ -238,7 +304,7 @@ const authSlice = createSlice({
         state.profileStatus = null;
 
         localStorage.removeItem('auth_token');
-        localStorage.removeItem('refresh_token'); // ADD THIS
+        localStorage.removeItem('refresh_token');
         localStorage.removeItem('user_data');
         localStorage.removeItem('remember_me');
       }
@@ -250,6 +316,8 @@ export const {
   setCredentials,
   updateToken,
   setProfileStatus,
+  setAdminAuth,
+  clearAdminAuth,
   clearAuth,
   logout,
   setAuthError,
@@ -262,9 +330,15 @@ export const selectAuth = (state) => state.auth;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
 export const selectUserRole = (state) => state.auth.role;
-export const selectRefreshToken = (state) => state.auth.refreshToken; // ADD THIS
+export const selectRefreshToken = (state) => state.auth.refreshToken;
 export const selectProfileStatus = (state) => state.auth.profileStatus;
 export const selectAuthError = (state) => state.auth.error;
 export const selectAuthLoading = (state) => state.auth.isLoading;
+export const selectAdminAuth = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+  user: state.auth.user,
+  role: state.auth.role,
+  token: state.auth.token,
+});
 
 export default authSlice.reducer;

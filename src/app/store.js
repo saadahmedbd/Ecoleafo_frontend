@@ -23,6 +23,7 @@ import { buyerProfileApi } from '../features/buyerProfile/buyerProfileApi';
 import { checkoutApi } from '../features/checkout/checkoutApi';
 import checkoutReducer from '../features/checkout/checkoutSlice';
 import { ordersApi } from '../features/orders/ordersApi';
+import { adminAuthApi } from '../features/auth/adminAuthApi';
 
 /**
  * Configure Redux store
@@ -46,6 +47,7 @@ export const store = configureStore({
     [buyerProfileApi.reducerPath]:buyerProfileApi.reducer,
     [checkoutApi.reducerPath]:checkoutApi.reducer,
     [ordersApi.reducerPath]: ordersApi.reducer,
+    [adminAuthApi.reducerPath]: adminAuthApi.reducer,
 
     // Checkout state
     checkout: checkoutReducer,
@@ -81,6 +83,7 @@ export const store = configureStore({
       buyerProfileApi.middleware,
       checkoutApi.middleware,
       ordersApi.middleware,
+      adminAuthApi.middleware,
     ),
   
   devTools: import.meta.env.MODE !== 'production', // Enable Redux DevTools in development

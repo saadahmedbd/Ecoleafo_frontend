@@ -1,178 +1,445 @@
-// src/layouts/AdminLayout.jsx
 
-import { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import { useState, useEffect } from 'react';
+import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { 
+  Menu,
+  X,
+  Bell,
+  User,
+  LogOut,
+  ChevronDown,
+  Home,
+  Users,
+  Package,
+  ShoppingCart,
+  Tag,
+  BarChart3,
+  FileText,
+  Settings,
+  Search,
+  DollarSign,
+  CircleDollarSignIcon,
+  Star
+} from 'lucide-react';
+import AdminAuthService from '@/services/adminAuthService';
+import { clearAuth, selectUser } from '@/features/auth/authSlice';
+import { path } from 'framer-motion/client';
 
 /**
- * Admin Dashboard Layout
- * Layout for admin users with full system management access
+ * Fully Responsive Admin Dashboard Layout
+ * Adapts to mobile, tablet, and desktop screens
  * 
  * Features:
- * - Collapsible sidebar
- * - Admin header with system stats
- * - Full-width content area
- * - Admin-specific navigation
- * 
- * @returns {React.ReactNode}
+ * - Mobile: Bottom navigation + hamburger menu
+ * - Tablet: Collapsible sidebar
+ * - Desktop: Full sidebar with icons and labels
+ * - Touch-optimized for all screen sizes
+ * - Smooth animations and transitions
  */
 const AdminLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
+  const user = useSelector(selectUser);
+  const adminAuthService = new AdminAuthService(dispatch);
 
-  /**
-   * Toggle sidebar visibility
-   */
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // State management
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  /**
-   * Admin navigation menu items
-   */
+  // Detect screen size
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1024);
+      // Auto-close sidebar on mobile
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  // Close sidebar when route changes on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname, isMobile]);
+
+  // Menu items configuration
   const menuItems = [
-    {
-      name: 'Dashboard',
-      path: '/admin/dashboard',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      ),
-    },
-    {
-      name: 'Users',
-      path: '/admin/sellers',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      ),
-    },
-    {
-      name: 'Products',
-      path: '/admin/products',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-      ),
-    },
-    {
-      name: 'Orders',
-      path: '/admin/orders',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-        </svg>
-      ),
-    },
-    {
-      name: 'Categories',
-      path: '/admin/categories',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-        </svg>
-      ),
-    },
-    {
-      name: 'Analytics',
-      path: '/admin/analytics',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      ),
-    },
-    {
-      name: 'Reports',
-      path: '/admin/reports',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      ),
-    },
-    {
-      name: 'Settings',
-      path: '/admin/settings',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
-    },
+    { name: 'Dashboard', path: '/admin/dashboard', icon: Home },
+    { name: 'Users', path: '/admin/sellers', icon: Users },
+    { name: 'Products', path: '/admin/products', icon: Package },
+    { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
+    {name:'Earnings',path:'/admin/earnings', icon:DollarSign},
+    {name:"Payouts", path:'/admin/payouts', icon:CircleDollarSignIcon},
+    {name:"Reviews", path:'/admin/reviews', icon:Star},
+    {name:"Activity Logs", path:'/admin/activity/logs', icon:FileText},
+    { name: 'Categories', path: '/admin/categories', icon: Tag },
+    { name: 'Reports', path: '/admin/reports', icon: FileText },
+    { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (user?.full_name) {
+      return user.full_name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    return user?.email?.[0]?.toUpperCase() || 'A';
+  };
+
+  // Handle logout
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    const confirmLogout = window.confirm('Are you sure you want to logout?');
+    if (!confirmLogout) return;
+
+    setIsLoggingOut(true);
+    try {
+      await adminAuthService.logout();
+      dispatch(clearAuth());
+      navigate('/admin/login', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <Sidebar
-        isOpen={isSidebarOpen}
-        menuItems={menuItems}
-        currentPath={location.pathname}
-        role="admin"
-      />
-      
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top header */}
-        <header className="bg-white shadow-sm">
-          <div className="flex items-center justify-between px-6 py-4">
-            {/* Sidebar toggle */}
-            <button
-              onClick={toggleSidebar}
-              className="p-2 rounded-lg hover:bg-gray-100"
-              aria-label="Toggle sidebar"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-40">
+        <div className="flex items-center justify-between px-4 py-3">
+          {/* Menu toggle */}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+
+          {/* Logo/Title */}
+          <Link to="/admin/dashboard" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#064232] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">E</span>
+            </div>
+            <span className="font-semibold text-gray-800">Admin</span>
+          </Link>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-2">
+            <button className="p-2 hover:bg-gray-100 rounded-lg relative transition-colors">
+              <Bell size={20} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
             
-            {/* Title with system status */}
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold text-gray-800">
-                Admin Dashboard
-              </h1>
-              <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+            <button
+              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+              className="w-8 h-8 bg-[#064232] rounded-lg flex items-center justify-center text-white font-semibold text-sm"
+            >
+              {getUserInitials()}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div className="px-4 pb-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#568F87] focus:border-transparent text-sm"
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Desktop Header */}
+      <header className="hidden lg:block fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-40">
+        <div className="flex items-center justify-between px-6 py-4">
+          {/* Left side */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              <Menu size={20} />
+            </button>
+            
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-semibold text-gray-800">Admin Dashboard</h1>
+              <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                 System Active
               </span>
             </div>
-            
-            {/* Right side actions */}
-            <div className="flex items-center space-x-4">
-              {/* Quick actions */}
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                Quick Action
-              </button>
-              
-              {/* Notifications */}
-              <button className="p-2 rounded-lg hover:bg-gray-100 relative">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              
-              {/* Profile */}
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-                  A
-                </div>
-                <span className="text-sm text-gray-700 font-medium">Admin</span>
-              </div>
+          </div>
+
+          {/* Center - Search */}
+          <div className="flex-1 max-w-xl mx-8">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="text"
+                placeholder="Search users, products, orders..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#568F87] focus:border-transparent text-sm"
+              />
             </div>
           </div>
-        </header>
-        
-        {/* Main content */}
-        <main className="flex-1 p-6">
+
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            <button className="px-4 py-2 bg-[#064232] text-white rounded-lg hover:bg-[#053828] transition-colors text-sm font-medium">
+              Quick Action
+            </button>
+
+            <button className="p-2 hover:bg-gray-100 rounded-lg relative transition-colors">
+              <Bell size={20} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            <div className="relative">
+              <button
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <div className="w-8 h-8 bg-[#064232] rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+                  {getUserInitials()}
+                </div>
+                <div className="text-left hidden xl:block">
+                  <p className="text-sm font-medium text-gray-800">{user?.full_name || 'Admin'}</p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
+                </div>
+                <ChevronDown size={16} className="text-gray-400" />
+              </button>
+
+              {/* Profile Dropdown */}
+              {isProfileMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                    <Link
+                      to="/admin/profile"
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      <User size={18} />
+                      <span className="text-sm text-gray-700">Profile</span>
+                    </Link>
+                    <Link
+                      to="/admin/settings"
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      <Settings size={18} />
+                      <span className="text-sm text-gray-700">Settings</span>
+                    </Link>
+                    <hr className="my-1" />
+                    <button
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 text-red-600 transition-colors disabled:opacity-50"
+                    >
+                      <LogOut size={18} />
+                      <span className="text-sm">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50
+          transition-all duration-300 ease-in-out
+          ${isMobile ? 'top-[121px]' : 'top-[73px]'}
+          ${isSidebarOpen 
+            ? 'translate-x-0 w-64' 
+            : isMobile 
+              ? '-translate-x-full w-64' 
+              : 'w-20'
+          }
+        `}
+      >
+        {/* Logo - Desktop only when collapsed */}
+        {!isMobile && !isSidebarOpen && (
+          <div className="flex items-center justify-center py-6 border-b border-gray-200">
+            <div className="w-10 h-10 bg-[#064232] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold">E</span>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <nav className="p-4 space-y-1 overflow-y-auto h-full pb-20">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`
+                  flex items-center gap-3 px-4 py-3 rounded-lg transition-all
+                  ${isActive
+                    ? 'bg-[#064232] text-white shadow-sm'
+                    : 'text-gray-700 hover:bg-gray-100'
+                  }
+                  ${!isSidebarOpen && !isMobile ? 'justify-center' : ''}
+                `}
+                title={!isSidebarOpen && !isMobile ? item.name : undefined}
+              >
+                <Icon size={20} className="flex-shrink-0" />
+                {(isSidebarOpen || isMobile) && (
+                  <span className="font-medium text-sm">{item.name}</span>
+                )}
+              </Link>
+            );
+          })}
+
+          {/* Logout button - Mobile only */}
+          {isMobile && (
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 mt-4"
+            >
+              <LogOut size={20} className="flex-shrink-0" />
+              <span className="font-medium text-sm">
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
+              </span>
+            </button>
+          )}
+        </nav>
+      </aside>
+
+      {/* Mobile overlay */}
+      {isMobile && isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main content */}
+      <main
+        className={`
+          transition-all duration-300 ease-in-out
+          ${isMobile 
+            ? 'pt-[121px] px-4 pb-20' 
+            : `pt-[73px] px-6 pb-6 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`
+          }
+        `}
+      >
+        <div className="max-w-7xl mx-auto">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
+
+      {/* Mobile bottom navigation */}
+      {isMobile && (
+        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+          <div className="flex items-center justify-around px-2 py-2">
+            {menuItems.slice(0, 4).map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`
+                    flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors min-w-[70px]
+                    ${isActive
+                      ? 'text-[#064232] bg-[#064232]/10'
+                      : 'text-gray-600'
+                    }
+                  `}
+                >
+                  <Icon size={20} />
+                  <span className="text-xs font-medium">{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+
+      {/* Mobile profile menu */}
+      {isMobile && isProfileMenuOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setIsProfileMenuOpen(false)}
+          />
+          <div className="fixed top-[70px] right-4 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-[#064232] rounded-lg flex items-center justify-center text-white font-semibold">
+                  {getUserInitials()}
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800">{user?.full_name || 'Admin'}</p>
+                  <p className="text-sm text-gray-500">{user?.email}</p>
+                </div>
+              </div>
+            </div>
+            <div className="py-2">
+              <Link
+                to="/admin/profile"
+                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsProfileMenuOpen(false)}
+              >
+                <User size={18} />
+                <span className="text-sm text-gray-700">Profile</span>
+              </Link>
+              <Link
+                to="/admin/settings"
+                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsProfileMenuOpen(false)}
+              >
+                <Settings size={18} />
+                <span className="text-sm text-gray-700">Settings</span>
+              </Link>
+              <hr className="my-2" />
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-red-600 transition-colors disabled:opacity-50"
+              >
+                <LogOut size={18} />
+                <span className="text-sm">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

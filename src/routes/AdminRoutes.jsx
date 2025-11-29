@@ -1,37 +1,12 @@
-// // src/routes/adminRoutes.jsx
-// import React from 'react';
-// import { Navigate } from 'react-router-dom';
-// import AuthGuard from '@/guards/AuthGuard';
-// import RoleGuard from '@/guards/RoleGuard';
-// import AdminLayout from '@/layouts/AdminLayout';
-// import AdminDashboard from '@/pages/admin/Dashboard';
-// import AdminUsers from '@/pages/admin/Users';
-// import AdminProducts from '@/pages/admin/Products';
-// import AdminSettings from '@/pages/admin/Settings';
-
-// const adminRoutes = {
-//   path: '/admin',
-//   element: (
-//     <AuthGuard>
-//       <RoleGuard allowedRoles={['admin']}>
-//         <AdminLayout />
-//       </RoleGuard>
-//     </AuthGuard>
-//   ),
-//   children: [
-//     { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-//     { path: 'dashboard', element: <AdminDashboard /> },
-//     { path: 'users', element: <AdminUsers /> },
-//     { path: 'products', element: <AdminProducts /> },
-//     { path: 'settings', element: <AdminSettings /> },
-//   ],
-// };
-
-// export default adminRoutes;
-
+// src/routes/adminRoutes.jsx
 import React from 'react';
+import { Navigate } from 'react-router-dom';
+import AuthGuard from '@/guards/AuthGuard';
+import RoleGuard from '@/guards/RoleGuard';
+import AdminGuard from '../guards/adminGuard';
 import AdminLayout from '@/layouts/AdminLayout'
 import AdminLogin from '@/pages/admin/Login'
+import AdminRegisterPage from '../pages/admin/Register';
 import Homepage from '../pages/public/HomePage';
 import AdminDashboard from '@/pages/admin/Dashboard'
 import ForgotPassword from '../pages/admin/ForgotPassword';
@@ -50,34 +25,52 @@ import SellerDetailPage from '../pages/admin/SellerDetailPage';
 import SellersListPage from '../pages/admin/SellerListPage';
 import SettingsPage from '../pages/admin/SettingPage';
 
-// import Products from '../pages/public/Products';
+const adminRoutes = [
+  // Admin Authentication Routes (Public)
+  {
+    path: '/admin/login',
+    element: <AdminLogin />,
+  },
+  {
+    path: '/admin/register',
+    element: <AdminRegisterPage />,
+  },
+  {
+    path: '/admin/forgot/password',
+    element: <ForgotPassword />,
+  },
 
-const AdminRoutes = {
-  path: '/',
-   element: <AdminLayout />,
-  children: [
-    { index: true, element: <Homepage/> },
-    { path: 'admin/login', element: <AdminLogin /> },
-    {path:'admin/forgot-password', element: <ForgotPassword/>},
-    {path:'admin/management', element: <AdminManagementPage/>},
-    {path:'admin/earnings', element: <EarningsPage/>},
-    {path:'admin/orders/:id', element: <OrderDetailPage/>},
-    {path:'admin/orders', element: <OrdersListPage/>},
-    {path:'admin/payouts', element: <PayoutsPage/>},
-    {path:'admin/products', element: <ProductsListPage/>},
-    {path:'admin/products/:id', element: <ProductDetailPage/>},
-    {path:'admin/products/:id', element: <ProductDetailPage/>},
-    {path:'admin/reports', element: <ReportsPage/>},
-    {path:'admin/reviews', element: <ReviewsPage/>},
-    {path:'admin/sellers/:id', element: <SellerDetailPage/>},
-    {path:'admin/sellers', element: <SellersListPage/>},
-    {path:'admin/settings', element: <SettingsPage/>},
+  // Protected Admin Dashboard Routes
+  {
+    path: '/admin',
+    element: (
+      <AuthGuard>
+        <RoleGuard allowedRoles={['admin']}>
+          <AdminGuard>
+            <AdminLayout />
+          </AdminGuard>
+        </RoleGuard>
+      </AuthGuard>
+    ),
+    children: [
+      { index: true, element: <Navigate to="/admin/dashboard" replace /> },
+      { path: 'dashboard', element: <AdminDashboard /> },
+      { path: 'management', element: <AdminManagementPage /> },
+      { path: 'earnings', element: <EarningsPage /> },
+      { path: 'orders/:id', element: <OrderDetailPage /> },
+      { path: 'orders', element: <OrdersListPage /> },
+      { path: 'payouts', element: <PayoutsPage /> },
+      { path: 'products', element: <ProductsListPage /> },
+      { path: 'products/:id', element: <ProductDetailPage /> },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'reviews', element: <ReviewsPage /> },
+      { path: 'sellers/:id', element: <SellerDetailPage /> },
+      { path: 'sellers', element: <SellersListPage /> },
+      { path: 'settings', element: <SettingsPage /> },
+      { path: 'activity/logs', element: <ActivityLogsPage /> },
+    ],
+  },
+];
 
-    {path:'admin/activity/logs', element: <ActivityLogsPage/>},
+export default adminRoutes;
 
-    { path: 'admin/dashboard', element: <AdminDashboard /> },
-
-  ],
-};
-
-export default AdminRoutes;
