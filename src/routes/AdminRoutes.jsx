@@ -24,6 +24,9 @@ import ReviewsPage from '../pages/admin/ReviewPage';
 import SellerDetailPage from '../pages/admin/SellerDetailPage';
 import SellersListPage from '../pages/admin/SellerListPage';
 import SettingsPage from '../pages/admin/SettingPage';
+import AdminInvitations from '../pages/admin/Invitations';
+import Admins from '../pages/admin/Users'
+import AdminProfile from '../pages/admin/Profile'
 
 const adminRoutes = [
   // Admin Authentication Routes (Public)
@@ -67,7 +70,10 @@ const adminRoutes = [
       { path: 'sellers/:id', element: <SellerDetailPage /> },
       { path: 'sellers', element: <SellersListPage /> },
       { path: 'settings', element: <SettingsPage /> },
-      { path: 'activity/logs', element: <ActivityLogsPage /> },
+      { path: 'users', element: <Admins /> },
+      { path: 'invitations', element: <AdminInvitations /> },
+      { path: 'profile', element: <AdminProfile /> },
+
     ],
   },
 ];

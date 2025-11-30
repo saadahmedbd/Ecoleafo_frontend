@@ -86,6 +86,7 @@ const AdminLayout = () => {
     {name:"Activity Logs", path:'/admin/activity/logs', icon:FileText},
     { name: 'Categories', path: '/admin/categories', icon: Tag },
     { name: 'Reports', path: '/admin/reports', icon: FileText },
+    {name:'Admins', path:'/admin/users',icon:Users},
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
