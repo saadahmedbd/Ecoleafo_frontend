@@ -77,7 +77,7 @@ const AdminLayout = () => {
   // Menu items configuration
   const menuItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: Home },
-    { name: 'Users', path: '/admin/sellers', icon: Users },
+    { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Products', path: '/admin/products', icon: Package },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
     {name:'Earnings',path:'/admin/earnings', icon:DollarSign},
@@ -86,7 +86,7 @@ const AdminLayout = () => {
     {name:"Activity Logs", path:'/admin/activity/logs', icon:FileText},
     { name: 'Categories', path: '/admin/categories', icon: Tag },
     { name: 'Reports', path: '/admin/reports', icon: FileText },
-    {name:'Admins', path:'/admin/users',icon:Users},
+    {name:'Admins', path:'/admin/all',icon:Users},
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 

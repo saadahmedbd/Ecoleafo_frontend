@@ -1,54 +1,168 @@
+
 import React from 'react';
 
-export default function StatusBadge({ status, type = 'default' }) {
-  const getStyles = () => {
-    if (type === 'order') {
-      const styles = {
-        pending: 'bg-[#F5BABB] text-[#064232]',
-        processing: 'bg-[#568F87] text-white',
-        shipped: 'bg-[#F59E0B] text-white',
-        delivered: 'bg-[#10B981] text-white',
-        cancelled: 'bg-[#EF4444] text-white',
-      };
-      return styles[status.toLowerCase()] || styles.pending;
-    }
+export default function StatusBadge({ status, type = 'approval' }) {
+  const getStatusStyles = () => {
+    const normalizedStatus = status?.toLowerCase() || '';
 
+    // Seller approval statuses
     if (type === 'approval') {
-      const styles = {
-        pending: 'bg-[#F5BABB] text-[#064232]',
-        approved: 'bg-[#10B981] text-white',
-        rejected: 'bg-[#EF4444] text-white',
-        suspended: 'bg-[#EF4444] text-white',
-        active: 'bg-[#10B981] text-white',
-      };
-      return styles[status.toLowerCase()] || styles.pending;
+      switch (normalizedStatus) {
+        case 'approved':
+          return {
+            bg: 'bg-[#10B981]/10',
+            text: 'text-[#10B981]',
+            label: 'Approved'
+          };
+        case 'pending':
+          return {
+            bg: 'bg-[#F59E0B]/10',
+            text: 'text-[#F59E0B]',
+            label: 'Pending'
+          };
+        case 'rejected':
+          return {
+            bg: 'bg-[#EF4444]/10',
+            text: 'text-[#EF4444]',
+            label: 'Rejected'
+          };
+        case 'suspended':
+          return {
+            bg: 'bg-[#EF4444]/10',
+            text: 'text-[#EF4444]',
+            label: 'Suspended'
+          };
+        default:
+          return {
+            bg: 'bg-[#666666]/10',
+            text: 'text-[#666666]',
+            label: status || 'Unknown'
+          };
+      }
     }
 
-    if (type === 'stock') {
-      const styles = {
-        'in stock': 'bg-[#10B981] text-white',
-        'low stock': 'bg-[#F59E0B] text-white',
-        'out of stock': 'bg-[#EF4444] text-white',
-      };
-      return styles[status.toLowerCase()] || 'bg-[#E5E5E5] text-[#666666]';
+    // Buyer statuses
+    if (type === 'buyer') {
+      switch (normalizedStatus) {
+        case 'active':
+          return {
+            bg: 'bg-[#10B981]/10',
+            text: 'text-[#10B981]',
+            label: 'Active'
+          };
+        case 'inactive':
+          return {
+            bg: 'bg-[#F59E0B]/10',
+            text: 'text-[#F59E0B]',
+            label: 'Inactive'
+          };
+        case 'suspended':
+          return {
+            bg: 'bg-[#EF4444]/10',
+            text: 'text-[#EF4444]',
+            label: 'Suspended'
+          };
+        default:
+          return {
+            bg: 'bg-[#666666]/10',
+            text: 'text-[#666666]',
+            label: status || 'Unknown'
+          };
+      }
     }
 
+    // Order statuses
+    if (type === 'order') {
+      switch (normalizedStatus) {
+        case 'delivered':
+          return {
+            bg: 'bg-[#10B981]/10',
+            text: 'text-[#10B981]',
+            label: 'Delivered'
+          };
+        case 'shipped':
+          return {
+            bg: 'bg-[#568F87]/10',
+            text: 'text-[#568F87]',
+            label: 'Shipped'
+          };
+        case 'processing':
+          return {
+            bg: 'bg-[#F59E0B]/10',
+            text: 'text-[#F59E0B]',
+            label: 'Processing'
+          };
+        case 'pending':
+          return {
+            bg: 'bg-[#F59E0B]/10',
+            text: 'text-[#F59E0B]',
+            label: 'Pending'
+          };
+        case 'cancelled':
+          return {
+            bg: 'bg-[#EF4444]/10',
+            text: 'text-[#EF4444]',
+            label: 'Cancelled'
+          };
+        default:
+          return {
+            bg: 'bg-[#666666]/10',
+            text: 'text-[#666666]',
+            label: status || 'Unknown'
+          };
+      }
+    }
+
+    // Payment statuses
     if (type === 'payment') {
-      const styles = {
-        paid: 'bg-[#10B981] text-white',
-        pending: 'bg-[#F5BABB] text-[#064232]',
-        failed: 'bg-[#EF4444] text-white',
-        refunded: 'bg-[#666666] text-white',
-      };
-      return styles[status.toLowerCase()] || styles.pending;
+      switch (normalizedStatus) {
+        case 'paid':
+        case 'completed':
+          return {
+            bg: 'bg-[#10B981]/10',
+            text: 'text-[#10B981]',
+            label: 'Paid'
+          };
+        case 'pending':
+          return {
+            bg: 'bg-[#F59E0B]/10',
+            text: 'text-[#F59E0B]',
+            label: 'Pending'
+          };
+        case 'failed':
+          return {
+            bg: 'bg-[#EF4444]/10',
+            text: 'text-[#EF4444]',
+            label: 'Failed'
+          };
+        case 'refunded':
+          return {
+            bg: 'bg-[#568F87]/10',
+            text: 'text-[#568F87]',
+            label: 'Refunded'
+          };
+        default:
+          return {
+            bg: 'bg-[#666666]/10',
+            text: 'text-[#666666]',
+            label: status || 'Unknown'
+          };
+      }
     }
 
-    return 'bg-[#E5E5E5] text-[#666666]';
+    // Default fallback
+    return {
+      bg: 'bg-[#666666]/10',
+      text: 'text-[#666666]',
+      label: status || 'Unknown'
+    };
   };
 
+  const { bg, text, label } = getStatusStyles();
+
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs ${getStyles()}`}>
-      {status}
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bg} ${text}`}>
+      {label}
     </span>
   );
 }
