@@ -593,35 +593,7 @@ async getProfileStatus() {
     return '/seller/account';
   }
 
-  /**
-   * Store authentication data
-   * @private
-   */
-  storeAuthentication(token, user, rememberMe = false) {
-    // Ensure user has seller type and role
-    const sellerUser = {
-      ...user,
-      userType: 'seller',
-      role: 'seller'
-    };
 
-    console.log('[SellerAuthService] Storing user:', sellerUser);
-
-    // Dispatch to Redux
-    store.dispatch(setCredentials({
-      token,
-      user: sellerUser,
-      rememberMe
-    }));
-
-    // Store in localStorage
-    localStorage.setItem('auth_token', token);
-    localStorage.setItem('user_data', JSON.stringify(sellerUser));
-    
-    if (rememberMe) {
-      localStorage.setItem('remember_me', 'true');
-    }
-  }
     /** 
     * Clear all authentication data
      * @private

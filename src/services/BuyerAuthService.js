@@ -346,26 +346,7 @@ class BuyerAuthService {
   // HELPER METHODS (Private)
   // ==========================================
 
-  /**
-   * Store authentication data in Redux and localStorage
-   * @private
-   */
-  storeAuthentication(token, user, rememberMe) {
-    // Dispatch to Redux
-    store.dispatch(setCredentials({
-      token,
-      user: { ...user, userType: 'buyer' },
-      rememberMe
-    }));
 
-    // Store in localStorage
-    localStorage.setItem('auth_token', token);
-    localStorage.setItem('user_data', JSON.stringify({ ...user, userType: 'buyer' }));
-    
-    if (rememberMe) {
-      localStorage.setItem('remember_me', 'true');
-    }
-  }
 
   /**
    * Clear all authentication data
@@ -443,13 +424,15 @@ class BuyerAuthService {
   storeAuthentication(token, refreshToken, user, rememberMe) {
     store.dispatch(setCredentials({
       token,
-      refresh_token: refreshToken, // ADD THIS
+      refresh_token: refreshToken,
       user: { ...user, userType: 'buyer' },
       rememberMe
     }));
 
     localStorage.setItem('auth_token', token);
-    localStorage.setItem('refresh_token', refreshToken); // ADD THIS
+    if (refreshToken) {
+      localStorage.setItem('refresh_token', refreshToken);
+    }
     localStorage.setItem('user_data', JSON.stringify({ ...user, userType: 'buyer' }));
     
     if (rememberMe) {

@@ -22,23 +22,67 @@ const decodeToken = (token) => {
 
 const refreshAccessToken = async () => {
   const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+  const accessToken = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
   
-  if (!refreshToken) {
+  if (!refreshToken || refreshToken === 'undefined' || refreshToken === 'null') {
     store.dispatch(clearAuth());
     return false;
   }
 
+  let userType = 'buyer';
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
+    if (userData) {
+      const user = JSON.parse(userData);
+      userType = user.userType || user.role || 'buyer';
+    }
+  } catch (e) {
+    console.error('Failed to parse user data:', e);
+  }
+
+  const refreshEndpoint = userType === 'seller' 
+    ? `${API_BASE_URL}/seller/auth/refresh` 
+    : userType === 'admin'
+    ? `${API_BASE_URL}/admin/auth/refresh`
+    : `${API_BASE_URL}/buyer/auth/refresh`;
+
+  try {
+    const bodyFormats = [
+      { refresh_token: refreshToken },
+      { refreshToken: refreshToken },
+      { token: refreshToken },
+    ];
+    
+    let response;
+    
+    for (const body of bodyFormats) {
+      response = await fetch(refreshEndpoint, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify(body),
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        break;
+      } else if (response.status === 400) {
+        await response.json().catch(() => ({}));
+        continue;
+      } else {
+        break;
+      }
+    }
 
     if (response.ok) {
       const data = await response.json();
       const newAccessToken = data.access_token || data.token;
-      const newRefreshToken = data.refresh_token || refreshToken;
+      const newRefreshToken = data.refresh_token || data.refreshToken;
+      
+      localStorage.setItem('auth_token', newAccessToken);
+      localStorage.setItem('refresh_token', newRefreshToken);
       
       store.dispatch(updateToken({ 
         access_token: newAccessToken, 
@@ -47,25 +91,36 @@ const refreshAccessToken = async () => {
       scheduleTokenRefresh(newAccessToken);
       return true;
     } else {
+      localStorage.clear();
       store.dispatch(clearAuth());
-      window.location.href = '/auth/login';
+      window.location.href = userType === 'seller' ? '/seller/login' 
+        : userType === 'admin' ? '/admin/login' 
+        : '/buyer/login';
       return false;
     }
   } catch (error) {
-    console.error('Token refresh failed:', error);
+    store.dispatch(clearAuth());
+    window.location.href = userType === 'seller' ? '/seller/login' 
+      : userType === 'admin' ? '/admin/login' 
+      : '/buyer/login';
     return false;
   }
 };
 
 const scheduleTokenRefresh = (token) => {
-  if (refreshTimer) clearTimeout(refreshTimer);
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+  }
 
   const decoded = decodeToken(token);
-  if (!decoded?.exp) return;
+  
+  if (!decoded?.exp) {
+    return;
+  }
 
   const now = Date.now();
   const expiry = decoded.exp * 1000;
-  const timeUntilRefresh = expiry - now - 60000; // Refresh 1 minute before expiry
+  const timeUntilRefresh = expiry - now - 300000;
 
   if (timeUntilRefresh > 0) {
     refreshTimer = setTimeout(() => {
@@ -78,6 +133,7 @@ const scheduleTokenRefresh = (token) => {
 
 export const initTokenRefresh = () => {
   const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  
   if (token) {
     scheduleTokenRefresh(token);
   }

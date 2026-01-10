@@ -56,12 +56,42 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error?.status === 401) {
+    console.log('🔒 ===== 401 UNAUTHORIZED DETECTED =====');
+    console.log('🔒 Request URL:', args.url || args);
+    console.log('🔒 Attempting token refresh via API interceptor...');
+    
     const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+    const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
+    
+    console.log('🔒 Refresh Token:', refreshToken ? 'EXISTS' : 'MISSING');
+    console.log('🔒 User Data:', userData);
+    
+    // Determine user type for correct endpoint
+    let userType = 'buyer';
+    try {
+      if (userData) {
+        const user = JSON.parse(userData);
+        userType = user.userType || user.role || 'buyer';
+        console.log('🔒 User Type:', userType);
+      }
+    } catch (e) {
+      console.error('❌ Failed to parse user data:', e);
+    }
 
     if (refreshToken) {
+      // Use role-specific refresh endpoint
+      const refreshUrl = userType === 'seller' 
+        ? '/seller/auth/refresh' 
+        : userType === 'admin'
+        ? '/admin/auth/refresh'
+        : '/buyer/auth/refresh';
+
+      console.log('🔒 Refresh URL:', refreshUrl);
+      console.log('🔒 Sending refresh request...');
+
       const refreshResult = await baseQuery(
         {
-          url: '/auth/refresh',
+          url: refreshUrl,
           method: 'POST',
           body: { refresh_token: refreshToken },
         },
@@ -69,8 +99,13 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         extraOptions
       );
 
+      console.log('🔒 Refresh Result:', refreshResult);
+
       const newToken = refreshResult.data?.access_token || refreshResult.data?.token;
       const newRefreshToken = refreshResult.data?.refresh_token;
+
+      console.log('🔒 New Access Token:', newToken ? 'RECEIVED' : 'MISSING');
+      console.log('🔒 New Refresh Token:', newRefreshToken ? 'RECEIVED' : 'MISSING');
 
       if (newToken) {
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, newToken);
@@ -82,16 +117,26 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
           refresh_token: newRefreshToken || refreshToken 
         }));
 
-        // Retry original request with new token
+        console.log('✅ Token refreshed, retrying original request...');
         result = await baseQuery(args, api, extraOptions);
+        console.log('✅ Original request retry result:', result.error ? 'FAILED' : 'SUCCESS');
       } else {
+        console.error('❌ Token refresh failed - no new token received');
+        console.error('❌ Refresh result data:', refreshResult.data);
+        console.error('❌ Refresh result error:', refreshResult.error);
         api.dispatch(clearAuth());
-        window.location.href = '/auth/login';
+        window.location.href = userType === 'seller' ? '/seller/login' 
+          : userType === 'admin' ? '/admin/login' 
+          : '/buyer/login';
       }
     } else {
+      console.error('❌ No refresh token available, redirecting to login');
       api.dispatch(clearAuth());
-      window.location.href = '/auth/login';
+      window.location.href = userType === 'seller' ? '/seller/login' 
+        : userType === 'admin' ? '/admin/login' 
+        : '/buyer/login';
     }
+    console.log('🔒 ===== 401 HANDLING COMPLETE =====');
   }
 
   if (result.error) logError(result.error);

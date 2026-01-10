@@ -21,20 +21,38 @@ export const buyerAuthApi = api.injectEndpoints({
       }),
       
       transformResponse: (response) => {
-        const data = response.data || response;
+        // FIXED: Handle both nested and flat responses
+        const data = response?.data || response;
         
-        console.log('Registration response:', data);
+        console.log('🔍 Raw Backend Response:', response);
+        console.log('🔍 Extracted Data:', data);
         
+        // Validate response
         if (!data?.access_token && !data?.token) {
-          throw new Error('Registration failed: invalid response from server');
+          throw new Error('Registration failed: No access token in response');
         }
         
+        // Extract tokens with better handling
         const token = data.access_token || data.token;
-        const refresh_token = data.refresh_token || '';
+        const refresh_token = data.refresh_token || data.refreshToken || data.refresh || null;
+        
+        console.log('📦 Token Extraction:', {
+          hasAccessToken: !!token,
+          hasRefreshToken: !!refresh_token,
+          refreshTokenType: typeof refresh_token,
+          refreshTokenValue: refresh_token ? `${refresh_token.substring(0, 20)}...` : 'NULL'
+        });
+        
+        // CRITICAL: Warn if refresh token is missing
+        if (!refresh_token) {
+          console.error('❌ CRITICAL: Backend did not return refresh_token!');
+          console.error('❌ Response keys:', Object.keys(data));
+          console.error('❌ Full response:', JSON.stringify(data, null, 2));
+        }
         
         return {
           token,
-          refresh_token,
+          refresh_token: refresh_token || null,
           user: {
             userType: data.user_type || 'buyer',
             firstName: data.first_name,
@@ -63,7 +81,7 @@ export const buyerAuthApi = api.injectEndpoints({
     }),
 
     // ==========================
-    // Buyer Login
+    // Buyer Login - FIXED
     // ==========================
     login: builder.mutation({
       query: (credentials) => ({
@@ -77,30 +95,108 @@ export const buyerAuthApi = api.injectEndpoints({
       }),
       
       transformResponse: (response, meta, arg) => {
-        const data = response.data || response;
+        // FIXED: Handle both nested and flat responses properly
+        console.log('🔍 ===== LOGIN RESPONSE DEBUG =====');
+        console.log('🔍 Raw Response:', response);
+        console.log('🔍 Response Type:', typeof response);
+        console.log('🔍 Response Keys:', Object.keys(response || {}));
         
-        // console.log('Login response:', data);
-        
-        if (!data?.access_token && !data?.token) {
-          throw new Error('Invalid credentials');
+        // Try to extract data - handle both {data: {...}} and flat {...} responses
+        let data;
+        if (response?.data && typeof response.data === 'object') {
+          data = response.data;
+          console.log('📦 Using nested response.data');
+        } else if (response && typeof response === 'object') {
+          data = response;
+          console.log('📦 Using flat response');
+        } else {
+          console.error('❌ Invalid response structure:', response);
+          throw new Error('Invalid response from server');
         }
         
-        const token = data.access_token || data.token;
-        const refresh_token = data.refresh_token || '';
+        console.log('📦 Extracted Data:', data);
+        console.log('📦 Data Keys:', Object.keys(data));
         
-        return {
+        // Validate access token
+        if (!data?.access_token && !data?.token) {
+          console.error('❌ No access token found in response!');
+          throw new Error('Invalid credentials - no token received');
+        }
+        
+        // Extract tokens with comprehensive field name checking
+        const token = data.access_token || data.accessToken || data.token;
+        const refresh_token = data.refresh_token || data.refreshToken || data.refresh || null;
+        
+        console.log('🔑 Token Extraction Results:');
+        console.log('  ✓ Access Token:', token ? `${token.substring(0, 20)}...` : 'MISSING');
+        console.log('  ✓ Refresh Token:', refresh_token ? `${refresh_token.substring(0, 20)}...` : 'MISSING');
+        console.log('  ✓ Refresh Token Type:', typeof refresh_token);
+        console.log('  ✓ Refresh Token Truthy:', !!refresh_token);
+        
+        // CRITICAL CHECK: Verify refresh token is actually present
+        if (!refresh_token || refresh_token === 'null' || refresh_token === 'undefined') {
+          console.error('❌ ===== CRITICAL ERROR =====');
+          console.error('❌ NO VALID REFRESH TOKEN RECEIVED FROM BACKEND!');
+          console.error('❌ Backend must return one of: refresh_token, refreshToken, or refresh');
+          console.error('❌ Current response fields:', Object.keys(data).join(', '));
+          console.error('❌ ==========================');
+          
+          // Don't throw error, but log warning
+          console.warn('⚠️ Continuing without refresh token - automatic token refresh will not work!');
+        }
+        
+        // Store tokens IMMEDIATELY in localStorage with validation
+        if (token && typeof token === 'string' && token.length > 10) {
+          localStorage.setItem('auth_token', token);
+          console.log('✅ Access token stored in localStorage');
+        } else {
+          console.error('❌ Invalid access token, not storing');
+        }
+        
+        if (refresh_token && typeof refresh_token === 'string' && refresh_token.length > 10) {
+          localStorage.setItem('refresh_token', refresh_token);
+          console.log('✅ Refresh token stored in localStorage:', refresh_token.substring(0, 20) + '...');
+          
+          // Verify storage
+          const stored = localStorage.getItem('refresh_token');
+          if (stored === refresh_token) {
+            console.log('✅✅ Refresh token storage VERIFIED');
+          } else {
+            console.error('❌ Refresh token storage FAILED - stored value differs!');
+          }
+        } else {
+          console.warn('⚠️ No valid refresh token to store');
+          console.warn('⚠️ Value received:', refresh_token);
+        }
+        
+        // Build user object
+        const user = {
+          userType: data.user_type || 'buyer',
+          firstName: data.first_name,
+          lastName: data.last_name,
+          email: data.email,
+          roles: data.roles || ['buyer'],
+          fullName: `${data.first_name} ${data.last_name}`,
+        };
+        
+        localStorage.setItem('user_data', JSON.stringify(user));
+        console.log('✅ User data stored in localStorage');
+        
+        const result = {
           token,
-          refresh_token,
-          user: {
-            userType: data.user_type || 'buyer',
-            firstName: data.first_name,
-            lastName: data.last_name,
-            email: data.email,
-            roles: data.roles || ['buyer'],
-            fullName: `${data.first_name} ${data.last_name}`,
-          },
+          refresh_token: refresh_token || null,
+          user,
           rememberMe: arg?.remember_me || false,
         };
+        
+        console.log('🚀 Final Login Result:', {
+          hasToken: !!result.token,
+          hasRefreshToken: !!result.refresh_token,
+          userEmail: result.user.email
+        });
+        console.log('🔍 ===== LOGIN RESPONSE DEBUG END =====');
+        
+        return result;
       },
 
       transformErrorResponse: (response) => {
@@ -121,41 +217,41 @@ export const buyerAuthApi = api.injectEndpoints({
     // Logout
     // ==========================
     logout: builder.mutation({
-  query: () => {
-    const refreshToken = localStorage.getItem('refresh_token'); // directly from localStorage
+      query: () => {
+        const refreshToken = localStorage.getItem('refresh_token');
+        
+        console.log('🚪 Logout - Refresh Token:', refreshToken ? 'EXISTS' : 'MISSING');
 
-    return {
-      url: '/auth/logout',
-      method: 'POST',
-      body: { refresh_token: refreshToken || null }, // fallback in case null
-    };
-  },
+        return {
+          url: '/auth/logout',
+          method: 'POST',
+          body: { refresh_token: refreshToken || null },
+        };
+      },
 
-  async onQueryStarted(_, { dispatch, queryFulfilled }) {
-    try {
-      await queryFulfilled;
-    } catch (err) {
-      console.warn('Logout error:', err);
-      // you can show a toast if needed
-    } finally {
-      // Always clear auth state locally, even if backend fails
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_data');
-      localStorage.removeItem('remember_me');
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          console.log('✅ Logout successful');
+        } catch (err) {
+          console.warn('⚠️ Logout API error (continuing with local cleanup):', err);
+        } finally {
+          // Always clear auth state locally
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user_data');
+          localStorage.removeItem('remember_me');
+          
+          console.log('✅ Local storage cleared');
+          dispatch(clearAuth());
+        }
+      },
 
-      dispatch(clearAuth()); // now works because imported
-    }
-  },
-
-  invalidatesTags: [API_TAGS.AUTH],
-}),
-
-
-
+      invalidatesTags: [API_TAGS.AUTH],
+    }),
 
     // ==========================
-    // Refresh Token - NEW ENDPOINT
+    // Refresh Token
     // ==========================
     refreshToken: builder.mutation({
       query: (refreshToken) => ({
@@ -166,14 +262,16 @@ export const buyerAuthApi = api.injectEndpoints({
         },
       }),
       transformResponse: (response) => {
-        if (!response?.access_token || !response?.refresh_token) {
+        const data = response?.data || response;
+        
+        if (!data?.access_token || !data?.refresh_token) {
           throw new Error('Failed to refresh token');
         }
         
         return {
-          access_token: response.access_token,
-          refresh_token: response.refresh_token,
-          expires_in: response.expires_in || 900,
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          expires_in: data.expires_in || 900,
         };
       },
       transformErrorResponse: (response) => ({
@@ -188,14 +286,15 @@ export const buyerAuthApi = api.injectEndpoints({
       query: () => '/auth/me',
       providesTags: [API_TAGS.AUTH],
       transformResponse: (response) => {
-        if (!response?.email) throw new Error('Failed to fetch profile');
+        const data = response?.data || response;
+        if (!data?.email) throw new Error('Failed to fetch profile');
         return {
-          userType: response.user_type,
-          firstName: response.first_name,
-          lastName: response.last_name,
-          email: response.email,
-          roles: response.roles || ['buyer'],
-          fullName: `${response.first_name} ${response.last_name}`,
+          userType: data.user_type,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          email: data.email,
+          roles: data.roles || ['buyer'],
+          fullName: `${data.first_name} ${data.last_name}`,
         };
       },
     }),
@@ -241,7 +340,7 @@ export const buyerAuthApi = api.injectEndpoints({
     }),
 
     // ==========================
-    // Update Profile - OPTIONAL
+    // Update Profile
     // ==========================
     updateProfile: builder.mutation({
       query: (profileData) => ({
@@ -257,7 +356,7 @@ export const buyerAuthApi = api.injectEndpoints({
     }),
 
     // ==========================
-    // Change Password - OPTIONAL
+    // Change Password
     // ==========================
     changePassword: builder.mutation({
       query: (data) => ({
@@ -280,7 +379,7 @@ export const buyerAuthApi = api.injectEndpoints({
     }),
 
     // ==========================
-    // Verify Email - OPTIONAL
+    // Verify Email
     // ==========================
     verifyEmail: builder.mutation({
       query: (data) => ({
@@ -295,12 +394,12 @@ export const buyerAuthApi = api.injectEndpoints({
   }),
 });
 
-// Export hooks for use in components
+// Export hooks
 export const {
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
-  useRefreshTokenMutation,        //  NEW
+  useRefreshTokenMutation,
   useGetProfileQuery,
   useForgotPasswordMutation,
   useResetPasswordMutation,
@@ -310,6 +409,3 @@ export const {
 } = buyerAuthApi;
 
 export default buyerAuthApi;
-
-
-

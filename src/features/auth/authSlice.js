@@ -60,9 +60,12 @@ const authSlice = createSlice({
       state.rememberMe = rememberMe || false;
       state.error = null;
 
-      // Persist to localStorage
       localStorage.setItem('auth_token', token);
-      localStorage.setItem('refresh_token', refresh_token); 
+      
+      if (refresh_token && typeof refresh_token === 'string' && refresh_token.length > 10) {
+        localStorage.setItem('refresh_token', refresh_token);
+      }
+      
       localStorage.setItem('user_data', JSON.stringify(user));
       
       if (rememberMe) {
@@ -76,7 +79,9 @@ const authSlice = createSlice({
       state.token = access_token;
       state.refreshToken = refresh_token;
       localStorage.setItem('auth_token', access_token);
-      localStorage.setItem('refresh_token', refresh_token);
+      if (refresh_token) {
+        localStorage.setItem('refresh_token', refresh_token);
+      }
     },
 
     setProfileStatus: (state, action) => {
@@ -93,7 +98,9 @@ const authSlice = createSlice({
       state.error = null;
       
       localStorage.setItem('auth_token', token);
-      localStorage.setItem('refresh_token', refresh_token);
+      if (refresh_token) {
+        localStorage.setItem('refresh_token', refresh_token);
+      }
       localStorage.setItem('user_data', JSON.stringify(user));
     },
 
@@ -172,7 +179,9 @@ const authSlice = createSlice({
         state.error = null;
 
         localStorage.setItem('auth_token', token);
-        localStorage.setItem('refresh_token', refresh_token);
+        if (refresh_token) {
+          localStorage.setItem('refresh_token', refresh_token);
+        }
         localStorage.setItem('user_data', JSON.stringify(user));
       }
     );
@@ -181,11 +190,11 @@ const authSlice = createSlice({
     builder.addMatcher(
       buyerAuthApi.endpoints.login.matchFulfilled,
       (state, action) => {
-        const { token, refresh_token, user, rememberMe } = action.payload;// ADD refresh_token
+        const { token, refresh_token, user, rememberMe } = action.payload;
         
         state.isAuthenticated = true;
         state.token = token;
-        state.refreshToken = refresh_token; // ADD THIS
+        state.refreshToken = refresh_token;
         state.user = user;
         state.role = 'buyer';
         state.rememberMe = rememberMe || false;
@@ -193,7 +202,9 @@ const authSlice = createSlice({
         state.error = null;
 
         localStorage.setItem('auth_token', token);
-        localStorage.setItem('refresh_token', refresh_token); // ADD THIS
+        if (refresh_token) {
+          localStorage.setItem('refresh_token', refresh_token);
+        }
         localStorage.setItem('user_data', JSON.stringify(user));
         
         if (rememberMe) {
@@ -222,7 +233,9 @@ const authSlice = createSlice({
         state.error = null;
 
         localStorage.setItem('auth_token', token);
-        localStorage.setItem('refresh_token', refresh_token); // ADD THIS
+        if (refresh_token) {
+          localStorage.setItem('refresh_token', refresh_token);
+        }
         localStorage.setItem('user_data', JSON.stringify(state.user));
       }
     );
@@ -243,7 +256,9 @@ const authSlice = createSlice({
         state.error = null;
 
         localStorage.setItem('auth_token', token);
-        localStorage.setItem('refresh_token', refresh_token);
+        if (refresh_token) {
+          localStorage.setItem('refresh_token', refresh_token);
+        }
         localStorage.setItem('user_data', JSON.stringify(user));
       }
     );
@@ -262,7 +277,9 @@ const authSlice = createSlice({
         state.error = null;
 
         localStorage.setItem('auth_token', token);
-        localStorage.setItem('refresh_token', refresh_token);
+        if (refresh_token) {
+          localStorage.setItem('refresh_token', refresh_token);
+        }
         localStorage.setItem('user_data', JSON.stringify(user));
       }
     );
@@ -282,7 +299,9 @@ const authSlice = createSlice({
         state.error = null;
 
         localStorage.setItem('auth_token', token);
-        localStorage.setItem('refresh_token', refresh_token);
+        if (refresh_token) {
+          localStorage.setItem('refresh_token', refresh_token);
+        }
         localStorage.setItem('user_data', JSON.stringify(user));
       }
     );

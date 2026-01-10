@@ -82,12 +82,14 @@ export const sellerAuthApi = createApi({
       invalidatesTags: ['SellerProfile', 'ProfileStatus'],
       transformResponse: (response) => {
         const data = response.data || response;
-        const token = data.access_token;
+        const token = data.token || data.access_token;
         const refresh_token = data.refresh_token;
         
         if (token) {
           localStorage.setItem('auth_token', token);
-          localStorage.setItem('refresh_token', refresh_token);
+          if (refresh_token) {
+            localStorage.setItem('refresh_token', refresh_token);
+          }
         }
         
         return {
