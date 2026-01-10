@@ -32,7 +32,7 @@ export const formatDateShort = (dateString) => {
  * Format currency
  */
 export const formatCurrency = (amount) => {
-  return `$${parseFloat(amount || 0).toFixed(2)}`;
+  return `৳${parseFloat(amount || 0).toFixed(2)}`;
 };
 
 /**

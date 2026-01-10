@@ -42,14 +42,10 @@ export const orderApi = createApi({
 
     // Update order status
     updateOrderStatus: builder.mutation({
-      query: ({ orderId, status, trackingNumber, comment }) => ({
-        url: `/orders/update-status?id=${orderId}`,
-        method: 'POST',
-        body: {
-          status,
-          tracking_number: trackingNumber || '',
-          comment: comment || `Order ${status} by seller`,
-        },
+      query: ({ orderId, status, tracking_number, notes }) => ({
+        url: `/seller/orders/${orderId}/status`,
+        method: 'PUT',
+        body: { status, tracking_number, notes },
       }),
       invalidatesTags: (result, error, { orderId }) => [
         'Orders',

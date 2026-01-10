@@ -6,11 +6,12 @@
 // Redirects: To pending-approval page after completion
 // ==========================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CreditCard, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
-import { useAddPaymentMethodMutation } from '../../features/auth/sellerAuthApi';
+import { CreditCard, AlertCircle, CheckCircle, ArrowRight, Trash2, Star } from 'lucide-react';
+import { useAddPaymentMethodMutation, useGetPaymentMethodsQuery, useDeletePaymentMethodMutation, useSetDefaultPaymentMethodMutation } from '../../features/auth/sellerAuthApi';
 import SellerAuthService from '../../services/SellerAuthService';
+import { toast } from 'sonner';
 export default function AddPayment() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,6 +21,9 @@ export default function AddPayment() {
 
   // RTK Query mutation
   const [addPaymentMethod, { isLoading }] = useAddPaymentMethodMutation();
+  const { data: paymentMethods, isLoading: isLoadingMethods } = useGetPaymentMethodsQuery();
+  const [deletePaymentMethod] = useDeletePaymentMethodMutation();
+  const [setDefaultPaymentMethod] = useSetDefaultPaymentMethodMutation();
 
   // Local state
   const [formData, setFormData] = useState({
@@ -71,6 +75,38 @@ export default function AddPayment() {
     }
 
     return true;
+  };
+
+  /**
+   * Handle delete payment method
+   */
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this payment method?')) return;
+    
+    try {
+      await deletePaymentMethod(id).unwrap();
+      toast.success('Payment method deleted successfully!');
+      setError('');
+    } catch (err) {
+      const errorMsg = err?.data?.message || 'Failed to delete payment method.';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    }
+  };
+
+  /**
+   * Handle set default payment method
+   */
+  const handleSetDefault = async (id) => {
+    try {
+      await setDefaultPaymentMethod(id).unwrap();
+      toast.success('Default payment method updated!');
+      setError('');
+    } catch (err) {
+      const errorMsg = err?.data?.message || 'Failed to set default payment method.';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    }
   };
 
   /**
@@ -129,6 +165,49 @@ export default function AddPayment() {
               </p>
             </div>
           </div>
+
+          {/* Existing Payment Methods */}
+          {paymentMethods && paymentMethods.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Existing Payment Methods</h3>
+              <div className="space-y-3">
+                {paymentMethods.map((method) => (
+                  <div key={method.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center">
+                      <CreditCard className="w-5 h-5 text-gray-400 mr-3" />
+                      <div>
+                        <p className="font-medium text-gray-900">{method.account_name}</p>
+                        <p className="text-sm text-gray-600">
+                          {method.type === 'bank_transfer' ? method.bank_name : method.type.toUpperCase()} - {method.account_number}
+                        </p>
+                        {method.is_default && (
+                          <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded mt-1 inline-block">Default</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!method.is_default && (
+                        <button
+                          onClick={() => handleSetDefault(method.id)}
+                          className="text-gray-600 hover:text-emerald-600 p-2"
+                          title="Set as default"
+                        >
+                          <Star className="w-5 h-5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(method.id)}
+                        className="text-red-600 hover:text-red-700 p-2"
+                        title="Delete payment method"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Info Message */}
           {infoMessage && (

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   DollarSign,
   ShoppingBag,
@@ -31,74 +31,136 @@ import {
   useGetOrderDistributionQuery,
   useGetPerformanceMetricsQuery,
   useGetPendingActionsQuery,
+  useGetRecentOrdersQuery,
 } from "@/features/seller_dashboard/dashboardApi";
 import dashboardService from "@/services/dashboardService";
 
 export default function SellerDashboard() {
   const navigate = useNavigate();
   const [chartView, setChartView] = useState("week");
+  const [manualStats, setManualStats] = useState(null);
+  const [salesAnalytics, setSalesAnalytics] = useState(null);
+  const [orderDist, setOrderDist] = useState(null);
   
-  // Fetch real data from backend
-  const { data: statsData, isLoading: statsLoading, refetch: refetchStats } = useGetSellerStatisticsQuery();
-  const { data: profileData, isLoading: profileLoading } = useGetSellerProfileQuery();
-  const { data: salesData, isLoading: salesLoading } = useGetSalesAnalyticsQuery({ period: chartView });
-  const { data: topProductsData } = useGetTopProductsQuery({ limit: 3 });
-  const { data: lowStockData } = useGetLowStockProductsQuery({ threshold: 10 });
-  const { data: orderDistData } = useGetOrderDistributionQuery();
-  const { data: performanceData } = useGetPerformanceMetricsQuery();
-  const { data: pendingData } = useGetPendingActionsQuery();
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          console.error('No auth token found');
+          return;
+        }
+        const response = await fetch('http://localhost:3000/api/seller/statistics', {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setManualStats(data.data);
+      } catch (error) {
+        console.error('Failed to fetch statistics:', error);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchSalesAnalytics = async () => {
+      try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) return;
+        const response = await fetch(`http://localhost:3000/api/seller/analytics/sales?period=${chartView}`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        setSalesAnalytics(data.data);
+      } catch (error) {
+        console.error('Failed to fetch sales analytics:', error);
+      }
+    };
+    fetchSalesAnalytics();
+  }, [chartView]);
+
+  useEffect(() => {
+    const fetchOrderDistribution = async () => {
+      try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) return;
+        const response = await fetch('http://localhost:3000/api/seller/analytics/orders/distribution', {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        setOrderDist(data.data.distribution);
+      } catch (error) {
+        console.error('Failed to fetch order distribution:', error);
+      }
+    };
+    fetchOrderDistribution();
+  }, []);
+  
+  const statsData = manualStats;
+  const statsLoading = !manualStats;
+  const refetchStats = () => window.location.reload();
+  const topProductsData = useGetTopProductsQuery({ limit: 3 }).data;
+  const recentOrdersData = useGetRecentOrdersQuery({ limit: 5 }).data;
 
   const stats = statsData || {};
-  const profile = profileData || {};
   const topProducts = topProductsData?.products || [];
-  const lowStockProducts = lowStockData?.products || [];
-  const orderDistribution = orderDistData?.distribution || [];
-  const performance = performanceData || {};
-  const pending = pendingData || {};
+  const recentOrders = recentOrdersData?.orders || [];
+  const orderDistribution = orderDist || [];
 
-  // Format chart data
-  const chartData = useMemo(() => {
-    if (!salesData?.data) return [];
-    const dataArray = Array.isArray(salesData.data) ? salesData.data : [];
-    return dashboardService.formatChartData(dataArray, chartView);
-  }, [salesData, chartView]);
+  const finalStats = stats;
+
+  const chartData = salesAnalytics?.data || [];
 
   const mainStats = [
     {
-      label: "Total Revenue",
-      value: dashboardService.formatCurrency(stats.total_sales || 0),
-      rawValue: stats.total_sales || 0,
-      change: salesData?.change ? dashboardService.formatPercentage(salesData.change) : "+0.0%",
-      trend: salesData?.change > 0 ? "up" : salesData?.change < 0 ? "down" : "neutral",
+      label: "Total Sales",
+      value: dashboardService.formatCurrency(finalStats.total_sales || 0),
+      rawValue: finalStats.total_sales || 0,
+      change: salesAnalytics?.change ? `+${salesAnalytics.change.toFixed(1)}%` : "+0.0%",
+      trend: salesAnalytics?.change > 0 ? "up" : salesAnalytics?.change < 0 ? "down" : "neutral",
       icon: DollarSign,
       color: "bg-gradient-to-br from-blue-500 to-blue-600",
-      description: "vs last period",
+      description: "total revenue",
     },
     {
       label: "Total Orders",
-      value: stats.total_orders || 0,
-      rawValue: stats.total_orders || 0,
-      change: "+8.2%",
+      value: finalStats.total_orders || 0,
+      rawValue: finalStats.total_orders || 0,
+      change: `${finalStats.pending_orders || 0} pending`,
       trend: "up",
       icon: ShoppingBag,
       color: "bg-gradient-to-br from-green-500 to-green-600",
-      description: "vs last month",
+      description: "all time orders",
     },
     {
-      label: "Active Products",
-      value: stats.active_products || 0,
-      rawValue: stats.active_products || 0,
-      change: stats.inactive_products ? `${stats.inactive_products} inactive` : "All active",
+      label: "Total Earnings",
+      value: dashboardService.formatCurrency(finalStats.total_earnings || 0),
+      rawValue: finalStats.total_earnings || 0,
+      change: `${dashboardService.formatCurrency(finalStats.total_commission || 0)} commission`,
       trend: "up",
-      icon: Package,
-      color: "bg-gradient-to-br from-purple-500 to-purple-600",
-      description: "approved products",
+      icon: TrendingUp,
+      color: "bg-gradient-to-br from-emerald-500 to-emerald-600",
+      description: "net earnings",
     },
     {
       label: "Store Rating",
-      value: (stats.average_rating || 0).toFixed(1),
-      rawValue: stats.average_rating || 0,
-      change: stats.total_reviews ? `${stats.total_reviews} reviews` : "No reviews",
+      value: (finalStats.average_rating || 0).toFixed(1),
+      rawValue: finalStats.average_rating || 0,
+      change: finalStats.total_reviews ? `${finalStats.total_reviews} reviews` : "No reviews",
       trend: "up",
       icon: Star,
       color: "bg-gradient-to-br from-yellow-500 to-orange-500",
@@ -106,11 +168,62 @@ export default function SellerDashboard() {
     },
   ];
 
+  const secondaryStats = [
+    {
+      label: "Today's Sales",
+      value: dashboardService.formatCurrency(finalStats.today_sales || 0),
+      count: `${finalStats.today_orders || 0} orders`,
+      icon: Activity,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+    {
+      label: "This Week",
+      value: dashboardService.formatCurrency(finalStats.week_sales || 0),
+      count: `${finalStats.week_orders || 0} orders`,
+      icon: TrendingUp,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+    },
+    {
+      label: "This Month",
+      value: dashboardService.formatCurrency(finalStats.month_sales || 0),
+      count: `${finalStats.month_orders || 0} orders`,
+      icon: DollarSign,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+    },
+    {
+      label: "Completed Orders",
+      value: finalStats.completed_orders || 0,
+      count: `${finalStats.shipped_orders || 0} shipped`,
+      icon: CheckCircle,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+    },
+    {
+      label: "Cancelled Orders",
+      value: finalStats.cancelled_orders || 0,
+      count: `${finalStats.pending_orders || 0} pending`,
+      icon: XCircle,
+      color: "text-red-600",
+      bgColor: "bg-red-50",
+    },
+    {
+      label: "Active Products",
+      value: finalStats.active_products || 0,
+      count: `${finalStats.inactive_products || 0} inactive`,
+      icon: Package,
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+    },
+  ];
+
   const quickActions = [
     { label: "Add Product", icon: Plus, action: () => navigate("/seller/products"), color: "bg-[#FF9900]" },
     { label: "View Orders", icon: ShoppingBag, action: () => navigate("/seller/orders"), color: "bg-blue-600" },
     { label: "Analytics", icon: Activity, action: () => navigate("/seller/analytics"), color: "bg-purple-600" },
-    { label: "View Store", icon: Eye, action: () => window.open(`/store/${profile.store_slug}`, '_blank'), color: "bg-green-600" },
+    { label: "View Store", icon: Eye, action: () => window.open(`/store/seller`, '_blank'), color: "bg-green-600" },
   ];
 
   const handleRefresh = async () => {
@@ -122,7 +235,7 @@ export default function SellerDashboard() {
     }
   };
 
-  if (statsLoading || profileLoading) {
+  if (statsLoading) {
     return (
       <div className="flex items-center justify-center h-96">
         <Loader2 className="w-8 h-8 animate-spin text-[#FF9900]" />
@@ -130,13 +243,13 @@ export default function SellerDashboard() {
     );
   }
 
-  return (
+return (
     <div className="space-y-6">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-[#FF9900] to-[#FF7700] rounded-2xl p-6 text-white shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold mb-2">Welcome back, {profile.first_name || "Seller"}! 👋</h1>
+            <h1 className="text-2xl font-bold mb-2">Welcome back, Seller! 👋</h1>
             <p className="text-white/90">Here's what's happening with your store today</p>
           </div>
           <div className="flex gap-3 flex-wrap">
@@ -189,6 +302,21 @@ export default function SellerDashboard() {
         })}
       </div>
 
+      {/* Secondary Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {secondaryStats.map((stat, idx) => {
+          const Icon = stat.icon;
+          return (
+            <div key={idx} className={`${stat.bgColor} rounded-xl p-4 border border-gray-100`}>
+              <Icon className={`w-5 h-5 ${stat.color} mb-2`} />
+              <p className="text-xs text-gray-600 mb-1">{stat.label}</p>
+              <p className={`text-lg font-bold ${stat.color} mb-0.5`}>{stat.value}</p>
+              <p className="text-xs text-gray-500">{stat.count}</p>
+            </div>
+          );
+        })}
+      </div>
+
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
@@ -203,19 +331,15 @@ export default function SellerDashboard() {
             </div>
           </div>
           <div className="h-64 sm:h-80">
-            {salesLoading ? (
-              <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 animate-spin text-[#FF9900]" /></div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="name" stroke="#9ca3af" style={{ fontSize: '12px' }} />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
-                  <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px 12px' }} formatter={(value) => [`$${value}`, 'Sales']} />
-                  <Line type="monotone" dataKey="sales" stroke="#FF9900" strokeWidth={3} dot={{ fill: '#FF9900', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" stroke="#9ca3af" style={{ fontSize: '12px' }} />
+                <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px 12px' }} formatter={(value) => [`$${value}`, 'Sales']} />
+                <Line type="monotone" dataKey="sales" stroke="#FF9900" strokeWidth={3} dot={{ fill: '#FF9900', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
@@ -247,37 +371,6 @@ export default function SellerDashboard() {
 
       {/* Alerts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {lowStockProducts.length > 0 && (
-          <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-6 border border-red-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-[#374151]">Low Stock Alerts</h2>
-                <p className="text-sm text-red-600">{stats.low_stock_products || lowStockProducts.length} products need restocking</p>
-              </div>
-            </div>
-            <div className="space-y-3">
-              {lowStockProducts.slice(0, 3).map((product) => (
-                <div key={product.id} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-red-100 hover:shadow-md transition-all">
-                  <img src={product.image_url || "https://images.unsplash.com/photo-1542486823-63b97bbff8a9?w=100"} alt={product.name} className="w-12 h-12 rounded-lg object-cover" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[#374151] truncate">{product.name}</p>
-                    <p className="text-sm text-red-600">Only {product.quantity} left</p>
-                  </div>
-                  <button onClick={() => navigate(`/seller/products`)} className="px-3 py-1.5 bg-[#FF9900] text-white text-sm rounded-lg hover:bg-[#E68A00] transition-colors whitespace-nowrap">Restock</button>
-                </div>
-              ))}
-            </div>
-            {lowStockProducts.length > 3 && (
-              <button onClick={() => navigate("/seller/products?filter=low-stock")} className="w-full mt-3 py-2 text-sm text-[#FF9900] hover:text-[#E68A00] font-medium">
-                View all {lowStockProducts.length} products →
-              </button>
-            )}
-          </div>
-        )}
-
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
@@ -298,7 +391,7 @@ export default function SellerDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xl font-bold text-blue-600">{pending.pending_orders || stats.pending_orders || 0}</p>
+                <p className="text-xl font-bold text-blue-600">{finalStats.pending_orders || 0}</p>
                 <button onClick={() => navigate("/seller/orders?status=pending")} className="text-xs text-blue-600 hover:underline">View →</button>
               </div>
             </div>
@@ -312,7 +405,7 @@ export default function SellerDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xl font-bold text-purple-600">{pending.pending_products || 0}</p>
+                <p className="text-xl font-bold text-purple-600">{finalStats.inactive_products || 0}</p>
                 <button onClick={() => navigate("/seller/products?status=pending")} className="text-xs text-purple-600 hover:underline">View →</button>
               </div>
             </div>
@@ -326,7 +419,7 @@ export default function SellerDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xl font-bold text-red-600">{pending.out_of_stock || stats.out_of_stock || 0}</p>
+                <p className="text-xl font-bold text-red-600">{finalStats.out_of_stock || 0}</p>
                 <button onClick={() => navigate("/seller/products?filter=out-of-stock")} className="text-xs text-red-600 hover:underline">View →</button>
               </div>
             </div>
@@ -373,7 +466,7 @@ export default function SellerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Success Rate</p>
-                  <p className="text-xl font-bold text-green-600">{(performance.success_rate || 0).toFixed(1)}%</p>
+                  <p className="text-xl font-bold text-green-600">0.0%</p>
                 </div>
               </div>
               <TrendingUp className="w-6 h-6 text-green-500" />
@@ -386,7 +479,7 @@ export default function SellerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Customer Satisfaction</p>
-                  <p className="text-xl font-bold text-blue-600">{(performance.customer_satisfaction || stats.average_rating || 0).toFixed(1)}/5.0</p>
+                  <p className="text-xl font-bold text-blue-600">{(finalStats.average_rating || 0).toFixed(1)}/5.0</p>
                 </div>
               </div>
               <Star className="w-6 h-6 text-blue-500 fill-blue-500" />
@@ -400,13 +493,81 @@ export default function SellerDashboard() {
                 <div>
                   <p className="text-sm text-gray-600">Avg. Order Value</p>
                   <p className="text-xl font-bold text-purple-600">
-                    {dashboardService.formatCurrency(performance.average_order_value || dashboardService.calculateAOV(stats.total_sales || 0, stats.total_orders || 1))}
+                    {dashboardService.formatCurrency(dashboardService.calculateAOV(finalStats.total_sales || 0, finalStats.total_orders || 1))}
                   </p>
                 </div>
               </div>
               <TrendingUp className="w-6 h-6 text-purple-500" />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Recent Orders Section */}
+      <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-lg font-semibold text-[#374151]">Recent Orders</h2>
+            <p className="text-sm text-gray-500 mt-1">Latest orders from your customers</p>
+          </div>
+          <button onClick={() => navigate("/seller/orders")} className="text-sm text-[#FF9900] hover:underline font-medium">View All Orders</button>
+        </div>
+        <div className="overflow-x-auto">
+          {recentOrders.length > 0 ? (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Order ID</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Customer</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Product</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Amount</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Time</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map((order) => (
+                  <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4">
+                      <p className="text-sm font-medium text-[#374151]">{order.order_number}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="text-sm text-gray-700">{order.customer_name}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="text-sm text-gray-700 truncate max-w-[200px]">{order.product_name}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="text-sm font-semibold text-[#374151]">{dashboardService.formatCurrency(order.total)}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${dashboardService.getStatusColor(order.status)}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="text-sm text-gray-500">{order.time_ago || dashboardService.timeAgo(order.created_at)}</p>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      <button 
+                        onClick={() => navigate(`/seller/orders/${order.id}`)}
+                        className="text-sm text-[#FF9900] hover:text-[#E68A00] font-medium"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="text-center py-12">
+              <ShoppingBag className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">No recent orders</p>
+              <p className="text-sm text-gray-400 mt-1">Orders will appear here once customers start purchasing</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

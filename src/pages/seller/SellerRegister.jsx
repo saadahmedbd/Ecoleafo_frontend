@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useRegisterSellerMutation, useAddPaymentMethodMutation, useCompleteProfileMutation, } from '../../features/auth/sellerAuthApi';
 import SellerAuthService from '../../services/SellerAuthService';
+import { toast } from 'sonner';
 export default function SellerRegister() {
   const navigate = useNavigate();
   
@@ -39,6 +40,7 @@ export default function SellerRegister() {
     last_name: '',
     phone: '',
     store_name: '',
+    commission: '15',
     agree_to_terms: false,
     
     // Step 2: Store Information
@@ -146,6 +148,11 @@ const [addPaymentMethod] = useAddPaymentMethodMutation();
           setError('You must agree to the terms and conditions');
           return false;
         }
+        if (!formData.commission || parseFloat(formData.commission) < 15) {
+          toast.error('Commission must be at least 15%');
+          setError('Commission must be at least 15%');
+          return false;
+        }
         break;
       
       case 2:
@@ -218,7 +225,8 @@ const [addPaymentMethod] = useAddPaymentMethodMutation();
     // If completing step 1, register the seller account
     if (currentStep === 1) {
       await handleAccountRegistration();
-    } else {
+    } else if (currentStep === 2 || currentStep === 3) {
+      // For steps 2 and 3, just move to next step (will save on step 4)
       setCurrentStep(prev => prev + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -230,34 +238,34 @@ const [addPaymentMethod] = useAddPaymentMethodMutation();
   const handleAccountRegistration = async () => {
     setError('');
     try {
-      const response = await SellerAuthService.register({
-        email: formData.email,
+      const result = await registerSeller({
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
         confirm_password: formData.confirm_password,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        store_name: formData.store_name,
-        phone: formData.phone,
+        first_name: formData.first_name.trim(),
+        last_name: formData.last_name.trim(),
+        store_name: formData.store_name.trim(),
+        phone: formData.phone.trim(),
+        commission: parseFloat(formData.commission),
         agree_to_terms: formData.agree_to_terms
-      });
-
-       if (response.success) {
-      // Store token for subsequent steps
-      setRegistrationToken(response.token);
+      }).unwrap();
       
-      // Move to next step
-      setCurrentStep(2);
-    } else {
-      setError(response.error);
-    }
+      const token = localStorage.getItem('auth_token');
       
-      // Move to next step
+      if (!token) {
+        setError('Registration succeeded but no token received.');
+        toast.error('Registration succeeded but no token received.');
+        return;
+      }
+      
+      setRegistrationToken(token);
+      toast.success('Account created successfully!');
       setCurrentStep(2);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      
     } catch (err) {
-      setError(err?.message || err?.data?.message || 'Registration failed. Please try again.');
-      console.error('Registration error:', err);
+      const errorMsg = err?.data?.message || err?.message || 'Registration failed.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -358,65 +366,66 @@ const [addPaymentMethod] = useAddPaymentMethodMutation();
   //   }
   // };
   /**
- * Submit complete registration (after all steps)
- */
+   * Submit complete registration (after all steps)
+   */
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!validateStep()) return;
+    if (!validateStep()) return;
 
-  if (!registrationToken) {
-    setError('Session expired. Please start registration again.');
-    return;
-  }
+    const token = registrationToken || localStorage.getItem('auth_token');
+    
+    if (!token) {
+      setError('Session expired. Please start registration again.');
+      toast.error('Session expired. Please login and complete your profile.');
+      return;
+    }
 
-  try {
-    // Step 2 & 3: Complete business profile
-    const profileData = {
-      business_email: formData.business_email,
-      phone: formData.phone,
-      store_description: formData.store_description,
-      business_type: formData.business_type,
-      tax_number: formData.tax_number || '',
-      business_license: formData.business_license || '',
-      address: formData.address,
-      city: formData.city,
-      state: formData.state,
-      country: formData.country,
-      postal_code: formData.postal_code,
-    };
+    try {
+      const profileData = {
+        business_email: formData.business_email,
+        phone: formData.phone,
+        store_description: formData.store_description,
+        business_type: formData.business_type,
+        tax_number: formData.tax_number || '',
+        business_license: formData.business_license || '',
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        postal_code: formData.postal_code,
+      };
 
-    // Use RTK Query mutation hook
-    await completeProfile(profileData).unwrap();
+      await completeProfile(profileData).unwrap();
+      toast.success('Profile completed successfully!');
 
-    // Step 4: Add payment method
-    const paymentData = {
-      type: formData.payment_type,
-      account_name: formData.account_name,
-      account_number: formData.account_number,
-      is_default: true,
-      ...(formData.payment_type === 'bank_transfer' && {
-        bank_name: formData.bank_name,
-        bank_code: formData.bank_code || '',
-        routing_number: formData.routing_number || '',
-      }),
-    };
+      const paymentData = {
+        type: formData.payment_type,
+        account_name: formData.account_name,
+        account_number: formData.account_number,
+        is_default: true,
+        ...(formData.payment_type === 'bank_transfer' && {
+          bank_name: formData.bank_name,
+          bank_code: formData.bank_code || '',
+          routing_number: formData.routing_number || '',
+        }),
+      };
 
-    await addPaymentMethod(paymentData).unwrap();
-
-    // Success! Redirect to login with success message
-    navigate('/seller/login', {
-      state: {
-        message:
-          'Registration complete! Your account is pending admin approval. You will be notified via email once approved.',
-        type: 'success',
-      },
-    });
-  } catch (err) {
-    setError(err?.data?.message || err?.message || 'Failed to complete registration. Please try again.');
-    console.error('Registration completion error:', err);
-  }
-};
+      await addPaymentMethod(paymentData).unwrap();
+      toast.success('Payment method added successfully!');
+      toast.success('Registration complete! Please wait for admin approval.');
+      
+      navigate('/seller/login', {
+        state: {
+          message: 'Registration complete! Your account is pending admin approval. You will be notified via email once approved.',
+          type: 'success',
+        },
+      });
+    } catch (err) {
+      setError(err?.data?.message || err?.message || 'Failed to complete registration. Please try again.');
+      toast.error(err?.data?.message || err?.message || 'Failed to complete registration');
+    }
+  };
 
 
   // ==========================================
@@ -564,6 +573,25 @@ const [addPaymentMethod] = useAddPaymentMethodMutation();
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Format: 01XXXXXXXXX or +8801XXXXXXXXX</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Commission (%) *
+                </label>
+                <input
+                  type="number"
+                  name="commission"
+                  value={formData.commission}
+                  onChange={handleChange}
+                  step="0.1"
+                  min="15"
+                  max="100"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none"
+                  placeholder="15"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">Minimum 15% commission required</p>
               </div>
 
               <div>

@@ -36,7 +36,8 @@ export default function SellerAccount() {
     last_name: '',
     email: '',
     phone: '',
-    profile_photo: ''
+    profile_photo: '',
+    commission: ''
   });
 
   // Password change data
@@ -61,15 +62,16 @@ export default function SellerAccount() {
       const response = await SellerProfileService.getFullProfile();
       
       if (response.success) {
-        // Backend returns nested structure: response.data.data
         const profile = response.data.data || response.data;
+        const user = profile.reg_user || {};
         
         setFormData({
-          first_name: profile.first_name || '',
-          last_name: profile.last_name || '',
-          email: profile.email || '',
+          first_name: user.first_name || profile.first_name || '',
+          last_name: user.last_name || profile.last_name || '',
+          email: user.email || profile.email || profile.business_email || '',
           phone: profile.phone || '',
-          profile_photo: profile.profile_photo || profile.photo_url || profile.photo || ''
+          profile_photo: profile.profile_photo || profile.photo_url || profile.photo || '',
+          commission: profile.commission !== undefined ? profile.commission : ''
         });
         setTwoFactorEnabled(profile.two_factor_enabled || false);
       } else {
@@ -90,7 +92,7 @@ export default function SellerAccount() {
         setLoginActivity(response.data.activities || []);
       }
     } catch (err) {
-      console.error('Failed to load login activity:', err);
+      // Silent fail
     }
   };
 
@@ -286,7 +288,6 @@ export default function SellerAccount() {
       setError(data.message || data.error || 'Upload failed');
     }
   } catch (err) {
-    console.error('Upload error:', err);
     setError('Failed to upload photo');
   } finally {
     setIsSaving(false);
@@ -496,6 +497,18 @@ export default function SellerAccount() {
                 required
               />
             </div>
+          </div>
+
+          {/* Commission */}
+          <div>
+            <label className="block text-sm font-medium text-[#374151] mb-2">Commission (%)</label>
+            <input
+              type="text"
+              value={formData.commission ? `${formData.commission}%` : 'Not set'}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed"
+              disabled
+            />
+            <p className="text-xs text-gray-500 mt-1">Commission rate cannot be changed</p>
           </div>
 
           {/* Submit Button */}

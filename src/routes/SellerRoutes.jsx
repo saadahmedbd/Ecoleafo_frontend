@@ -14,11 +14,14 @@ import SellerDashboard from '@/pages/seller/SellerDashboard';
 import SellerSettings from '../pages/seller/SellerSettings';
 import SellerProducts from '../pages/seller/SellerProducts';
 import SellerOrders from '../pages/seller/SellerOrders';
+import SellerOrderDetails from '../pages/seller/SellerOrderDetails';
 import HomeSellerAccount from '../pages/seller/HomeSellerAccount';
 import SellerInventory from '../pages/seller/SellerInventory';
 import AddProduct from '../pages/seller/AddProduct';
-import ProductDetail from '../pages/seller/ProductDetail';
 import EditProduct from '../pages/seller/EditProduct';
+import ProductDetail from '../pages/seller/ProductDetail';
+import SellerMessages from '../pages/seller/SellerMessages';
+import SellerReviews from '../pages/seller/SellerReviews';
 
 const sellerRoutes = [
   // Seller Authentication
@@ -79,9 +82,10 @@ const sellerRoutes = [
       { path: 'products/:productId/edit', element: <EditProduct /> },
 
       { path: 'orders', element: <SellerOrders /> },
+      { path: 'orders/:id', element: <SellerOrderDetails /> },
       { path: 'inventory', element:<SellerInventory/> },
-      { path: 'reviews', element: <div className="p-4"><h1 className="text-2xl font-bold">Customer Reviews</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
-      { path: 'messages', element: <div className="p-4"><h1 className="text-2xl font-bold">Messages</h1><p className="text-gray-500 mt-2">Coming soon...</p></div> },
+      { path: 'reviews', element: <SellerReviews /> },
+      { path: 'messages', element: <SellerMessages /> },
     ],
   },
 ];

@@ -98,6 +98,7 @@ function StoreInfoTab({ setError, setSuccess }) {
   const [formData, setFormData] = useState({
     store_name: '',
     store_description: '',
+    business_type: '',
     website: '',
     phone: '',
     business_email: '',
@@ -105,7 +106,7 @@ function StoreInfoTab({ setError, setSuccess }) {
     city: '',
     state: '',
     postal_code: '',
-    country: '',       
+    country: 'Bangladesh',       
     logo_url: '',      
     banner_url: ''
   });
@@ -126,6 +127,7 @@ function StoreInfoTab({ setError, setSuccess }) {
         setFormData({
           store_name: profile.store_name || '',
           store_description: profile.store_description || '',
+          business_type: profile.business_type || '',
           website: profile.website || '',
           phone: profile.phone || '',
           business_email: profile.business_email || '',
@@ -133,7 +135,7 @@ function StoreInfoTab({ setError, setSuccess }) {
           city: profile.city || '',
           state: profile.state || '',
           postal_code: profile.postal_code || '',
-          country: profile.country || '',
+          country: profile.country || 'Bangladesh',
           logo_url: profile.store_logo || '',
           banner_url: profile.store_banner || ''
         });
@@ -157,7 +159,17 @@ function StoreInfoTab({ setError, setSuccess }) {
     setIsSaving(true);
 
     try {
-      const response = await SellerProfileService.updateStore(formData);
+      const response = await SellerProfileService.completeProfile({
+        business_email: formData.business_email,
+        phone: formData.phone,
+        store_description: formData.store_description,
+        business_type: formData.business_type,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        postal_code: formData.postal_code
+      });
       
       if (response.success) {
         setSuccess('Store information updated successfully!');
@@ -299,19 +311,6 @@ function StoreInfoTab({ setError, setSuccess }) {
     </div>
 
 
-      {/* Store Name */}
-      <div>
-        <label className="block text-sm font-medium text-[#374151] mb-2">Store Name *</label>
-        <input
-          type="text"
-          name="store_name"
-          value={formData.store_name}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
-          required
-        />
-      </div>
-
       {/* Description */}
       <div>
         <label className="block text-sm font-medium text-[#374151] mb-2">Store Description *</label>
@@ -328,23 +327,25 @@ function StoreInfoTab({ setError, setSuccess }) {
         </p>
       </div>
 
+      {/* Business Type */}
+      <div>
+        <label className="block text-sm font-medium text-[#374151] mb-2">Business Type *</label>
+        <select
+          name="business_type"
+          value={formData.business_type}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
+          required
+        >
+          <option value="">Select Business Type</option>
+          <option value="individual">Individual Seller</option>
+          <option value="nursery">Plant Nursery</option>
+          <option value="company">Registered Company</option>
+        </select>
+      </div>
+
       {/* Contact Information Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-[#374151] mb-2">Website</label>
-          <div className="relative">
-            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="url"
-              name="website"
-              value={formData.website}
-              onChange={handleChange}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
-              placeholder="https://yourstore.com"
-            />
-          </div>
-        </div>
-
         <div>
           <label className="block text-sm font-medium text-[#374151] mb-2">Phone *</label>
           <div className="relative">
@@ -376,19 +377,6 @@ function StoreInfoTab({ setError, setSuccess }) {
             />
           </div>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-[#374151] mb-2">City *</label>
-          <input
-            type="text"
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
-            placeholder="Dhaka"
-            required
-          />
-        </div>
       </div>
 
       {/* Address */}
@@ -410,6 +398,19 @@ function StoreInfoTab({ setError, setSuccess }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
+          <label className="block text-sm font-medium text-[#374151] mb-2">City *</label>
+          <input
+            type="text"
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
+            placeholder="Dhaka"
+            required
+          />
+        </div>
+
+        <div>
           <label className="block text-sm font-medium text-[#374151] mb-2">State/Division *</label>
           <input
             type="text"
@@ -421,8 +422,6 @@ function StoreInfoTab({ setError, setSuccess }) {
             required
           />
         </div>
-        
-
 
         <div>
           <label className="block text-sm font-medium text-[#374151] mb-2">Postal Code *</label>
