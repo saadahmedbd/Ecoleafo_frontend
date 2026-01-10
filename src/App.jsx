@@ -11,6 +11,7 @@ import './index.css';
 import BuyerAuthService from './services/BuyerAuthService';
 import SellerAuthService from './services/SellerAuthService';
 import { initTokenRefresh, stopTokenRefresh } from './utils/tokenRefresh';
+// import TokenDebugPanel from './components/TokenDebugPanel';
 
 /**
  * Main Application Component
@@ -45,6 +46,7 @@ function App() {
     <Provider store={store}>
       <Toaster position="top-right" richColors />
       <AppRoutes />
+      {/* <TokenDebugPanel /> */}
     </Provider>
   );
 }
