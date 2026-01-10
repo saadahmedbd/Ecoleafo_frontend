@@ -21,10 +21,10 @@ import {
   useGetAllAdminsQuery,
   useDeactivateAdminMutation,
   useActivateAdminMutation,
-} from '@/features/admin/adminApi';
+} from '@/features/Admin/adminAPI';
 import { useSelector } from 'react-redux';
 import { selectUser } from '@/features/auth/authSlice';
-import { Link, Links } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function AdminUsersPage() {
   const currentUser = useSelector(selectUser);
@@ -35,7 +35,6 @@ export default function AdminUsersPage() {
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(null);
 
-  // API hooks
   const { data, isLoading, error } = useGetAllAdminsQuery({ page, limit });
   const [deactivateAdmin, { isLoading: isDeactivating }] = useDeactivateAdminMutation();
   const [activateAdmin, { isLoading: isActivating }] = useActivateAdminMutation();

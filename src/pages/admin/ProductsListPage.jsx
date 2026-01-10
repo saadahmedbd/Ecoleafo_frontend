@@ -17,7 +17,7 @@ export default function ProductsListPage() {
   const [actionModal, setActionModal] = useState(null);
 
   // Fetch data
-  const { data: productsData, isLoading, error, refetch } = useGetAllProductsQuery({ page, limit: 12 });
+  const { data: productsData, isLoading, error, refetch } = useGetAllProductsQuery({ page, limit: 20 });
   const { data: statsData } = useGetProductStatsQuery();
 
   // Mutations
@@ -26,7 +26,7 @@ export default function ProductsListPage() {
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
   const products = productsData?.data || [];
-  const pagination = productsData?.pagination || {};
+  const pagination = productsData?.pagination || { total: 0, page: 0, limit: 20, total_pages: 1 };
 
   // Tab counts from stats
   const tabs = [
@@ -47,7 +47,7 @@ export default function ProductsListPage() {
   // Handle product actions
   const handleApprove = async (productId) => {
     try {
-      await approveProduct({ productId, notes: 'Approved by admin' }).unwrap();
+      await approveProduct({ productId }).unwrap();
       setActionModal(null);
       refetch();
     } catch (error) {
