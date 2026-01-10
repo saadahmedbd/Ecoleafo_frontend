@@ -26,6 +26,10 @@ const PublicLayout = () => {
   const noLayoutPages = ['/buyer/login', '/buyer/register', '/seller/login', '/seller/register'];
   const showLayout = !noLayoutPages.includes(location.pathname);
 
+  // Pages that should NOT show bottom nav on mobile
+  const noBottomNavPages = location.pathname.startsWith('/products/') || location.pathname.startsWith('/buyer/messages');
+  const showBottomNav = showLayout && isMobile && !noBottomNavPages;
+
   const getCurrentPage = () => {
     const path = location.pathname;
     if (path.includes('/cart')) return 'cart';
@@ -54,15 +58,15 @@ const PublicLayout = () => {
       )}
       
       {/* Main content */}
-      <main className={`flex-1 bg-gray-50 ${isMobile ? 'pb-20' : ''}`}>
+      <main className={`flex-1 bg-gray-50 ${isMobile && showBottomNav ? 'pb-20' : ''}`}>
         <Outlet />
       </main>
       
       {/* Conditional Footer */}
       {showLayout && !isMobile && <Footer />}
       
-      {/* Bottom Navigation for Mobile */}
-      {showLayout && isMobile && (
+      {/* Bottom Navigation for Mobile - Hidden on product details */}
+      {showBottomNav && (
         <BottomNav
           currentPage={getCurrentPage()}
           onNavigate={handleNavigate}

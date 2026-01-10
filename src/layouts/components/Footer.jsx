@@ -14,7 +14,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company info */}
           <div>
-            <h3 className="text-lg font-bold mb-4">eCommerce</h3>
+            <h3 className="text-lg font-bold mb-4">Ecoleafo</h3>
             <p className="text-gray-400 text-sm">
               Your one-stop shop for all your needs. Quality products at affordable prices.
             </p>
@@ -30,7 +30,7 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/products" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/" className="text-gray-400 hover:text-white transition-colors">
                   Products
                 </Link>
               </li>
@@ -83,7 +83,7 @@ export const Footer = () => {
         </div>
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} eCommerce. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} ecoleafo. All rights reserved.</p>
         </div>
       </div>
     </footer>
