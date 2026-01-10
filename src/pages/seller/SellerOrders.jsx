@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Filter,
@@ -48,6 +49,7 @@ import {
 } from "@/services/SellerOrderService";
 
 export default function SellerOrders() {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -232,7 +234,11 @@ export default function SellerOrders() {
                 <Calendar className="w-4 h-4" />
                 {formatDateShort(order.created_at)}
               </span>
-              <span className="font-semibold text-[#FF9900]">{formatCurrency(order.total)}</span>
+              <span className="font-semibold text-[#FF9900]">
+                {formatCurrency(
+                  order.order_items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0
+                )}
+              </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
@@ -249,7 +255,7 @@ export default function SellerOrders() {
             </div>
 
             <button
-              onClick={() => setSelectedOrderId(order.id)}
+              onClick={() => navigate(`/seller/orders/${order.id}`)}
               className="w-full px-4 py-2 bg-[#FF9900] text-white rounded-lg hover:bg-[#E68A00] transition-colors flex items-center justify-center gap-2"
             >
               <Eye className="w-4 h-4" />
@@ -304,10 +310,14 @@ export default function SellerOrders() {
                       {order.payment_status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-semibold text-[#374151]">{formatCurrency(order.total)}</td>
+                  <td className="px-6 py-4 font-semibold text-[#374151]">
+                    {formatCurrency(
+                      order.order_items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0
+                    )}
+                  </td>
                   <td className="px-6 py-4">
                     <button
-                      onClick={() => setSelectedOrderId(order.id)}
+                      onClick={() => navigate(`/seller/orders/${order.id}`)}
                       className="text-[#FF9900] hover:text-[#E68A00] flex items-center gap-1"
                     >
                       <Eye className="w-4 h-4" />
@@ -577,7 +587,11 @@ function OrderDetailsModal({ orderId, onClose }) {
               <div className="border-t border-gray-200 my-3"></div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal:</span>
-                <span className="font-medium">{formatCurrency(order.subtotal)}</span>
+                <span className="font-medium">
+                  {formatCurrency(
+                    order.order_items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0
+                  )}
+                </span>
               </div>
               {order.shipping_cost > 0 && (
                 <div className="flex justify-between text-sm">
@@ -602,7 +616,9 @@ function OrderDetailsModal({ orderId, onClose }) {
                 <span className="text-[#374151]">Total:</span>
                 <span className="text-[#FF9900] flex items-center gap-1">
                   <DollarSign className="w-5 h-5" />
-                  {formatCurrency(order.total)}
+                  {formatCurrency(
+                    order.order_items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0
+                  )}
                 </span>
               </div>
             </div>
