@@ -10,7 +10,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import authReducer from '../features/auth/authSlice';
 import { buyerAuthApi } from '../features/auth/buyerAuthApi';
 import { sellerAuthApi } from '../features/auth/sellerAuthApi';
-import { dashboardApi } from '../features/seller_dashboard/dashboardAPI';
+import { dashboardApi } from '../features/seller_dashboard/dashboardApi';
 import { productApi } from '../features/product/productApi';
 import { orderApi } from '../features/seller_order_management/orderApi';
 import { inventoryApi } from '../features/seller_inventory/InventoryApi';
@@ -29,7 +29,13 @@ import { userManagementApi } from '../features/UsersManagement/usersManagementAp
 import { productManagementApi } from '../features/ProductManagement/productManagementApi';
 import { orderManagementApi } from '../features/OrderManagement/orderManagementApi';
 import { dashboarManagementdApi } from '../features/DashboardManagement/dashboardManagementApi';
-
+import { categoryManagementApi } from '../features/CategoryManagement/categoryManagementApi';
+import { earningsCommissionApi } from '../features/EarningsCommission/earningsCommissionApi';
+import { auditLogApi } from '../features/AuditLog/auditLogApi';
+import { messagingApi } from '../features/Messaging/messagingApi';
+import { productDetailsApi } from '../features/ProductsDetail/productDetailsApi';
+import {reviewApi} from '../features/review/reviewApi'
+import { searchApi } from '../features/search/searchApi';
 /**
  * Configure Redux store
  */
@@ -58,6 +64,15 @@ export const store = configureStore({
     [productManagementApi.reducerPath]:productManagementApi.reducer,
     [orderManagementApi.reducerPath]:orderManagementApi.reducer,
     [dashboarManagementdApi.reducerPath]:dashboarManagementdApi.reducer,
+    [categoryManagementApi.reducerPath]:categoryManagementApi.reducer,
+    [earningsCommissionApi.reducerPath]:earningsCommissionApi.reducer,
+    [auditLogApi.reducerPath]:auditLogApi.reducer,
+    [messagingApi.reducerPath]:messagingApi.reducer,
+    [productDetailsApi.reducerPath]:productDetailsApi.reducer,
+    [reviewApi.reducerPath]:reviewApi.reducer,
+    [searchApi.reducerPath]:searchApi.reducer,
+
+
 
 
     // Checkout state
@@ -100,6 +115,14 @@ export const store = configureStore({
       productManagementApi.middleware,
       orderManagementApi.middleware,
       dashboarManagementdApi.middleware,
+      categoryManagementApi.middleware,
+      earningsCommissionApi.middleware,
+      auditLogApi.middleware,
+      messagingApi.middleware,
+      productDetailsApi.middleware,
+      reviewApi.middleware,
+      searchApi.middleware,
+      
     ),
   
   devTools: import.meta.env.MODE !== 'production', // Enable Redux DevTools in development

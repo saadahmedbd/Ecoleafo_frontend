@@ -69,6 +69,14 @@ export const categoriesApi = createApi({
         { type: 'Categories', id: `BREADCRUMB_${id}` },
       ],
     }),
+
+    // Get products by category
+    getCategoryProducts: builder.query({
+      query: (id) => `/categories/products?id=${id}`,
+      providesTags: (result, error, id) => [
+        { type: 'Categories', id: `PRODUCTS_${id}` },
+      ],
+    }),
   }),
 });
 
@@ -81,4 +89,5 @@ export const {
   useGetFeaturedCategoriesQuery,
   useGetCategoryTreeQuery,
   useGetCategoryBreadcrumbQuery,
+  useGetCategoryProductsQuery,
 } = categoriesApi;
