@@ -136,12 +136,15 @@ const BuyerMobileLayout = () => {
             <span className="text-xs mt-1">Orders</span>
           </button>
           
-          {/* Profile */}
-          <button className="flex flex-col items-center p-2 text-gray-600">
+          {/* Account */}
+          <button 
+            onClick={() => window.location.href = '/buyer/account'}
+            className="flex flex-col items-center p-2 text-gray-600"
+          >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span className="text-xs mt-1">Profile</span>
+            <span className="text-xs mt-1">Account</span>
           </button>
         </div>
       </nav>

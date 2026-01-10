@@ -21,21 +21,22 @@ export const productManagementApi = createApi({
     // GET ALL PRODUCTS (Admin - Paginated)
     // ============================================
     getAllProducts: builder.query({
-      query: ({ page = 0, limit = 10 } = {}) => ({
-        url: '/admin/products',
-        params: { page, limit },
+      query: ({ page = 0, limit = 20 } = {}) => ({
+        url: '/products',
+        params: { offset: page * limit, per_page: limit },
       }),
       providesTags: ['Products'],
       transformResponse: (response) => {
-        // Backend returns: { data: [...], total, page, limit, total_pages }
-        // where data is an array of products directly
+        const data = response.data || [];
+        const total = response.total || 0;
+        const perPage = response.per_page || 20;
         return {
-          data: response.data || response || [],
+          data: data,
           pagination: {
-            total: response.total,
-            page: response.page,
-            limit: response.limit,
-            total_pages: response.total_pages
+            total: total,
+            page: Math.floor((response.next_offset || 0) / perPage) - 1 || 0,
+            limit: perPage,
+            total_pages: Math.ceil(total / perPage)
           }
         };
       },
@@ -103,10 +104,10 @@ export const productManagementApi = createApi({
     // APPROVE PRODUCT
     // ============================================
     approveProduct: builder.mutation({
-      query: ({ product_id, notes = '' }) => ({
+      query: ({ productId }) => ({
         url: '/products/approve',
         method: 'POST',
-        body: { product_id, notes },
+        params: { id: productId },
       }),
       invalidatesTags: ['Products', 'ProductStats'],
       transformResponse: (response) => {
@@ -118,10 +119,11 @@ export const productManagementApi = createApi({
     // REJECT PRODUCT
     // ============================================
     rejectProduct: builder.mutation({
-      query: ({ product_id, reason }) => ({
+      query: ({ productId, reason }) => ({
         url: '/products/reject',
         method: 'POST',
-        body: { product_id, reason },
+        params: { id: productId },
+        body: { reason },
       }),
       invalidatesTags: ['Products', 'ProductStats'],
       transformResponse: (response) => {

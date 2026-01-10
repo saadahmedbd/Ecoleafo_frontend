@@ -92,12 +92,16 @@ export default function AccountPage() {
     confirm_password: '',
   });
   const [addressForm, setAddressForm] = useState({
-    address_type: 'home',
-    street_address: '',
+    full_name: '',
+    address_line_1: '',
+    address_line_2: '',
+    street: '',
     city: '',
     state: '',
+    district: '',
     postal_code: '',
     country: 'Bangladesh',
+    phone: '',
     is_default: false,
   });
 
@@ -108,12 +112,13 @@ export default function AccountPage() {
   // Load profile data into form
   useEffect(() => {
     if (profileData?.data) {
+      const profile = profileData.data;
       setProfileForm({
-        first_name: profileData.data.reg_user?.first_name || '',
-        last_name: profileData.data.reg_user?.last_name || '',
-        phone: profileData.data.phone || '',
-        date_of_birth: profileData.data.date_of_birth || '',
-        gender: profileData.data.gender || '',
+        first_name: profile.reg_user?.first_name || '',
+        last_name: profile.reg_user?.last_name || '',
+        phone: profile.phone || '',
+        date_of_birth: profile.reg_user?.date_of_birth ? profile.reg_user.date_of_birth.split('T')[0] : '',
+        gender: profile.reg_user?.gender || '',
       });
     }
   }, [profileData]);
@@ -177,7 +182,11 @@ export default function AccountPage() {
     }
 
     try {
-      await updateProfile(profileForm).unwrap();
+      const dataToSend = {
+        ...profileForm,
+        date_of_birth: profileForm.date_of_birth ? new Date(profileForm.date_of_birth).toISOString() : null,
+      };
+      await updateProfile(dataToSend).unwrap();
       setSuccessMessage('Profile updated successfully');
       setIsEditingProfile(false);
       setErrors({});
@@ -230,12 +239,16 @@ export default function AccountPage() {
       setIsAddingAddress(false);
       setEditingAddress(null);
       setAddressForm({
-        address_type: 'home',
-        street_address: '',
+        full_name: '',
+        address_line_1: '',
+        address_line_2: '',
+        street: '',
         city: '',
         state: '',
+        district: '',
         postal_code: '',
         country: 'Bangladesh',
+        phone: '',
         is_default: false,
       });
       setErrors({});
@@ -248,13 +261,17 @@ export default function AccountPage() {
   const handleEditAddress = (address) => {
     setEditingAddress(address);
     setAddressForm({
-      address_type: address.address_type,
-      street_address: address.street_address,
-      city: address.city,
-      state: address.state,
-      postal_code: address.postal_code,
-      country: address.country,
-      is_default: address.is_default,
+      full_name: address.full_name || '',
+      address_line_1: address.address_line_1 || '',
+      address_line_2: address.address_line_2 || '',
+      street: address.street || '',
+      city: address.city || '',
+      state: address.state || '',
+      district: address.district || '',
+      postal_code: address.postal_code || '',
+      country: address.country || 'Bangladesh',
+      phone: address.phone || '',
+      is_default: address.is_default || false,
     });
     setIsAddingAddress(true);
     setExpandedSection('addresses');
@@ -344,9 +361,9 @@ export default function AccountPage() {
     );
   }
 
-  const profile = profileData?.data;
-  const addresses = addressesData?.data || [];
-  const stats = statsData?.data || {};
+  const profile = profileData?.data || profileData;
+  const addresses = Array.isArray(addressesData) ? addressesData : (addressesData?.data || []);
+  const stats = statsData || {};
 
   if (profileLoading) {
     return (
@@ -380,8 +397,10 @@ export default function AccountPage() {
                       className="w-24 h-24 rounded-full object-cover border-4 border-emerald-100"
                     />
                   ) : (
-                    <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center">
-                      <User className="w-12 h-12 text-emerald-600" />
+                    <div className="w-24 h-24 bg-emerald-600 rounded-full flex items-center justify-center border-4 border-emerald-100">
+                      <span className="text-3xl font-bold text-white">
+                        {profile?.reg_user?.first_name?.charAt(0)?.toUpperCase() || 'U'}
+                      </span>
                     </div>
                   )}
                   <label className="absolute bottom-0 right-0 w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-emerald-700 transition-colors shadow-lg">
@@ -464,7 +483,10 @@ export default function AccountPage() {
           <div className="col-span-9">
             {/* Stats Cards */}
             <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <button
+                onClick={() => navigate('/buyer/orders')}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-blue-300 transition-all text-left"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Package className="w-6 h-6 text-blue-600" />
@@ -474,8 +496,11 @@ export default function AccountPage() {
                     <p className="text-2xl font-bold text-gray-900">{stats.total_orders || 0}</p>
                   </div>
                 </div>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              </button>
+              <button
+                onClick={() => navigate('/buyer/orders')}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-yellow-300 transition-all text-left"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                     <Package className="w-6 h-6 text-yellow-600" />
@@ -485,8 +510,11 @@ export default function AccountPage() {
                     <p className="text-2xl font-bold text-gray-900">{stats.pending_orders || 0}</p>
                   </div>
                 </div>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              </button>
+              <button
+                onClick={() => navigate('/buyer/orders')}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-green-300 transition-all text-left"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <Package className="w-6 h-6 text-green-600" />
@@ -496,8 +524,11 @@ export default function AccountPage() {
                     <p className="text-2xl font-bold text-gray-900">{stats.completed_orders || 0}</p>
                   </div>
                 </div>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              </button>
+              <button
+                onClick={() => setExpandedSection('addresses')}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-purple-300 transition-all text-left"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                     <MapPin className="w-6 h-6 text-purple-600" />
@@ -507,7 +538,7 @@ export default function AccountPage() {
                     <p className="text-2xl font-bold text-gray-900">{stats.saved_addresses || 0}</p>
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
 
             {/* Content Area */}
@@ -658,16 +689,16 @@ export default function AccountPage() {
                         <div>
                           <p className="text-sm text-gray-600 mb-1">Date of Birth</p>
                           <p className="text-base font-medium text-gray-900">
-                            {profile?.date_of_birth 
-                              ? new Date(profile.date_of_birth).toLocaleDateString()
+                            {profile?.reg_user?.date_of_birth 
+                              ? new Date(profile.reg_user.date_of_birth).toLocaleDateString()
                               : 'Not provided'}
                           </p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600 mb-1">Gender</p>
                           <p className="text-base font-medium text-gray-900">
-                            {profile?.gender 
-                              ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)
+                            {profile?.reg_user?.gender 
+                              ? profile.reg_user.gender.charAt(0).toUpperCase() + profile.reg_user.gender.slice(1)
                               : 'Not specified'}
                           </p>
                         </div>
@@ -706,12 +737,16 @@ export default function AccountPage() {
                           setIsAddingAddress(true);
                           setEditingAddress(null);
                           setAddressForm({
-                            address_type: 'home',
-                            street_address: '',
+                            full_name: '',
+                            address_line_1: '',
+                            address_line_2: '',
+                            street: '',
                             city: '',
                             state: '',
+                            district: '',
                             postal_code: '',
                             country: 'Bangladesh',
+                            phone: '',
                             is_default: false,
                           });
                         }}
@@ -730,41 +765,53 @@ export default function AccountPage() {
                       </h3>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Address Type
-                        </label>
-                        <select
-                          value={addressForm.address_type}
-                          onChange={(e) => setAddressForm({ ...addressForm, address_type: e.target.value })}
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input
+                          type="text"
+                          value={addressForm.full_name}
+                          onChange={(e) => setAddressForm({ ...addressForm, full_name: e.target.value })}
+                          placeholder="John Doe"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        >
-                          <option value="home">Home</option>
-                          <option value="work">Work</option>
-                          <option value="other">Other</option>
-                        </select>
+                        />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Street Address
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 1 <span className="text-red-500">*</span></label>
                         <input
                           type="text"
-                          value={addressForm.street_address}
-                          onChange={(e) => setAddressForm({ ...addressForm, street_address: e.target.value })}
-                          placeholder="123 Main Street"
+                          value={addressForm.address_line_1}
+                          onChange={(e) => setAddressForm({ ...addressForm, address_line_1: e.target.value })}
+                          placeholder="House/Flat number, Building name"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         />
-                        {errors.street_address && (
-                          <p className="text-sm text-red-600 mt-1">{errors.street_address}</p>
-                        )}
+                        {errors.address_line_1 && <p className="text-sm text-red-600 mt-1">{errors.address_line_1}</p>}
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 2</label>
+                        <input
+                          type="text"
+                          value={addressForm.address_line_2}
+                          onChange={(e) => setAddressForm({ ...addressForm, address_line_2: e.target.value })}
+                          placeholder="Area, Landmark"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
+                        <input
+                          type="text"
+                          value={addressForm.street}
+                          onChange={(e) => setAddressForm({ ...addressForm, street: e.target.value })}
+                          placeholder="Street name"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            City
-                          </label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">City <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             value={addressForm.city}
@@ -772,14 +819,10 @@ export default function AccountPage() {
                             placeholder="Dhaka"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                           />
-                          {errors.city && (
-                            <p className="text-sm text-red-600 mt-1">{errors.city}</p>
-                          )}
+                          {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            State/Division
-                          </label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">State/Division</label>
                           <input
                             type="text"
                             value={addressForm.state}
@@ -787,17 +830,22 @@ export default function AccountPage() {
                             placeholder="Dhaka Division"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                           />
-                          {errors.state && (
-                            <p className="text-sm text-red-600 mt-1">{errors.state}</p>
-                          )}
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">District</label>
+                          <input
+                            type="text"
+                            value={addressForm.district}
+                            onChange={(e) => setAddressForm({ ...addressForm, district: e.target.value })}
+                            placeholder="Dhaka"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Postal Code
-                          </label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             value={addressForm.postal_code}
@@ -805,23 +853,27 @@ export default function AccountPage() {
                             placeholder="1000"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                           />
-                          {errors.postal_code && (
-                            <p className="text-sm text-red-600 mt-1">{errors.postal_code}</p>
-                          )}
+                          {errors.postal_code && <p className="text-sm text-red-600 mt-1">{errors.postal_code}</p>}
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Country
-                          </label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Country <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             value={addressForm.country}
                             onChange={(e) => setAddressForm({ ...addressForm, country: e.target.value })}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                           />
-                          {errors.country && (
-                            <p className="text-sm text-red-600 mt-1">{errors.country}</p>
-                          )}
+                          {errors.country && <p className="text-sm text-red-600 mt-1">{errors.country}</p>}
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                          <input
+                            type="tel"
+                            value={addressForm.phone}
+                            onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
+                            placeholder="01XXXXXXXXX"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          />
                         </div>
                       </div>
 
@@ -884,9 +936,11 @@ export default function AccountPage() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
-                                  {address.address_type.toUpperCase()}
-                                </span>
+                                {address.full_name && (
+                                  <span className="font-semibold text-gray-900">
+                                    {address.full_name}
+                                  </span>
+                                )}
                                 {address.is_default && (
                                   <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
                                     DEFAULT
@@ -1048,16 +1102,25 @@ export default function AccountPage() {
               {/* Orders Section */}
               {expandedSection === 'orders' && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Order History</h2>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Order History</h2>
+                    <button
+                      onClick={() => navigate('/buyer/orders')}
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                    >
+                      View All Orders
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                   <div className="text-center py-12">
                     <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-600">No orders yet</p>
-                    <p className="text-sm text-gray-500 mt-1">Start shopping to see your orders here</p>
+                    <p className="text-gray-600 mb-2">View your complete order history</p>
+                    <p className="text-sm text-gray-500 mb-6">Track orders, view details, and manage returns</p>
                     <button
-                      onClick={() => navigate('/')}
-                      className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                      onClick={() => navigate('/buyer/orders')}
+                      className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                     >
-                      Browse Products
+                      Go to Orders
                     </button>
                   </div>
                 </div>
@@ -1139,8 +1202,10 @@ export default function AccountPage() {
                   className="w-20 h-20 rounded-full object-cover border-2 border-white"
                 />
               ) : (
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
-                  <User className="w-10 h-10 text-emerald-600" />
+                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center border-2 border-emerald-200">
+                  <span className="text-2xl font-bold text-emerald-600">
+                    {profile?.reg_user?.first_name?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
                 </div>
               )}
               <label className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full flex items-center justify-center cursor-pointer shadow-lg">
@@ -1166,24 +1231,26 @@ export default function AccountPage() {
         {/* Stats Grid */}
         <div className="px-4 mb-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Package className="w-4 h-4 text-blue-600" />
-                </div>
-                <p className="text-xs text-gray-600">Orders</p>
+            <button
+              onClick={() => navigate('/buyer/orders')}
+              className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all text-left"
+            >
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+                <Package className="w-5 h-5 text-blue-600" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total_orders || 0}</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <MapPin className="w-4 h-4 text-purple-600" />
-                </div>
-                <p className="text-xs text-gray-600">Addresses</p>
+              <p className="text-xs text-gray-600 mb-1">Total Orders</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.total_orders || 0}</p>
+            </button>
+            <button
+              onClick={() => setExpandedSection('addresses')}
+              className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-purple-300 transition-all text-left"
+            >
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
+                <MapPin className="w-5 h-5 text-purple-600" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stats.saved_addresses || 0}</p>
-            </div>
+              <p className="text-xs text-gray-600 mb-1">Addresses</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.saved_addresses || addresses?.length || 0}</p>
+            </button>
           </div>
         </div>
 
@@ -1216,6 +1283,22 @@ export default function AccountPage() {
                   <MapPin className="w-5 h-5 text-purple-600" />
                 </div>
                 <span className="font-medium">Saved Addresses</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
+
+          {/* Orders */}
+          <div className="bg-white rounded-xl overflow-hidden border border-gray-200">
+            <button
+              onClick={() => navigate('/buyer/orders')}
+              className="w-full px-4 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Package className="w-5 h-5 text-blue-600" />
+                </div>
+                <span className="font-medium">My Orders</span>
               </div>
               <ChevronRight className="w-5 h-5 text-gray-400" />
             </button>

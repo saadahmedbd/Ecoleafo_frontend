@@ -54,7 +54,7 @@ export default function BuyerProfilePage() {
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const profile = profileData?.data;
+  const profile = profileData?.data || profileData;
 
   // Load profile data into form
   useEffect(() => {
@@ -254,8 +254,10 @@ export default function BuyerProfilePage() {
                     className="w-32 h-32 rounded-full object-cover border-4 border-emerald-100"
                   />
                 ) : (
-                  <div className="w-32 h-32 bg-emerald-100 rounded-full flex items-center justify-center border-4 border-emerald-200">
-                    <User className="w-16 h-16 text-emerald-600" />
+                  <div className="w-32 h-32 bg-emerald-600 rounded-full flex items-center justify-center border-4 border-emerald-100">
+                    <span className="text-4xl font-bold text-white">
+                      {profile?.reg_user?.first_name?.charAt(0)?.toUpperCase() || 'U'}
+                    </span>
                   </div>
                 )}
                 

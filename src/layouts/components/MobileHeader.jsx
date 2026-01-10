@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Search, ShoppingCart, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
+import logo from '@/assets/AIRetouch_20251230_111158251.png';
 
 export default function MobileHeader({
   title = "TreeShop",
@@ -51,9 +52,15 @@ export default function MobileHeader({
             )}
 
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-bold text-gray-800 truncate">{title}</h1>
-              {subtitle && (
-                <p className="text-xs text-gray-500 truncate">{subtitle}</p>
+              {title === "TreeShop" ? (
+                <img src={logo} alt="TreeShop" className="h-8 w-auto" />
+              ) : (
+                <>
+                  <h1 className="text-lg font-bold text-gray-800 truncate">{title}</h1>
+                  {subtitle && (
+                    <p className="text-xs text-gray-500 truncate">{subtitle}</p>
+                  )}
+                </>
               )}
             </div>
           </div>

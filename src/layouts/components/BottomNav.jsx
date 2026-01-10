@@ -1,27 +1,26 @@
-// src/layouts/components/BottomNav.jsx - FIXED WITH PROPER COUNT APIS
 import React from 'react';
-import { Home, Package, Heart, ShoppingCart, User } from 'lucide-react';
+import { Home, Package, MessageCircle, ShoppingCart, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
-import { useGetWishlistCountQuery } from '@/features/wishlist/wishlistApi';
+import { useGetUnreadCountQuery } from '@/features/messaging/messagingApi';
 
 export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get cart and wishlist counts from backend - PROPER APIS
   const { data: cartCountData } = useGetCartCountQuery();
-  const { data: wishlistCountData } = useGetWishlistCountQuery();
+  const { data: unreadData } = useGetUnreadCountQuery(undefined, {
+    pollingInterval: 10000,
+  });
   
   const cartCount = cartCountData?.count || 0;
-  const wishlistCount = wishlistCountData?.count || 0;
+  const unreadCount = unreadData?.total_unread || 0;
 
-  // Determine current page from URL
   const getCurrentPage = () => {
     const path = location.pathname;
     if (path === '/') return 'home';
     if (path.includes('/orders')) return 'orders';
-    if (path.includes('/wishlist')) return 'wishlist';
+    if (path.includes('/messages')) return 'messages';
     if (path.includes('/cart')) return 'cart';
     if (path.includes('/profile') || path.includes('/account')) return 'account';
     return 'home';
@@ -32,7 +31,7 @@ export default function BottomNav() {
   const navItems = [
     { id: 'home', icon: Home, label: 'Home', path: '/' },
     { id: 'orders', icon: Package, label: 'Orders', path: '/buyer/orders' },
-    { id: 'wishlist', icon: Heart, label: 'Wishlist', path: '/buyer/wishlist', count: wishlistCount },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/buyer/messages', count: unreadCount },
     { id: 'cart', icon: ShoppingCart, label: 'Cart', path: '/buyer/cart', count: cartCount },
     { id: 'account', icon: User, label: 'Account', path: '/buyer/profile' },
   ];

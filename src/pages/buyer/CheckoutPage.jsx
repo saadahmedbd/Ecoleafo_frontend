@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   MapPin, Phone, Mail, User, CreditCard, Truck, 
   Package, CheckCircle, AlertCircle, X, Loader2,
-  Edit2, Plus, ArrowLeft, ChevronRight, ShieldCheck
+  Edit2, Plus, ArrowLeft, ChevronRight, ShieldCheck, Gift
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import useDeviceDetection from '@/hooks/useDeviceDetection';
 import {
   useGetBuyerProfileQuery,
   useGetAddressesQuery,
@@ -13,6 +14,7 @@ import {
   useCreateAddressMutation,
   useCreateOrderMutation,
 } from '@/features/checkout/checkoutApi';
+import { useGetCartCountQuery } from '@/features/cart/cartApi';
 import {
   setSelectedAddress,
   setPaymentMethod,
@@ -222,8 +224,10 @@ function AddressModal({ isOpen, onClose, onSave, existingAddress = null }) {
 export default function Checkout() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [toast, setToast] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const { isDesktop } = useDeviceDetection();
 
   // Redux state
   const checkoutState = useSelector((state) => state.checkout);
@@ -231,16 +235,21 @@ export default function Checkout() {
   // API queries
   const { data: profileData, isLoading: profileLoading } = useGetBuyerProfileQuery();
   const { data: addressesData, isLoading: addressesLoading } = useGetAddressesQuery();
-  const { data: cartData, isLoading: cartLoading, refetch: refetchCart } = useValidateCartQuery();
+  const { data: cartData, isLoading: cartLoading, refetch: refetchCart } = useValidateCartQuery(
+    checkoutState.selectedAddress?.id
+  );
 
   // API mutations
   const [createAddress, { isLoading: creatingAddress }] = useCreateAddressMutation();
   const [createOrder, { isLoading: creatingOrder }] = useCreateOrderMutation();
+  const { refetch: refetchCartCount } = useGetCartCountQuery();
 
   const profile = profileData;
   const addresses = addressesData || [];
   const cart = cartData || {};
-  const cartItems = cart.items || [];
+  // Show all cart items (backend should return only selected items)
+  const allCartItems = cart.items || [];
+  const cartItems = allCartItems;
 
   // Auto-select default address
   useEffect(() => {
@@ -250,10 +259,12 @@ export default function Checkout() {
     }
   }, [addresses, checkoutState.selectedAddress, dispatch]);
 
-  // Refetch cart data when component mounts to ensure latest data
+  // Refetch cart when address changes to update shipping cost
   useEffect(() => {
-    refetchCart();
-  }, [refetchCart]);
+    if (checkoutState.selectedAddress?.id) {
+      setTimeout(() => refetchCart(), 100);
+    }
+  }, [checkoutState.selectedAddress?.id, refetchCart]);
 
   // Auto-hide toast
   useEffect(() => {
@@ -263,18 +274,41 @@ export default function Checkout() {
     }
   }, [toast]);
 
-  // Redirect if cart is empty
+  // Redirect if cart is empty (but not on initial load)
   useEffect(() => {
-    if (!cartLoading && cartItems.length === 0) {
+    if (!cartLoading && cartItems.length === 0 && cart.item_count === 0) {
       navigate('/buyer/cart');
     }
-  }, [cartItems, cartLoading, navigate]);
+  }, [cartItems, cartLoading, cart.item_count, navigate]);
 
-  // Calculate order summary
-  const orderSummary = checkoutService.getOrderSummary(
-    cart,
-    checkoutState.shippingMethod
-  );
+
+
+  // Calculate totals for selected items only
+  const selectedSubtotal = cartItems.reduce((sum, item) => {
+    const price = item.discount_price || item.price || item.original_price;
+    return sum + (price * item.quantity);
+  }, 0);
+  
+  const selectedDiscount = cartItems.reduce((sum, item) => {
+    if (item.discount_price && item.original_price > item.discount_price) {
+      return sum + ((item.original_price - item.discount_price) * item.quantity);
+    }
+    return sum;
+  }, 0);
+
+  const giftCharge = cartItems.some(item => item.is_gift || item.gift) ? 50 : 0;
+
+  const orderSummary = {
+    subtotal: Math.round(selectedSubtotal),
+    discount: Math.round(selectedDiscount),
+    shippingCost: Math.round(cart?.shipping_cost || 0),
+    giftCharge: giftCharge,
+    total: Math.round(selectedSubtotal + (cart?.shipping_cost || 0) + giftCharge),
+    savings: Math.round(selectedDiscount),
+    canCheckout: cart?.can_checkout ?? true
+  };
+  
+
 
   // Handle address save
   const handleSaveAddress = async (addressData) => {
@@ -327,20 +361,19 @@ export default function Checkout() {
     // Create order
     try {
       dispatch(setProcessing(true));
-      console.log('Checkout Debug - Creating order with data:', orderData);
       const result = await createOrder(orderData).unwrap();
-      console.log('Checkout Debug - Order creation result:', result);
 
       setToast({ type: 'success', message: 'Order placed successfully!' });
       dispatch(resetCheckout());
+      
+      // Refetch cart count to update header
+      refetchCartCount();
 
       // Redirect to order confirmation
       setTimeout(() => {
-        console.log('Checkout Debug - Redirecting to:', `/buyer/orders/${result.id}`);
         navigate(`/buyer/orders/${result.id}`);
       }, 1500);
     } catch (error) {
-      console.error('Checkout Debug - Order creation error:', error);
       setToast({
         type: 'error',
         message: error.data?.message || 'Failed to place order. Please try again.'
@@ -363,9 +396,9 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
+    <div className="min-h-screen bg-gray-50 pb-8">
       {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
-      
+
       <AddressModal
         isOpen={showAddressModal}
         onClose={() => setShowAddressModal(false)}
@@ -461,6 +494,119 @@ export default function Checkout() {
               )}
             </div>
 
+            {/* Order Summary (Mobile Only) */}
+            <div className="block lg:hidden">
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h2>
+
+                {/* Cart Items */}
+                <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="flex gap-3 pb-3 border-b border-gray-100 last:border-0">
+                      <img
+                        src={item.image?.[0] || 'https://via.placeholder.com/80'}
+                        alt={item.product_name}
+                        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/80';
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm text-gray-800 line-clamp-2 mb-1">
+                          {item.product_name}
+                        </h4>
+                        <p className="text-xs text-gray-500 mb-1">Qty: {item.quantity}</p>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-bold text-green-600">
+                            ৳{Math.round(item.discount_price || item.price).toLocaleString('en-IN')}
+                          </span>
+                          {item.discount_price && item.original_price > item.discount_price && (
+                            <span className="text-xs text-gray-400 line-through">
+                              ৳{Math.round(item.original_price).toLocaleString('en-IN')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Price Breakdown */}
+                <div className="space-y-3 mb-4 pt-4 border-t border-gray-200">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal ({cart.item_count} items)</span>
+                    <span className="font-semibold">৳{orderSummary.subtotal.toLocaleString('en-IN')}</span>
+                  </div>
+
+                  {orderSummary.discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount</span>
+                      <span className="font-semibold">-৳{orderSummary.discount.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                <div className="flex justify-between text-gray-600">
+                  <span>Shipping Fee</span>
+                  <span className="font-semibold">
+                    {orderSummary.shippingCost === 0 ? (
+                      <span className="text-green-600">FREE</span>
+                    ) : (
+                      `৳${orderSummary.shippingCost.toLocaleString('en-IN')}`
+                    )}
+                  </span>
+                </div>
+
+                {orderSummary.giftCharge > 0 && (
+                  <div className="flex justify-between text-purple-600">
+                    <span className="flex items-center gap-1">
+                      <Gift className="w-4 h-4" />
+                      Gift Wrapping
+                    </span>
+                    <span className="font-semibold">৳{orderSummary.giftCharge.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+
+                {orderSummary.shippingCost === 0 && orderSummary.subtotal >= 5000 && (
+                  <div className="bg-green-50 text-green-700 text-sm p-2 rounded-lg flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Free shipping on orders above ৳5000!
+                  </div>
+                )}
+                </div>
+
+                {/* Total */}
+                <div className="border-t border-gray-200 pt-4 mb-6">
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="text-lg font-bold text-gray-800">Total</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      ৳{orderSummary.total.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  {orderSummary.savings > 0 && (
+                    <p className="text-xs text-green-600 text-right">
+                      You saved ৳{orderSummary.savings.toLocaleString('en-IN')}!
+                    </p>
+                  )}
+                </div>
+
+                {/* Trust Badges */}
+                <div className="mt-6 pt-6 border-t border-gray-200 space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <ShieldCheck className="w-4 h-4 text-green-600" />
+                    <span>Secure checkout</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Package className="w-4 h-4 text-green-600" />
+                    <span>Easy returns & refunds</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>100% genuine products</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Contact Information */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4">
@@ -510,7 +656,7 @@ export default function Checkout() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-gray-800">
-                        {orderSummary.subtotal >= 5000 ? 'FREE' : '৳120'}
+                        {orderSummary.shippingCost === 0 ? 'FREE' : `৳${orderSummary.shippingCost.toLocaleString('en-IN')}`}
                       </p>
                       {checkoutState.shippingMethod === 'standard' && (
                         <CheckCircle className="w-5 h-5 text-green-600 ml-auto mt-1" />
@@ -573,9 +719,9 @@ export default function Checkout() {
             </div>
           </div>
 
-          {/* Right Section - Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-4">
+          {/* Right Section - Order Summary (Desktop Only) */}
+          <div className="lg:block hidden">
+            <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h2>
 
               {/* Cart Items */}
@@ -597,11 +743,11 @@ export default function Checkout() {
                       <p className="text-xs text-gray-500 mb-1">Qty: {item.quantity}</p>
                       <div className="flex items-baseline gap-2">
                         <span className="font-bold text-green-600">
-                          ৳{(item.discount_price || item.price).toLocaleString('en-IN')}
+                          ৳{Math.round(item.discount_price || item.price).toLocaleString('en-IN')}
                         </span>
                         {item.discount_price && item.original_price > item.discount_price && (
                           <span className="text-xs text-gray-400 line-through">
-                            ৳{item.original_price.toLocaleString('en-IN')}
+                            ৳{Math.round(item.original_price).toLocaleString('en-IN')}
                           </span>
                         )}
                       </div>
@@ -616,7 +762,7 @@ export default function Checkout() {
                   <span>Subtotal ({cart.item_count} items)</span>
                   <span className="font-semibold">৳{orderSummary.subtotal.toLocaleString('en-IN')}</span>
                 </div>
-                
+
                 {orderSummary.discount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Discount</span>
@@ -635,10 +781,22 @@ export default function Checkout() {
                   </span>
                 </div>
 
-                {orderSummary.subtotal >= 5000 && orderSummary.shippingCost === 0 && (
+                {orderSummary.giftCharge > 0 && (
+                  <div className="flex justify-between text-purple-600">
+                    <span className="flex items-center gap-1">
+                      <Gift className="w-4 h-4" />
+                      Gift Wrapping
+                    </span>
+                    <span className="font-semibold">৳{orderSummary.giftCharge.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+
+            
+
+                {orderSummary.shippingCost === 0 && orderSummary.subtotal >= 5000 && (
                   <div className="bg-green-50 text-green-700 text-sm p-2 rounded-lg flex items-center gap-2">
                     <CheckCircle className="w-4 h-4" />
-                    You saved ৳120 on shipping!
+                    Free shipping on orders above ৳5000!
                   </div>
                 )}
               </div>
@@ -693,6 +851,38 @@ export default function Checkout() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Sticky Order Summary - Outside container */}
+      <div className="lg:hidden fixed bottom-16 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-600">Total Amount</p>
+              <p className="text-2xl font-bold text-green-600">৳{orderSummary.total.toLocaleString('en-IN')}</p>
+              {orderSummary.savings > 0 && (
+                <p className="text-xs text-green-600">Saved ৳{orderSummary.savings.toLocaleString('en-IN')}</p>
+              )}
+            </div>
+            <button
+              onClick={handlePlaceOrder}
+              disabled={!checkoutState.selectedAddress || checkoutState.isProcessing || creatingOrder}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {checkoutState.isProcessing || creatingOrder ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processing
+                </>
+              ) : (
+                <>
+                  Place Order
+                  <ChevronRight className="w-5 h-5" />
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>

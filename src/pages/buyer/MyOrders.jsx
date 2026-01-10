@@ -3,7 +3,7 @@ import {
   Package, ShoppingBag, Truck, CheckCircle, X, 
   ChevronRight, Loader2, AlertCircle, Search,
   RotateCcw, Star, MessageSquare, Clock, 
-  CreditCard, XCircle, RefreshCw, ShoppingCart
+  CreditCard, XCircle, RefreshCw, ShoppingCart, Tag, Store, MapPin
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -11,6 +11,7 @@ import {
   useCancelOrderMutation,
   useAddToCartMutation 
 } from '@/features/orders/ordersApi';
+import { useGetMyReviewsQuery } from '@/features/review/reviewApi';
 import orderService from '@/services/orderService';
 
 // Toast Component
@@ -79,13 +80,27 @@ function StatusBadge({ status }) {
 // Order Item Component
 function OrderItemCard({ item }) {
   const navigate = useNavigate();
+  const originalPrice = item.original_price || item.price;
+  const hasDiscount = item.original_price && item.original_price > item.price;
+  const discountPercent = hasDiscount ? (((originalPrice - item.price) / originalPrice) * 100).toFixed(0) : 0;
+  
+  const getStatusColor = (status) => {
+    const colors = {
+      pending: 'bg-yellow-100 text-yellow-700',
+      processing: 'bg-blue-100 text-blue-700',
+      shipped: 'bg-purple-100 text-purple-700',
+      delivered: 'bg-green-100 text-green-700',
+      cancelled: 'bg-red-100 text-red-700'
+    };
+    return colors[status] || colors.pending;
+  };
   
   return (
-    <div className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+    <div className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200">
       <img
         src={item.image || 'https://via.placeholder.com/80'}
         alt={item.product_name}
-        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0 cursor-pointer"
+        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0 cursor-pointer border border-gray-200"
         onClick={() => navigate(`/products/${item.product_id}`)}
         onError={(e) => {
           e.target.src = 'https://via.placeholder.com/80';
@@ -98,16 +113,36 @@ function OrderItemCard({ item }) {
         >
           {item.product_name}
         </h4>
-        <p className="text-xs text-gray-500 mb-1">
-          Seller: {item.seller_name}
-        </p>
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <span className="text-xs text-gray-500 flex items-center gap-1">
+            <Store className="w-3 h-3" />
+            {item.seller_name}
+          </span>
+          <span className={`text-xs px-1.5 py-0.5 rounded ${getStatusColor(item.status)}`}>
+            {item.status}
+          </span>
+        </div>
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <span className="text-xs text-gray-600">
-            Qty: <span className="font-semibold">{item.quantity}</span>
-          </span>
-          <span className="font-bold text-green-600 text-sm sm:text-base">
-            ৳{item.total?.toLocaleString('en-IN')}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-600">
+              Qty: <span className="font-semibold">{item.quantity}</span>
+            </span>
+            {hasDiscount && (
+              <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold">
+                {discountPercent}% OFF
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {hasDiscount && (
+              <span className="text-xs text-gray-400 line-through">
+                ৳{originalPrice?.toLocaleString('en-IN')}
+              </span>
+            )}
+            <span className="font-bold text-green-600 text-sm sm:text-base">
+              ৳{item.total?.toLocaleString('en-IN')}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -134,7 +169,7 @@ function OrderCard({ order, onViewDetails, onCancelOrder, onBuyAgain, onReturn, 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
       {/* Header */}
-      <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap">
             <div>
@@ -152,6 +187,12 @@ function OrderCard({ order, onViewDetails, onCancelOrder, onBuyAgain, onReturn, 
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',
+              })}
+            </p>
+            <p className="text-xs text-gray-500">
+              {new Date(order.created_at).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
               })}
             </p>
           </div>
@@ -175,12 +216,61 @@ function OrderCard({ order, onViewDetails, onCancelOrder, onBuyAgain, onReturn, 
           )}
         </div>
 
-        {/* Total */}
-        <div className="flex items-center justify-between py-3 border-t border-gray-200 mb-4">
-          <span className="text-gray-600">Total Amount</span>
-          <span className="text-xl sm:text-2xl font-bold text-gray-800">
-            ৳{order.total?.toLocaleString('en-IN')}
-          </span>
+        {/* Order Summary */}
+        <div className="border-t border-gray-200 pt-3 mb-4">
+          <div className="space-y-2 mb-3">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Subtotal</span>
+              <span>৳{order.subtotal?.toLocaleString('en-IN')}</span>
+            </div>
+            {order.discount_amount > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span className="flex items-center gap-1">
+                  Discount
+                  <span className="text-xs bg-green-100 px-1.5 py-0.5 rounded">
+                    {((order.discount_amount / order.subtotal) * 100).toFixed(0)}% OFF
+                  </span>
+                </span>
+                <span>-৳{order.discount_amount?.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+            {order.tax_amount > 0 && (
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Tax</span>
+                <span>৳{order.tax_amount?.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Shipping</span>
+              <span>{order.shipping_cost === 0 ? 'FREE' : `৳${order.shipping_cost?.toLocaleString('en-IN')}`}</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+            <span className="text-gray-800 font-semibold">Total Amount</span>
+            <span className="text-xl sm:text-2xl font-bold text-green-600">
+              ৳{order.total?.toLocaleString('en-IN')}
+            </span>
+          </div>
+        </div>
+        
+        {/* Payment & Shipping Info */}
+        <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Payment Method</p>
+            <p className="text-sm font-medium text-gray-700 capitalize">
+              {order.payment_method?.replace('_', ' ')}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Payment Status</p>
+            <span className={`inline-block text-xs px-2 py-1 rounded font-semibold ${
+              order.payment_status === 'paid' ? 'bg-green-100 text-green-700' :
+              order.payment_status === 'failed' ? 'bg-red-100 text-red-700' :
+              'bg-yellow-100 text-yellow-700'
+            }`}>
+              {order.payment_status?.charAt(0).toUpperCase() + order.payment_status?.slice(1)}
+            </span>
+          </div>
         </div>
 
         {/* Actions */}
@@ -259,7 +349,7 @@ function OrderCard({ order, onViewDetails, onCancelOrder, onBuyAgain, onReturn, 
           {/* Review - for delivered orders */}
           {isDelivered && (
             <button
-              onClick={() => onReview(order.id)}
+              onClick={() => onReview(order)}
               className="px-4 py-2.5 border border-yellow-300 text-yellow-600 rounded-lg font-medium hover:bg-yellow-50 transition-colors text-sm flex items-center gap-2"
             >
               <Star className="w-4 h-4" />
@@ -268,14 +358,26 @@ function OrderCard({ order, onViewDetails, onCancelOrder, onBuyAgain, onReturn, 
           )}
         </div>
 
-        {/* Tracking Info for Shipped */}
+        {/* Additional Info */}
         {isShipped && order.tracking_number && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center gap-2 text-sm">
               <Truck className="w-4 h-4 text-blue-600" />
               <span className="text-blue-800 font-medium">
                 Tracking: {order.tracking_number}
               </span>
+            </div>
+          </div>
+        )}
+        
+        {order.notes && (
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-2 text-sm">
+              <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-amber-900 font-medium mb-0.5">Note:</p>
+                <p className="text-amber-700">{order.notes}</p>
+              </div>
             </div>
           </div>
         )}
@@ -339,7 +441,7 @@ export default function MyOrders() {
 
   // Handle view order details
   const handleViewDetails = (orderId) => {
-    navigate(`/orders/${orderId}`);
+    navigate(`/buyer/orders/${orderId}`);
   };
 
   // Handle cancel order
@@ -372,7 +474,7 @@ export default function MyOrders() {
       
       // Navigate to cart after a short delay
       setTimeout(() => {
-        navigate('/cart');
+        navigate('/buyer/cart');
       }, 1500);
     } catch (error) {
       setToast({ type: 'error', message: error.data?.message || 'Failed to add to cart' });
@@ -387,10 +489,25 @@ export default function MyOrders() {
   };
 
   // Handle review
-  const handleReview = (orderId) => {
-    // Navigate to review page (to be implemented)
-    navigate(`/orders/${orderId}/review`);
-    setToast({ type: 'info', message: 'Review feature coming soon' });
+  const handleReview = (order) => {
+    const firstItem = order.order_items?.[0];
+    
+    if (!firstItem) {
+      alert('No items found in this order');
+      setToast({ type: 'error', message: 'No items found in this order' });
+      return;
+    }
+    
+    const productId = firstItem.product_id;
+    alert(`Product ID: ${productId}, Order ID: ${order.id}`);
+    
+    if (!productId) {
+      alert('Product ID is undefined or null');
+      setToast({ type: 'error', message: 'Product ID not found' });
+      return;
+    }
+    
+    navigate(`/buyer/orders/${order.id}/review?product_id=${productId}`);
   };
 
   // Filter orders by search query
@@ -409,7 +526,16 @@ export default function MyOrders() {
     { id: 'to_receive', label: 'To Receive', icon: Truck },
     { id: 'completed', label: 'Completed', icon: CheckCircle },
     { id: 'cancelled', label: 'Cancelled', icon: XCircle },
+    { id: 'reviews', label: 'My Reviews', icon: Star },
   ];
+
+  // Fetch reviews when reviews tab is active
+  const { data: reviewsData, isLoading: reviewsLoading } = useGetMyReviewsQuery(
+    { page: 1, per_page: 50 },
+    { skip: activeTab !== 'reviews' }
+  );
+
+  const myReviews = reviewsData?.data?.reviews || [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
@@ -504,7 +630,7 @@ export default function MyOrders() {
         )}
 
         {/* Orders List */}
-        {!isLoading && !error && filteredOrders.length > 0 && (
+        {!isLoading && !error && filteredOrders.length > 0 && activeTab !== 'reviews' && (
           <div className="space-y-4">
             {filteredOrders.map((order) => (
               <OrderCard
@@ -517,6 +643,88 @@ export default function MyOrders() {
                 onReview={handleReview}
               />
             ))}
+          </div>
+        )}
+
+        {/* Reviews List */}
+        {activeTab === 'reviews' && (
+          <div>
+            {reviewsLoading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-12 h-12 text-green-600 animate-spin mx-auto mb-4" />
+                <p className="text-gray-600">Loading your reviews...</p>
+              </div>
+            ) : myReviews.length === 0 ? (
+              <EmptyState
+                icon={Star}
+                title="No reviews yet"
+                description="You haven't reviewed any products yet. Purchase and review products to see them here."
+              />
+            ) : (
+              <div className="space-y-4">
+                {myReviews.map((review) => (
+                  <div key={review.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="p-4 sm:p-6">
+                      <div className="flex gap-4">
+                        <img
+                          src={review.product?.image || 'https://via.placeholder.com/100'}
+                          alt={review.product?.name}
+                          className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg cursor-pointer border border-gray-200"
+                          onClick={() => navigate(`/products/${review.product_id}`)}
+                          onError={(e) => e.target.src = 'https://via.placeholder.com/100'}
+                        />
+                        <div className="flex-1">
+                          <h3 
+                            className="font-bold text-gray-900 mb-2 cursor-pointer hover:text-green-600 transition-colors"
+                            onClick={() => navigate(`/products/${review.product_id}`)}
+                          >
+                            {review.product?.name}
+                          </h3>
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-gray-500">
+                              {new Date(review.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </span>
+                          </div>
+                          {review.title && (
+                            <h4 className="font-semibold text-gray-900 mb-1">{review.title}</h4>
+                          )}
+                          <p className="text-gray-700 text-sm mb-3">{review.comment}</p>
+                          {review.images?.length > 0 && (
+                            <div className="flex gap-2 mb-3">
+                              {review.images.map((img, idx) => (
+                                <img key={idx} src={img} alt="Review" className="w-16 h-16 rounded-lg object-cover border border-gray-200" />
+                              ))}
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => navigate(`/buyer/reviews/edit/${review.id}`)}
+                              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                            >
+                              Edit Review
+                            </button>
+                            <button
+                              onClick={() => navigate(`/products/${review.product_id}`)}
+                              className="px-4 py-2 border border-green-300 text-green-600 rounded-lg text-sm font-medium hover:bg-green-50 transition-colors"
+                            >
+                              View Product
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

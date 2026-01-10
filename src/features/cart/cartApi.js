@@ -57,6 +57,10 @@ export const cartApi = createApi({
     getCart: builder.query({
       query: () => '/cart',
       providesTags: ['Cart'],
+      keepUnusedDataFor: 0,
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
       transformResponse: (response) => {
         return response?.data ? response : { data: response };
       },
@@ -75,6 +79,10 @@ export const cartApi = createApi({
     getCartCount: builder.query({
       query: () => '/cart/count',
       providesTags: ['CartCount'],
+      keepUnusedDataFor: 0, // Don't cache, always fetch fresh
+      refetchOnMountOrArgChange: true, // Refetch when component mounts
+      refetchOnFocus: true, // Refetch when window regains focus
+      refetchOnReconnect: true, // Refetch when reconnecting
       transformResponse: (response) => {
         if (response?.count !== undefined) return response;
         if (response?.data?.count !== undefined) return response.data;

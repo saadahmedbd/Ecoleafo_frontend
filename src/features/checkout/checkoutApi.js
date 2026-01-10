@@ -14,7 +14,7 @@ export const checkoutApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['BuyerProfile', 'Addresses', 'Cart', 'Order'],
+  tagTypes: ['BuyerProfile', 'Addresses', 'Cart', 'Order', 'CartCount'],
   endpoints: (builder) => ({
     // GET BUYER PROFILE
     getBuyerProfile: builder.query({
@@ -50,8 +50,11 @@ export const checkoutApi = createApi({
 
     // VALIDATE CART
     validateCart: builder.query({
-      query: () => '/cart/validate',
-      providesTags: ['Cart'],
+      query: (addressId) => {
+        const url = addressId ? `/cart/validate?address_id=${addressId}` : '/cart/validate';
+        return url;
+      },
+      keepUnusedDataFor: 0,
     }),
 
     // CREATE ORDER
@@ -61,7 +64,7 @@ export const checkoutApi = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Cart', 'Order'],
+      invalidatesTags: ['Cart', 'Order', 'CartCount'],
     }),
   }),
 });

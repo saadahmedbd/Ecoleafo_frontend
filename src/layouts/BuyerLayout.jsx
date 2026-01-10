@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import BottomNav from './components/BottomNav';
+import DesktopHeader from './components/DesktopHeader';
+import CategoryNav from './components/CategoryNav';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
 
 export function BuyerLayout() {
@@ -26,6 +28,23 @@ export function BuyerLayout() {
     return 'home';
   };
 
+  // Pages that should NOT show bottom nav
+  const noBottomNavPages =  location.pathname.includes('/products/');
+  const showBottomNav = isMobile && !noBottomNavPages;
+  
+  // Pages that should NOT show category nav
+  const noCategoryNavPages = location.pathname.includes('/cart') || 
+                             location.pathname.includes('/wishlist')|| 
+                            location.pathname.includes('/checkout') ||
+                             location.pathname.includes('/order') ||
+                             location.pathname.includes('/profile') ||
+                             location.pathname.includes('/account') ||
+                             location.pathname.includes('/buyer/categories') ||
+                             location.pathname.includes('/buyer/category/:slug');
+
+                             
+  const showCategoryNav = !isMobile && !noCategoryNavPages;
+
   const handleNavigate = (page) => {
     const routes = {
       home: '/buyer',
@@ -39,10 +58,12 @@ export function BuyerLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <main className={`flex-1 ${isMobile ? 'pb-20' : ''}`}>
+      {!isMobile && <DesktopHeader />}
+      {showCategoryNav && <CategoryNav />}
+      <main className={`flex-1 ${showBottomNav ? 'pb-20' : ''}`}>
         <Outlet />
       </main>
-      {isMobile && (
+      {showBottomNav && (
         <BottomNav
           currentPage={getCurrentPage()}
           onNavigate={handleNavigate}

@@ -39,16 +39,12 @@ export const validateProfileUpdate = (data) => {
 export const validateAddress = (data) => {
   const errors = {};
   
-  if (!data.street_address || data.street_address.trim().length < 5) {
-    errors.street_address = 'Street address must be at least 5 characters';
+  if (!data.address_line_1 || data.address_line_1.trim().length < 5) {
+    errors.address_line_1 = 'Address must be at least 5 characters';
   }
   
   if (!data.city || data.city.trim().length < 2) {
     errors.city = 'City is required';
-  }
-  
-  if (!data.state || data.state.trim().length < 2) {
-    errors.state = 'State is required';
   }
   
   if (!data.postal_code || data.postal_code.trim().length < 3) {
@@ -129,9 +125,13 @@ export const formatProfileData = (profile) => {
  */
 export const formatAddress = (address) => {
   const parts = [
-    address.street_address,
+    address.full_name,
+    address.address_line_1,
+    address.address_line_2,
+    address.street,
     address.city,
     address.state,
+    address.district,
     address.postal_code,
     address.country,
   ];

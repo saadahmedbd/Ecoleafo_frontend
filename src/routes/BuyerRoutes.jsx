@@ -13,6 +13,7 @@ import EditReview from '@/pages/buyer/EditReview';
 import Buyerlayout from '@/layouts/BuyerLayout';
 import ProductDetails from '@/pages/public/ProductDetails';
 import HomePage from '@/pages/public/HomePage';
+
 import Cart from '../pages/buyer/Cart';
 import Wishlist from '../pages/buyer/Wishlist';
 import AccountPage from '../pages/buyer/AccountPage';
@@ -22,11 +23,13 @@ import BuyerAddressesPage from '../pages/buyer/BuyerAddressesPage';
 import CheckoutPage from '../pages/buyer/CheckoutPage';
 import Orders from '../pages/buyer/Orders'
 import MyOrders from '../pages/buyer/MyOrders'
-// import OrdersPage from '../pages/buyer/OrdersPage';
+import Messages from '../pages/buyer/Messages'
+import CategoriesPage from '../pages/buyer/CategoriesPage'
+import CategoryProductsPage from '../pages/buyer/CategoryProductsPage'
 
 const buyerRoutes = [
     {
-        path: '/buyer/login',
+        
         element: (
           // <GuestGuard redirectTo="/buyer/dashboard">
             <Login />
@@ -34,7 +37,7 @@ const buyerRoutes = [
         ),
       },
       {
-        path: '/buyer/signup',
+        
         element: (
           // <GuestGuard redirectTo="/buyer/dashboard">
             <BuyerSignUp />
@@ -60,19 +63,24 @@ const buyerRoutes = [
         ),
         children: [
             { index: true, element: <HomePage /> },
+            
             // { path: 'orders', element: <OrdersPage /> },
             { path: 'cart', element: <Cart /> },
             { path: 'wishlist', element: <Wishlist /> },
             { path: 'products/:slug', element: <ProductDetails /> },
+            { path: 'products/:id', element: <ProductDetails /> },
+
             { path: 'account', element: <AccountPage /> },
             { path: 'profile', element: <BuyerProfilePage /> },
             { path: 'password', element: <BuyerPasswordPage /> },
             { path: 'addresses', element: <BuyerAddressesPage /> },
             { path: 'checkout', element: <CheckoutPage /> },
             { path: 'orders/:orderId', element: <Orders /> },
+            { path: 'orders/:orderId/review', element: <CreateReview /> },
             { path: 'orders', element: <MyOrders /> },
-
-
+            { path: 'messages', element: <Messages /> },
+            { path: 'categories', element: <CategoriesPage /> },
+            { path: 'category/:slug', element: <CategoryProductsPage /> },
 
             {
                 path: 'reviews',

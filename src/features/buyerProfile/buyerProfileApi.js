@@ -64,6 +64,10 @@ export const buyerProfileApi = createApi({
     getAddresses: builder.query({
       query: () => '/addresses',
       providesTags: ['BuyerAddresses'],
+      transformResponse: (response) => {
+        // Handle both array response and object with data property
+        return Array.isArray(response) ? response : response;
+      },
     }),
 
     // CREATE ADDRESS
@@ -108,6 +112,9 @@ export const buyerProfileApi = createApi({
     getBuyerStats: builder.query({
       query: () => '/stats',
       providesTags: ['BuyerStats'],
+      transformResponse: (response) => {
+        return response?.data || response;
+      },
     }),
   }),
 });

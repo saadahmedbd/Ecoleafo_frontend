@@ -9,10 +9,9 @@ import { useNavigate } from 'react-router-dom';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useCart } from '@/hooks/useCart';
 import { useGetProductsQuery } from '@/features/BuyerProduct/buyerProductApi';
+import { useGetCartCountQuery } from '@/features/cart/cartApi';
 import ProductCard from '@/layouts/components/ProductCard';
 import useDeviceDetection from '@/hooks/useDeviceDetection';
-import DesktopHeader from '@/layouts/components/DesktopHeader';
-import MobileHeader from '@/layouts/components/MobileHeader';
 
 // Toast Notification Component
 function Toast({ type, message, onClose }) {
@@ -428,7 +427,6 @@ function WishlistItemList({
 // Main Wishlist Page Component
 export default function Wishlist() {
   const navigate = useNavigate();
-  const { isDesktop } = useDeviceDetection();
   const [toast, setToast] = useState(null);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [addingToCart, setAddingToCart] = useState(new Set());
@@ -442,11 +440,16 @@ export default function Wishlist() {
     removeFromWishlist,
     moveToCart,
     refetchWishlist,
-    wishlistCount
+    wishlistCount,
+    toggleWishlist,
+    isInWishlist
   } = useWishlist();
 
   // Cart hook for adding items
   const { addToCart } = useCart();
+  
+  // Import cart count refetch
+  const { refetch: refetchCartCount } = useGetCartCountQuery();
 
   // Fetch recommended products
   const { 
@@ -487,7 +490,7 @@ export default function Wishlist() {
       const result = await moveToCart(productId);
       
       if (result.success) {
-        await refetchWishlist();
+        await Promise.all([refetchWishlist(), refetchCartCount()]);
         setToast({ 
           type: 'success', 
           message: `${item.product_name} moved to cart successfully!` 
@@ -563,6 +566,24 @@ export default function Wishlist() {
     }
   };
 
+  // Handle toggle wishlist for recommended products
+  const handleToggleWishlist = async (product) => {
+    const wasInWishlist = isInWishlist(product.id);
+    
+    const result = await toggleWishlist(product.id);
+    
+    if (result.success) {
+      await refetchWishlist();
+      if (wasInWishlist) {
+        setToast({ type: 'success', message: `${product.name} removed from wishlist` });
+      } else {
+        setToast({ type: 'success', message: `${product.name} added to wishlist` });
+      }
+    } else {
+      setToast({ type: 'error', message: result.error || 'Failed to update wishlist' });
+    }
+  };
+
   const handleProductClick = (product) => {
     navigate(`/products/${product.id}`);
   };
@@ -624,9 +645,9 @@ export default function Wishlist() {
                     key={product.id}
                     product={product}
                     onAddToCart={handleAddRecommendedToCart}
-                    onToggleWishlist={() => {}}
+                    onToggleWishlist={handleToggleWishlist}
                     onProductClick={handleProductClick}
-                    isInWishlist={false}
+                    isInWishlist={isInWishlist(product.id)}
                   />
                 ))}
               </div>
@@ -642,63 +663,50 @@ export default function Wishlist() {
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
       {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
 
-      {/* Header */}
-      {isDesktop ? (
-        <DesktopHeader />
-      ) : (
-        <MobileHeader
-          title="My Wishlist"
-          showBack={true}
-          showCart={false}
-        />
-      )}
-
       <div className="container mx-auto px-4 py-6 sm:py-8">
-        {/* Page Title and Controls - Only show on desktop */}
-        {isDesktop && (
-          <div className="mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-3">
-                  <Heart className="w-7 h-7 sm:w-8 sm:h-8 text-red-500 fill-red-500" />
-                  My Wishlist
-                  <span className="text-lg sm:text-xl text-gray-500">
-                    ({wishlistCount} {wishlistCount === 1 ? 'item' : 'items'})
-                  </span>
-                </h1>
-                <p className="text-gray-600 text-sm mt-1">
-                  Save your favorite products for later
-                </p>
-              </div>
+        {/* Page Title and Controls */}
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-3">
+                <Heart className="w-7 h-7 sm:w-8 sm:h-8 text-red-500 fill-red-500" />
+                My Wishlist
+                <span className="text-lg sm:text-xl text-gray-500">
+                  ({wishlistCount} {wishlistCount === 1 ? 'item' : 'items'})
+                </span>
+              </h1>
+              <p className="text-gray-600 text-sm mt-1">
+                Save your favorite products for later
+              </p>
+            </div>
 
-              {/* View Mode Toggle - Hidden on mobile */}
-              <div className="hidden sm:flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded transition-colors ${
-                    viewMode === 'grid'
-                      ? 'bg-green-600 text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                  title="Grid view"
-                >
-                  <Grid className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-green-600 text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                  title="List view"
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
+            {/* View Mode Toggle - Hidden on mobile */}
+            <div className="hidden sm:flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-green-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title="Grid view"
+              >
+                <Grid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-green-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title="List view"
+              >
+                <List className="w-5 h-5" />
+              </button>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Wishlist Items */}
         {viewMode === 'grid' ? (
@@ -751,9 +759,9 @@ export default function Wishlist() {
                   key={product.id}
                   product={product}
                   onAddToCart={handleAddRecommendedToCart}
-                  onToggleWishlist={() => {}}
+                  onToggleWishlist={handleToggleWishlist}
                   onProductClick={handleProductClick}
-                  isInWishlist={false}
+                  isInWishlist={isInWishlist(product.id)}
                 />
               ))}
             </div>

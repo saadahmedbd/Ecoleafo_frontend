@@ -4,31 +4,50 @@ import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Heart, User, Bell } from 'lucide-react';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
 import { useGetWishlistCountQuery } from '@/features/wishlist/wishlistApi';
+import { useGetBuyerProfileQuery } from '@/features/buyerProfile/buyerProfileApi';
+import { useGetAutocompleteQuery } from '@/features/search/searchApi';
+import logo from '@/assets/AIRetouch_20251230_111158251.png';
 
 export default function DesktopHeader() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   
   // Get cart and wishlist counts from backend - PROPER APIS
   const { data: cartCountData } = useGetCartCountQuery();
   const { data: wishlistCountData } = useGetWishlistCountQuery();
+  const { data: profileData } = useGetBuyerProfileQuery();
+  
+  // Autocomplete
+  const { data: suggestions } = useGetAutocompleteQuery(searchQuery, {
+    skip: searchQuery.length < 2
+  });
   
   const cartCount = cartCountData?.count || 0;
   const wishlistCount = wishlistCountData?.count || 0;
 
-  // Get user data from localStorage
-  const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
-  const userName = userData?.name || userData?.full_name || '';
-  const userAvatar = userData?.avatar || userData?.profile_picture || '';
+  // Get user data from profile API or localStorage
+  const profile = profileData?.data || profileData;
+  const firstName = profile?.reg_user?.first_name || profile?.first_name || '';
+  const lastName = profile?.reg_user?.last_name || profile?.last_name || '';
+  const userName = `${firstName} ${lastName}`.trim();
+  const userAvatar = profile?.profile_picture_url || profile?.profile_photo || '';
   
-  // Get first letter of name for avatar fallback
-  const userInitial = userName ? userName.charAt(0).toUpperCase() : 'U';
+  // Get first letter of first name for avatar badge
+  const userInitial = firstName ? firstName.charAt(0).toUpperCase() : 'U';
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setShowSuggestions(false);
     }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion);
+    navigate(`/search?q=${encodeURIComponent(suggestion)}`);
+    setShowSuggestions(false);
   };
 
   return (
@@ -38,29 +57,48 @@ export default function DesktopHeader() {
           {/* Logo - Left Side */}
           <div 
             onClick={() => navigate('/')}
-            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
           >
-            <div className="bg-[#16a34a] p-2 rounded-lg">
-              <span className="text-white text-2xl">🌳</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800 hidden lg:block">TreeShop</h1>
+            <img src={logo} alt="TreeShop" className="h-12 w-auto" />
           </div>
 
           {/* Search Bar - Center (Maximum Width) */}
           <form 
             onSubmit={handleSearch}
-            className="flex-1 max-w-3xl"
+            className="flex-1 max-w-3xl relative"
           >
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder="Search for trees, plants, and more..."
                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-full text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#16a34a] focus:border-transparent focus:bg-white transition-all"
               />
             </div>
+            
+            {/* Autocomplete Dropdown */}
+            {showSuggestions && searchQuery.length >= 2 && suggestions?.data?.length > 0 && (
+              <div className="absolute top-full mt-2 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto z-50">
+                {suggestions.data.map((item, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => handleSuggestionClick(item.name || item)}
+                    className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
+                  >
+                    <Search className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-700">{item.name || item}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </form>
 
           {/* Action Icons - Right Side */}
@@ -103,25 +141,27 @@ export default function DesktopHeader() {
               <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
             </button>
 
-            {/* Account - Enhanced with user avatar/initial */}
+            {/* Account - Badge with user initial */}
             <button
-              onClick={() => navigate('/buyer/profile')}
-              className="relative p-1 hover:bg-gray-100 rounded-full transition-colors group"
-              title="Account"
+              onClick={() => navigate('/buyer/account')}
+              className="relative hover:opacity-80 transition-opacity"
+              title={userName || 'Account'}
             >
               {userAvatar ? (
-                <img 
-                  src={userAvatar} 
-                  alt={userName}
-                  className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 group-hover:border-[#16a34a]"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextElementSibling.style.display = 'flex';
-                  }}
-                />
+                <div className="relative">
+                  <img 
+                    src={userAvatar} 
+                    alt={userName || 'User'}
+                    className="w-9 h-9 rounded-full object-cover border-2 border-gray-300 hover:border-[#16a34a] transition-colors"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                </div>
               ) : null}
               <div 
-                className={`w-8 h-8 rounded-full bg-[#16a34a] text-white font-semibold flex items-center justify-center text-sm group-hover:bg-[#15803d] transition-colors ${userAvatar ? 'hidden' : 'flex'}`}
+                className={`w-9 h-9 rounded-full bg-gradient-to-br from-[#16a34a] to-[#15803d] text-white font-bold flex items-center justify-center text-base shadow-md hover:shadow-lg transition-all ${userAvatar ? 'hidden' : 'flex'}`}
               >
                 {userInitial}
               </div>

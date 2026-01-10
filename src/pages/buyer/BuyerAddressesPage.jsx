@@ -46,28 +46,36 @@ export default function BuyerAddressesPage() {
 
   // Form state
   const [formData, setFormData] = useState({
-    address_type: 'home',
-    street_address: '',
+    full_name: '',
+    address_line_1: '',
+    address_line_2: '',
+    street: '',
     city: '',
     state: '',
+    district: '',
     postal_code: '',
     country: 'Bangladesh',
+    phone: '',
     is_default: false,
   });
 
-  const addresses = addressesData?.data || [];
+  const addresses = Array.isArray(addressesData) ? addressesData : (addressesData?.data || []);
 
   // Load address data when editing
   useEffect(() => {
     if (editingAddress) {
       setFormData({
-        address_type: editingAddress.address_type,
-        street_address: editingAddress.street_address,
-        city: editingAddress.city,
-        state: editingAddress.state,
-        postal_code: editingAddress.postal_code,
-        country: editingAddress.country,
-        is_default: editingAddress.is_default,
+        full_name: editingAddress.full_name || '',
+        address_line_1: editingAddress.address_line_1 || '',
+        address_line_2: editingAddress.address_line_2 || '',
+        street: editingAddress.street || '',
+        city: editingAddress.city || '',
+        state: editingAddress.state || '',
+        district: editingAddress.district || '',
+        postal_code: editingAddress.postal_code || '',
+        country: editingAddress.country || 'Bangladesh',
+        phone: editingAddress.phone || '',
+        is_default: editingAddress.is_default || false,
       });
     }
   }, [editingAddress]);
@@ -113,8 +121,8 @@ export default function BuyerAddressesPage() {
   };
 
   // Handle delete address
-  const handleDelete = async (id, addressType) => {
-    if (!confirm(`Are you sure you want to delete this ${addressType} address?`)) return;
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this address?')) return;
 
     try {
       await deleteAddress(id).unwrap();
@@ -137,27 +145,24 @@ export default function BuyerAddressesPage() {
     setIsAddingNew(false);
     setEditingAddress(null);
     setFormData({
-      address_type: 'home',
-      street_address: '',
+      full_name: '',
+      address_line_1: '',
+      address_line_2: '',
+      street: '',
       city: '',
       state: '',
+      district: '',
       postal_code: '',
       country: 'Bangladesh',
+      phone: '',
       is_default: false,
     });
     setErrors({});
   };
 
-  // Get icon for address type
-  const getAddressIcon = (type) => {
-    switch (type) {
-      case 'home':
-        return <Home className="w-5 h-5" />;
-      case 'work':
-        return <Briefcase className="w-5 h-5" />;
-      default:
-        return <MoreHorizontal className="w-5 h-5" />;
-    }
+  // Get icon for address
+  const getAddressIcon = () => {
+    return <MapPin className="w-5 h-5 text-emerald-600" />;
   };
 
   if (addressesLoading) {
@@ -236,56 +241,74 @@ export default function BuyerAddressesPage() {
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Address Type */}
+                {/* Full Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Address Type <span className="text-red-500">*</span>
+                    Full Name
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {['home', 'work', 'other'].map((type) => (
-                      <label
-                        key={type}
-                        className={`flex items-center justify-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all ${
-                          formData.address_type === type
-                            ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
-                            : 'border-gray-300 hover:border-gray-400'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="address_type"
-                          value={type}
-                          checked={formData.address_type === type}
-                          onChange={handleInputChange}
-                          className="sr-only"
-                        />
-                        {getAddressIcon(type)}
-                        <span className="font-medium capitalize">{type}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Street Address */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Street Address <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="street_address"
-                    value={formData.street_address}
+                  <input
+                    type="text"
+                    name="full_name"
+                    value={formData.full_name}
                     onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none"
-                    placeholder="House/Flat number, Building name, Street name"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    placeholder="John Doe"
                   />
-                  {errors.street_address && (
-                    <p className="text-sm text-red-600 mt-1">{errors.street_address}</p>
+                  {errors.full_name && (
+                    <p className="text-sm text-red-600 mt-1">{errors.full_name}</p>
                   )}
                 </div>
 
-                {/* City & State */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Address Line 1 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address Line 1 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="address_line_1"
+                    value={formData.address_line_1}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    placeholder="House/Flat number, Building name"
+                  />
+                  {errors.address_line_1 && (
+                    <p className="text-sm text-red-600 mt-1">{errors.address_line_1}</p>
+                  )}
+                </div>
+
+                {/* Address Line 2 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address Line 2
+                  </label>
+                  <input
+                    type="text"
+                    name="address_line_2"
+                    value={formData.address_line_2}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    placeholder="Area, Landmark"
+                  />
+                </div>
+
+                {/* Street */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Street
+                  </label>
+                  <input
+                    type="text"
+                    name="street"
+                    value={formData.street}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    placeholder="Street name"
+                  />
+                </div>
+
+                {/* City, State, District */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       City <span className="text-red-500">*</span>
@@ -305,7 +328,7 @@ export default function BuyerAddressesPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      State/Division <span className="text-red-500">*</span>
+                      State/Division
                     </label>
                     <input
                       type="text"
@@ -315,14 +338,25 @@ export default function BuyerAddressesPage() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       placeholder="Dhaka Division"
                     />
-                    {errors.state && (
-                      <p className="text-sm text-red-600 mt-1">{errors.state}</p>
-                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      District
+                    </label>
+                    <input
+                      type="text"
+                      name="district"
+                      value={formData.district}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      placeholder="Dhaka"
+                    />
                   </div>
                 </div>
 
-                {/* Postal Code & Country */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Postal Code, Country, Phone */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Postal Code <span className="text-red-500">*</span>
@@ -354,6 +388,20 @@ export default function BuyerAddressesPage() {
                     {errors.country && (
                       <p className="text-sm text-red-600 mt-1">{errors.country}</p>
                     )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      placeholder="01XXXXXXXXX"
+                    />
                   </div>
                 </div>
 
@@ -448,9 +496,11 @@ export default function BuyerAddressesPage() {
                       {/* Address Details */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <h3 className="font-semibold text-gray-900 capitalize">
-                            {address.address_type}
-                          </h3>
+                          {address.full_name && (
+                            <h3 className="font-semibold text-gray-900">
+                              {address.full_name}
+                            </h3>
+                          )}
                           {address.is_default && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
                               <Check className="w-3 h-3" />
@@ -461,6 +511,11 @@ export default function BuyerAddressesPage() {
                         <p className="text-gray-700 leading-relaxed">
                           {formatAddress(address)}
                         </p>
+                        {address.phone && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            Phone: {address.phone}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -474,7 +529,7 @@ export default function BuyerAddressesPage() {
                         <Edit className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(address.id, address.address_type)}
+                        onClick={() => handleDelete(address.id)}
                         disabled={isDeleting}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                         title="Delete address"
