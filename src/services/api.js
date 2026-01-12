@@ -3,7 +3,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL, API_TAGS, STORAGE_KEYS } from '../utils/constants';
 import { logError } from '../utils/errorHandler';
-import { updateToken, clearAuth } from '../features/auth/authSlice'
 
 /**
  * Base query configuration with authentication and error handling
@@ -112,10 +111,6 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         if (newRefreshToken) {
           localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
         }
-        api.dispatch(updateToken({ 
-          access_token: newToken, 
-          refresh_token: newRefreshToken || refreshToken 
-        }));
 
         console.log('✅ Token refreshed, retrying original request...');
         result = await baseQuery(args, api, extraOptions);
@@ -124,14 +119,18 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         console.error('❌ Token refresh failed - no new token received');
         console.error('❌ Refresh result data:', refreshResult.data);
         console.error('❌ Refresh result error:', refreshResult.error);
-        api.dispatch(clearAuth());
+        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.USER_DATA);
         window.location.href = userType === 'seller' ? '/seller/login' 
           : userType === 'admin' ? '/admin/login' 
           : '/buyer/login';
       }
     } else {
       console.error('❌ No refresh token available, redirecting to login');
-      api.dispatch(clearAuth());
+      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.USER_DATA);
       window.location.href = userType === 'seller' ? '/seller/login' 
         : userType === 'admin' ? '/admin/login' 
         : '/buyer/login';

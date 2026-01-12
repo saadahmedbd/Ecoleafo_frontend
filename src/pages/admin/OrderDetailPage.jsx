@@ -217,10 +217,16 @@ export default function OrderDetailPage() {
                       <MapPin className="text-[#568F87]" size={20} />
                       <h3 className="text-[#1A1A1A]">Shipping Address</h3>
                     </div>
-                    <div className="bg-[#FFF5F2] p-4 rounded-lg">
+                    <div className="bg-[#FFF5F2] p-4 rounded-lg space-y-3">
                       <p className="text-[#1A1A1A] whitespace-pre-wrap">
                         {order.shipping_address || 'N/A'}
                       </p>
+                      {order.shipping_phone_number && (
+                        <div className="flex items-center gap-2 pt-2 border-t border-[#E5E5E5]">
+                          <Phone className="text-[#568F87]" size={16} />
+                          <span className="text-[#1A1A1A] font-medium">{order.shipping_phone_number}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div>

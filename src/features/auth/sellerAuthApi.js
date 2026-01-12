@@ -7,7 +7,6 @@
 // ==========================================
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { updateToken, clearAuth } from '@/features/auth/authSlice';
 
 /**
  * Base query configuration with automatic token injection

@@ -1,7 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { buyerAuthApi } from './buyerAuthApi';
-import { sellerAuthApi } from './sellerAuthApi';
-import { adminAuthApi } from './adminAuthApi';
 
 const loadInitialState = () => {
   try {
@@ -166,7 +163,7 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     // Buyer Registration
     builder.addMatcher(
-      buyerAuthApi.endpoints.register.matchFulfilled,
+      (action) => action.type === 'buyerAuthApi/executeMutation/fulfilled' && action.meta?.arg?.endpointName === 'register',
       (state, action) => {
         const { token, refresh_token, user } = action.payload; 
         
@@ -188,7 +185,7 @@ const authSlice = createSlice({
 
     // Buyer Login
     builder.addMatcher(
-      buyerAuthApi.endpoints.login.matchFulfilled,
+      (action) => action.type === 'buyerAuthApi/executeMutation/fulfilled' && action.meta?.arg?.endpointName === 'login',
       (state, action) => {
         const { token, refresh_token, user, rememberMe } = action.payload;
         
@@ -215,7 +212,7 @@ const authSlice = createSlice({
 
     // Seller Registration
     builder.addMatcher(
-      sellerAuthApi.endpoints.registerSeller.matchFulfilled,
+      (action) => action.type === 'sellerAuthApi/executeMutation/fulfilled' && action.meta?.arg?.endpointName === 'registerSeller',
       (state, action) => {
         const { token, refresh_token, user_id, seller_id, profile_status } = action.payload;
         
@@ -242,7 +239,7 @@ const authSlice = createSlice({
 
     // Seller Login
     builder.addMatcher(
-      sellerAuthApi.endpoints.loginSeller.matchFulfilled,
+      (action) => action.type === 'sellerAuthApi/executeMutation/fulfilled' && action.meta?.arg?.endpointName === 'loginSeller',
       (state, action) => {
         const { token, refresh_token, user, profile_status } = action.payload;
         
@@ -264,7 +261,7 @@ const authSlice = createSlice({
     );
      // Admin Login
     builder.addMatcher(
-      adminAuthApi.endpoints.adminLogin.matchFulfilled,
+      (action) => action.type === 'adminAuthApi/executeMutation/fulfilled' && action.meta?.arg?.endpointName === 'adminLogin',
       (state, action) => {
         const { token, refresh_token, user } = action.payload;
         
@@ -286,7 +283,7 @@ const authSlice = createSlice({
 
     // Admin Registration
     builder.addMatcher(
-      adminAuthApi.endpoints.registerAdmin.matchFulfilled,
+      (action) => action.type === 'adminAuthApi/executeMutation/fulfilled' && action.meta?.arg?.endpointName === 'registerAdmin',
       (state, action) => {
         const { token, refresh_token, user } = action.payload;
         
@@ -309,9 +306,9 @@ const authSlice = createSlice({
     // Logout
     builder.addMatcher(
       (action) => 
-        action.type === buyerAuthApi.endpoints.logout.matchFulfilled.type ||
-        action.type === sellerAuthApi.endpoints.logoutSeller.matchFulfilled.type ||
-        action.type === adminAuthApi.endpoints.adminLogout.matchFulfilled.type,
+        (action.type.includes('buyerAuthApi') && action.type.includes('logout') && action.type.includes('fulfilled')) ||
+        (action.type.includes('sellerAuthApi') && action.type.includes('logoutSeller') && action.type.includes('fulfilled')) ||
+        (action.type.includes('adminAuthApi') && action.type.includes('adminLogout') && action.type.includes('fulfilled')),
       (state) => {
         state.isAuthenticated = false;
         state.token = null;

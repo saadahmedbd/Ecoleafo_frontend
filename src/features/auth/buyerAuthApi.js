@@ -1,6 +1,5 @@
 import { api } from '@/services/api';
 import { API_TAGS } from '@/utils/constants';
-import { clearAuth } from './authSlice';
 
 export const buyerAuthApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -243,7 +242,6 @@ export const buyerAuthApi = api.injectEndpoints({
           localStorage.removeItem('remember_me');
           
           console.log('✅ Local storage cleared');
-          dispatch(clearAuth());
         }
       },
 

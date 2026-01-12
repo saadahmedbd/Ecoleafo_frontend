@@ -165,8 +165,21 @@ export default function SellerOrderDetails() {
                 <MapPin className="w-5 h-5 text-[#FF9900]" />
                 Shipping Address
               </h3>
-              <div className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-100">
-                <p className="text-gray-700 leading-relaxed">{order.shipping_address}</p>
+              <div className="space-y-3">
+                <div className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-100">
+                  <p className="text-gray-700 leading-relaxed">{order.shipping_address}</p>
+                </div>
+                {order.shipping_phone_number && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Shipping Phone</p>
+                      <p className="font-medium text-gray-900">{order.shipping_phone_number}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
