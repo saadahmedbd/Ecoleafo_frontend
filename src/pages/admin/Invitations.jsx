@@ -16,7 +16,7 @@ import {
   useGetPendingInvitationsQuery,
   useCreateInvitationMutation,
   useCancelInvitationMutation,
-} from '@/features/admin/adminApi';
+} from '@/features/Admin/adminAPI';
 
 export default function AdminInvitationsPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);

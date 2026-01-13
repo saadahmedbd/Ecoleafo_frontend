@@ -14,7 +14,7 @@ import {
 import {
   useGetAdminProfileQuery,
   useUpdateAdminMutation,
-} from '@/features/admin/adminApi';
+} from '@/features/Admin/adminAPI';
 
 export default function AdminProfilePage() {
   const { data: profile, isLoading, error } = useGetAdminProfileQuery();
