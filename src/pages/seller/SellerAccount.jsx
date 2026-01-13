@@ -16,7 +16,7 @@ import {
   Eye, EyeOff, AlertTriangle, CheckCircle
 } from 'lucide-react';
 import SellerProfileService from '@/services/SellerProfileService';
-import SellerAuthService from '@/services/sellerAuthService';
+import SellerAuthService from '@/services/SellerAuthService';
 
 export default function SellerAccount() {
   const navigate = useNavigate();

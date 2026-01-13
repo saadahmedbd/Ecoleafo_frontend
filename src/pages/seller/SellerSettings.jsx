@@ -12,8 +12,8 @@ import {
   Store, FileText, Shield, Bell, Upload, Save, Globe, MapPin,
   Phone, Mail, AlertTriangle, CheckCircle
 } from 'lucide-react';
-import SellerProfileService from '@/services/sellerProfileService';
-import SellerAuthService from '@/services/sellerAuthService';
+import SellerProfileService from '@/services/SellerProfileService';
+import SellerAuthService from '@/services/SellerAuthService';
 
 export default function SellerSettings() {
   const [activeTab, setActiveTab] = useState('store');
