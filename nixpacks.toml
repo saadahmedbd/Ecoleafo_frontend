@@ -8,4 +8,4 @@ cmds = ["npm install --legacy-peer-deps"]
 cmds = ["npm run build"]
 
 [start]
-cmd = "npx serve dist -s -n -p $PORT"
+cmd = "npx serve dist -s -n --listen tcp://0.0.0.0:$PORT"
