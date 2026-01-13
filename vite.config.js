@@ -42,7 +42,7 @@ export default defineConfig({
   // Build configuration
   build: {
     outDir: 'dist',
-    sourcemap: true, // Enable source maps for debugging
+    sourcemap: false, // Disable in production
     
     // Chunk splitting for better caching
     rollupOptions: {
