@@ -19,7 +19,7 @@ import {
   useUpdateStockMutation,
   useExportInventoryMutation,
 } from "@/features/seller_inventory/InventoryApi";
-import dashboardService from "@/services/dashboardService";
+import dashboardService from "@/services/DashboardService";
 
 export default function SellerInventory() {
   const [searchQuery, setSearchQuery] = useState("");

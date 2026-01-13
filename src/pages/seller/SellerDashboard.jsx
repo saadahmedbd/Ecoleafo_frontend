@@ -33,7 +33,7 @@ import {
   useGetPendingActionsQuery,
   useGetRecentOrdersQuery,
 } from "@/features/seller_dashboard/dashboardApi";
-import dashboardService from "@/services/dashboardService";
+import dashboardService from "@/services/DashboardService";
 
 export default function SellerDashboard() {
   const navigate = useNavigate();
