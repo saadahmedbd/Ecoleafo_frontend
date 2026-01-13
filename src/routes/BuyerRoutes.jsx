@@ -17,7 +17,7 @@ import HomePage from '@/pages/public/HomePage';
 import Cart from '../pages/buyer/Cart';
 import Wishlist from '../pages/buyer/Wishlist';
 import AccountPage from '../pages/buyer/AccountPage';
-import BuyerProfilePage from '../pages/buyer/BuyerProfilepage';
+import BuyerProfilePage from '../pages/buyer/BuyerProfilePage';
 import BuyerPasswordPage from '../pages/buyer/BuyerPasswordPage';
 import BuyerAddressesPage from '../pages/buyer/BuyerAddressesPage';
 import CheckoutPage from '../pages/buyer/CheckoutPage';
