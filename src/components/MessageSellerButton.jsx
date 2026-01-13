@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useCreateConversationMutation } from '@/features/messaging/messagingApi';
+import { useCreateConversationMutation } from '@/features/Messaging/messagingApi';
 import { useAppSelector } from '@/app/hooks';
 import { selectIsAuthenticated, selectUserRole } from '@/features/auth/authSlice';
 

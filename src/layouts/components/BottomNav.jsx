@@ -2,7 +2,7 @@ import React from 'react';
 import { Home, Package, MessageCircle, ShoppingCart, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
-import { useGetUnreadCountQuery } from '@/features/messaging/messagingApi';
+import { useGetUnreadCountQuery } from '@/features/Messaging/messagingApi';
 
 export default function BottomNav() {
   const navigate = useNavigate();
