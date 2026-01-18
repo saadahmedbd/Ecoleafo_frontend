@@ -24,6 +24,7 @@ const publicRoutes = {
     { path: 'search', element: <SearchPage /> },
     { path: 'products/:id', element: <ProductDetails /> },
     { path: 'auth/callback', element: <GoogleCallback /> },
+    { path: 'auth/google/callback', element: <GoogleCallback /> },
     { path: 'buyer/login', element: <Login /> },
     { path: 'about', element: <AboutUs /> },
     { path: 'contact', element: <Contact /> },
