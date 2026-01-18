@@ -17,7 +17,7 @@ export default function LoginPage({
   
   const handleGoogleAuth = () => {
     setIsLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
     window.location.href = `${apiUrl}/auth/google/login?role=buyer`;
   };
   
