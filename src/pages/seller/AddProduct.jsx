@@ -27,6 +27,9 @@ export default function AddProduct() {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // Extract categories array from response
+  const categories = categoriesData?.data || categoriesData || [];
+
   // Form state
   const [formData, setFormData] = useState({
     name: "",
@@ -414,7 +417,7 @@ export default function AddProduct() {
                     required
                   >
                     <option value="">{categoriesLoading ? "Loading categories..." : "Select a category"}</option>
-                    {categoriesData?.data?.map((cat) => (
+                    {Array.isArray(categories) && categories.map((cat) => (
                       <option key={cat.category_id} value={cat.category_id}>
                         {cat.name}
                       </option>
