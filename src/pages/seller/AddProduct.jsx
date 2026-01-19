@@ -16,22 +16,12 @@ import {
   uploadMultipleImagesToCloudinary,
   validateProductData,
 } from "@/services/NewsellerProductService";
-
-// Mock categories - Replace with actual API call
-const CATEGORIES = [
-  { id: 1, name: "Oak Trees" },
-  { id: 2, name: "Pine Trees" },
-  { id: 3, name: "Cherry Trees" },
-  { id: 4, name: "Maple Trees" },
-  { id: 5, name: "Palm Trees" },
-  { id: 6, name: "Bonsai Trees" },
-  { id: 7, name: "Fruit Trees" },
-  { id: 8, name: "Flowering Trees" },
-];
+import { useGetSellerCategoriesQuery } from "@/features/categories/categoriesApi";
 
 export default function AddProduct() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const { data: categoriesData, isLoading: categoriesLoading } = useGetSellerCategoriesQuery();
 
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -420,12 +410,12 @@ export default function AddProduct() {
                     className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900] ${
                       errors.category_id ? "border-red-300 bg-red-50" : "border-gray-200"
                     }`}
-                    disabled={loading}
+                    disabled={loading || categoriesLoading}
                     required
                   >
-                    <option value="">Select a category</option>
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
+                    <option value="">{categoriesLoading ? "Loading categories..." : "Select a category"}</option>
+                    {categoriesData?.data?.map((cat) => (
+                      <option key={cat.category_id} value={cat.category_id}>
                         {cat.name}
                       </option>
                     ))}
