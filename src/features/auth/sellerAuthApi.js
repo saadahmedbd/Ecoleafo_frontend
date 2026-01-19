@@ -28,7 +28,6 @@ const baseQuery = fetchBaseQuery({
     
     return headers;
   },
-  credentials: 'include',
 });
 
 /**
@@ -281,3 +280,7 @@ export const {
   useSetDefaultPaymentMethodMutation,
   useLogoutSellerMutation,
 } = sellerAuthApi;
+
+// Alias for hook compatibility
+export const useCompleteSellerProfileMutation = useCompleteProfileMutation;
+export const useAddSellerPaymentMethodMutation = useAddPaymentMethodMutation;
