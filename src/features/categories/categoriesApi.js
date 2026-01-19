@@ -77,6 +77,12 @@ export const categoriesApi = createApi({
         { type: 'Categories', id: `PRODUCTS_${id}` },
       ],
     }),
+
+    // Get all categories for sellers (includes inactive)
+    getSellerCategories: builder.query({
+      query: () => '/categories/seller',
+      providesTags: [{ type: 'Categories', id: 'SELLER' }],
+    }),
   }),
 });
 
@@ -90,4 +96,5 @@ export const {
   useGetCategoryTreeQuery,
   useGetCategoryBreadcrumbQuery,
   useGetCategoryProductsQuery,
+  useGetSellerCategoriesQuery,
 } = categoriesApi;
