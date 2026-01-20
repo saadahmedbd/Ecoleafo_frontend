@@ -3,9 +3,6 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-console.log('API_BASE_URL:', API_BASE_URL);
-console.log('Auth Token:', localStorage.getItem('auth_token') ? 'Present' : 'Missing');
-
 export const dashboardApi = createApi({
   reducerPath: 'dashboardApi',
   baseQuery: fetchBaseQuery({
@@ -13,7 +10,6 @@ export const dashboardApi = createApi({
     timeout: 10000,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('auth_token');
-      console.log('Dashboard API - Token:', token ? 'Present' : 'Missing');
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
@@ -24,17 +20,10 @@ export const dashboardApi = createApi({
   endpoints: (builder) => ({
     // Get seller statistics
     getSellerStatistics: builder.query({
-      query: () => {
-        console.log('Calling /seller/statistics');
-        return '/seller/statistics';
-      },
+      query: () => '/seller/statistics',
       providesTags: ['Statistics'],
-      transformResponse: (response) => {
-        console.log('Statistics API Response:', response);
-        return response?.data || response;
-      },
+      transformResponse: (response) => response?.data || response,
       transformErrorResponse: (response) => {
-        console.error('Statistics API Error - endpoint may not exist:', response);
         // Return mock data if endpoint doesn't exist
         return {
           total_sales: 76050,

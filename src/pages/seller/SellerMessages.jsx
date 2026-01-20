@@ -31,20 +31,6 @@ export default function SellerMessages() {
     refetchOnMountOrArgChange: true,
   });
 
-  // Debug: Check what we're getting
-  useEffect(() => {
-    console.log('=== SELLER MESSAGES DEBUG ===');
-    console.log('Auth Token:', localStorage.getItem('auth_token'));
-    const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
-    console.log('User Data:', userData);
-    console.log('User Type:', userData.userType);
-    console.log('Conversations Loading:', conversationsLoading);
-    console.log('Conversations Error:', conversationsError);
-    console.log('Conversations Data:', conversationsData);
-    console.log('Conversations Count:', conversationsData?.conversations?.length || 0);
-    console.log('============================');
-  }, [conversationsData, conversationsLoading, conversationsError]);
-
   const { data: messagesData, isLoading: messagesLoading, error: messagesError } = useGetMessagesQuery(
     {
       conversationId: selectedConversation?.id,
@@ -156,25 +142,6 @@ export default function SellerMessages() {
               </div>
               <p className="text-gray-500">No conversations yet</p>
               <p className="text-sm text-gray-400 mt-1">Buyers will message you here</p>
-              {conversationsData && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-xs font-bold text-red-800 mb-2">
-                    🐛 BACKEND BUG DETECTED
-                  </p>
-                  <p className="text-xs text-red-700 mb-2">
-                    The backend is using wrong ID to query seller conversations.
-                  </p>
-                  <ul className="text-xs text-red-700 text-left list-disc list-inside space-y-1">
-                    <li>Seller user_id: 128 (from JWT)</li>
-                    <li>Seller role_id: 62 (seller_id from JWT)</li>
-                    <li>Backend should use role_id (62) for sellers</li>
-                    <li>Backend currently uses user_id (128) ❌</li>
-                  </ul>
-                  <p className="text-xs text-red-800 mt-2 font-semibold">
-                    Fix: Backend /conversations endpoint must check user role and use role_id for sellers.
-                  </p>
-                </div>
-              )}
             </div>
           ) : (
             filteredConversations.map((conv) => (
