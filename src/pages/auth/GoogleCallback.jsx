@@ -13,59 +13,10 @@ export default function OAuthCallback() {
     const handleOAuth = async () => {
       const error = searchParams.get('error');
       const data = searchParams.get('data');
-      const code = searchParams.get('code');
-      const state = searchParams.get('state');
 
       if (error) {
         setError(decodeURIComponent(error));
         setTimeout(() => navigate('/buyer/login'), 3000);
-      } else if (code) {
-        try {
-          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-          
-          const response = await fetch(`${API_BASE_URL}/auth/google/callback`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, state }),
-          });
-
-          if (!response.ok) throw new Error(`Token exchange failed: ${response.status}`);
-
-          const result = await response.json();
-          const tokenData = result.data || result;
-          
-          const userData = {
-            userType: tokenData.user_type,
-            firstName: tokenData.first_name,
-            lastName: tokenData.last_name,
-            email: tokenData.email,
-            roles: tokenData.roles,
-            fullName: `${tokenData.first_name} ${tokenData.last_name}`,
-          };
-          
-          localStorage.setItem('auth_token', tokenData.access_token);
-          localStorage.setItem('refresh_token', tokenData.refresh_token);
-          localStorage.setItem('user_data', JSON.stringify(userData));
-          
-          dispatch(setCredentials({
-            token: tokenData.access_token,
-            refresh_token: tokenData.refresh_token,
-            user: userData,
-            rememberMe: false,
-          }));
-          
-          const { initTokenRefresh } = await import('@/utils/tokenRefresh');
-          initTokenRefresh();
-
-          if (tokenData.user_type === 'seller' && tokenData.needs_profile) {
-            navigate('/seller/complete-profile');
-          } else {
-            navigate('/');
-          }
-        } catch (err) {
-          setError(`Failed to complete authentication: ${err.message}`);
-          setTimeout(() => navigate('/buyer/login'), 3000);
-        }
       } else if (data) {
         try {
           const response = JSON.parse(atob(data));
