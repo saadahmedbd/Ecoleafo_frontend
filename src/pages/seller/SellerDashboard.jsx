@@ -50,7 +50,8 @@ export default function SellerDashboard() {
           console.error('No auth token found');
           return;
         }
-        const response = await fetch('http://localhost:3000/api/seller/statistics', {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+        const response = await fetch(`${API_BASE_URL}/seller/statistics`, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -73,7 +74,8 @@ export default function SellerDashboard() {
       try {
         const token = localStorage.getItem('auth_token');
         if (!token) return;
-        const response = await fetch(`http://localhost:3000/api/seller/analytics/sales?period=${chartView}`, {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+        const response = await fetch(`${API_BASE_URL}/seller/analytics/sales?period=${chartView}`, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -94,7 +96,8 @@ export default function SellerDashboard() {
       try {
         const token = localStorage.getItem('auth_token');
         if (!token) return;
-        const response = await fetch('http://localhost:3000/api/seller/analytics/orders/distribution', {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+        const response = await fetch(`${API_BASE_URL}/seller/analytics/orders/distribution`, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

@@ -13,7 +13,8 @@ export default function SellerOrderDetails() {
     const fetchOrder = async () => {
       try {
         const token = localStorage.getItem('auth_token');
-        const response = await fetch(`http://localhost:3000/api/seller/dashboard/orders/${id}`, {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+        const response = await fetch(`${API_BASE_URL}/seller/dashboard/orders/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         const data = await response.json();
@@ -30,7 +31,8 @@ export default function SellerOrderDetails() {
   const updateStatus = async (newStatus) => {
     try {
       const token = localStorage.getItem('auth_token');
-      await fetch(`http://localhost:3000/api/seller/orders/${id}/status`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+      await fetch(`${API_BASE_URL}/seller/orders/${id}/status`, {
         method: 'PUT',
         headers: { 
           'Authorization': `Bearer ${token}`,
