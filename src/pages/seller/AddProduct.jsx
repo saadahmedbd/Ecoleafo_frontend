@@ -21,14 +21,20 @@ import { useGetSellerCategoriesQuery } from "@/features/categories/categoriesApi
 export default function AddProduct() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const { data: categoriesData, isLoading: categoriesLoading } = useGetSellerCategoriesQuery();
+  const { data: categoriesData, isLoading: categoriesLoading, error: categoriesError } = useGetSellerCategoriesQuery();
 
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [errors, setErrors] = useState({});
 
   // Extract categories array from response
-  const categories = categoriesData?.data || categoriesData || [];
+  const categories = categoriesData || [];
+
+  // Debug logging
+  console.log('Categories Data:', categoriesData);
+  console.log('Categories Array:', categories);
+  console.log('Categories Loading:', categoriesLoading);
+  console.log('Categories Error:', categoriesError);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -418,7 +424,7 @@ export default function AddProduct() {
                   >
                     <option value="">{categoriesLoading ? "Loading categories..." : "Select a category"}</option>
                     {Array.isArray(categories) && categories.map((cat) => (
-                      <option key={cat.category_id} value={cat.category_id}>
+                      <option key={cat.id} value={cat.id}>
                         {cat.name}
                       </option>
                     ))}

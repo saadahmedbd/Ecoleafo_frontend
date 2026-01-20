@@ -17,23 +17,13 @@ import {
   deleteProductImage,
   uploadImageToCloudinary,
 } from "@/services/NewsellerProductService";
-
-// Mock categories
-const CATEGORIES = [
-  { id: 1, name: "Oak Trees" },
-  { id: 2, name: "Pine Trees" },
-  { id: 3, name: "Cherry Trees" },
-  { id: 4, name: "Maple Trees" },
-  { id: 5, name: "Palm Trees" },
-  { id: 6, name: "Bonsai Trees" },
-  { id: 7, name: "Fruit Trees" },
-  { id: 8, name: "Flowering Trees" },
-];
+import { useGetSellerCategoriesQuery } from "@/features/categories/categoriesApi";
 
 export default function EditProduct() {
   const { productId } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const { data: categories = [], isLoading: categoriesLoading } = useGetSellerCategoriesQuery();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -562,11 +552,15 @@ export default function EditProduct() {
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900] bg-gray-50"
                     disabled
                   >
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
+                    {categoriesLoading ? (
+                      <option>Loading...</option>
+                    ) : (
+                      categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                   <p className="text-xs text-gray-500 mt-1">Category cannot be changed</p>
                 </div>
