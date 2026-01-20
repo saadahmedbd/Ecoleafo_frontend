@@ -17,8 +17,10 @@ export default function LoginPage({
   
   const handleGoogleAuth = () => {
     setIsLoading(true);
-    const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
-    window.location.href = `${apiUrl}/auth/google/login?role=buyer`;
+    // Get base URL without /api suffix
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+    const baseUrl = apiBaseUrl.replace(/\/api$/, '');
+    window.location.href = `${baseUrl}/auth/google/login?role=buyer`;
   };
   
   const handleGuestContinue = () => {

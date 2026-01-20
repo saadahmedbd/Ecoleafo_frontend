@@ -17,7 +17,7 @@ export default function OAuthCallback() {
       if (error) {
         setError(decodeURIComponent(error));
         setTimeout(() => {
-          navigate('/login');
+          navigate('/buyer/login');
         }, 3000);
       } else if (data) {
         try {
@@ -55,16 +55,15 @@ export default function OAuthCallback() {
             navigate('/');
           }
         } catch (err) {
-          console.error('Failed to parse OAuth response:', err);
           setError('Failed to process authentication');
           setTimeout(() => {
-            navigate('/login');
+            navigate('/buyer/login');
           }, 3000);
         }
       } else {
         setError('Invalid authentication response');
         setTimeout(() => {
-          navigate('/login');
+          navigate('/buyer/login');
         }, 3000);
       }
     };
