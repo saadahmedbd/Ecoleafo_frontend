@@ -1,5 +1,5 @@
-
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useAddToCartMutation,
   useRemoveFromCartMutation,
@@ -12,6 +12,7 @@ import {
 } from '@/features/cart/cartApi';
 
 export const useCart = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const [addToCartMutation] = useAddToCartMutation();
@@ -29,6 +30,17 @@ export const useCart = () => {
   const cartItems = cart?.items || [];
 
   const addToCart = async (product, quantity = 1) => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      navigate('/buyer/login');
+      return {
+        success: false,
+        error: 'Please login to add items to cart',
+        unauthorized: true
+      };
+    }
+
     setIsLoading(true);
     try {
       // Check if product already in cart
@@ -59,6 +71,14 @@ export const useCart = () => {
       };
     } catch (error) {
       console.error('Add to cart error:', error);
+      if (error?.status === 401) {
+        navigate('/buyer/login');
+        return {
+          success: false,
+          error: 'Please login to add items to cart',
+          unauthorized: true
+        };
+      }
       return {
         success: false,
         error: error?.data?.message || error?.message || 'Failed to add to cart'

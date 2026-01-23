@@ -1,5 +1,6 @@
 // src/hooks/useWishlist.js - FIXED WITH PROPER API INTEGRATION
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useAddToWishlistMutation,
   useRemoveFromWishlistMutation,
@@ -9,6 +10,7 @@ import {
 } from '@/features/wishlist/wishlistApi';
 
 export const useWishlist = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const [addToWishlistMutation] = useAddToWishlistMutation();
@@ -28,10 +30,22 @@ export const useWishlist = () => {
   // If no token, return empty wishlist
   if (!token) {
     return {
-      addToWishlist: async () => ({ success: false, error: 'Please login to add items to wishlist' }),
-      removeFromWishlist: async () => ({ success: false, error: 'Please login to remove items from wishlist' }),
-      toggleWishlist: async () => ({ success: false, error: 'Please login to toggle wishlist items' }),
-      moveToCart: async () => ({ success: false, error: 'Please login to move items to cart' }),
+      addToWishlist: async () => {
+        navigate('/buyer/login');
+        return { success: false, error: 'Please login to add items to wishlist', unauthorized: true };
+      },
+      removeFromWishlist: async () => {
+        navigate('/buyer/login');
+        return { success: false, error: 'Please login to remove items from wishlist', unauthorized: true };
+      },
+      toggleWishlist: async () => {
+        navigate('/buyer/login');
+        return { success: false, error: 'Please login to toggle wishlist items', unauthorized: true };
+      },
+      moveToCart: async () => {
+        navigate('/buyer/login');
+        return { success: false, error: 'Please login to move items to cart', unauthorized: true };
+      },
       isInWishlist: () => false,
       wishlistCount: 0,
       wishlist: [],

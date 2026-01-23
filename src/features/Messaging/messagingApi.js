@@ -1,11 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = BASE_URL.replace('/api', '');
 
 export const messagingApi = createApi({
   reducerPath: 'messagingApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: `${BASE_URL}/v1/messaging`,
+    baseUrl: `${API_BASE_URL}/v1/messaging`,
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.token || localStorage.getItem('auth_token');
       if (token) {
@@ -32,11 +33,6 @@ export const messagingApi = createApi({
       },
       providesTags: ['Conversations'],
       transformResponse: (response) => {
-        console.log('=== CONVERSATIONS API RESPONSE ===');
-        console.log('Response:', response);
-        console.log('Conversations:', response.data?.conversations);
-        console.log('Count:', response.data?.conversations?.length || 0);
-        console.log('=================================');
         return response.data;
       },
     }),

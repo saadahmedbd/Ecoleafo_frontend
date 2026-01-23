@@ -30,11 +30,6 @@ export default function ProductDetails() {
   const { data: reviewsData, isLoading: reviewsLoading } = useGetProductReviewsQuery({ product_id: id, page: 1, per_page: 10 });
   const { data: eligibilityData } = useCheckReviewEligibilityQuery({ product_id: id }, { skip: !id });
   const [createReview, { isLoading: creatingReview }] = useCreateReviewMutation();
-
-  console.log('Full API Response:', productData);
-  console.log('productData.data:', productData?.data);
-  console.log('productData.product:', productData?.product);
-  console.log('Product ID:', id);
   
   // Try different response structures
   const product = productData?.data?.product || productData?.data || productData?.product || productData;
@@ -150,9 +145,6 @@ export default function ProductDetails() {
   // Reviews data from API - handle nested data structure
   const reviewsList = reviewsData?.data?.data?.reviews || reviewsData?.data?.reviews || [];
   const reviewsPagination = reviewsData?.data?.data?.pagination || {};
-  
-  console.log('Reviews List:', reviewsList);
-  console.log('Sample Review:', reviewsList[0]);
   
   const reviews = {
     average: product?.average_rating || 0,
@@ -379,14 +371,14 @@ export default function ProductDetails() {
                 <Package className="w-4 h-4 text-[#16a34a]" />
                 <span className="text-xs font-semibold text-gray-500">Height</span>
               </div>
-              <p className="text-sm font-bold text-gray-900">{product.height || 'N/A'}</p>
+              <p className="text-sm font-bold text-gray-900">{product.height || 'N/A'} feet</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
               <div className="flex items-center gap-2 mb-1">
                 <Clock className="w-4 h-4 text-[#16a34a]" />
                 <span className="text-xs font-semibold text-gray-500">Age</span>
               </div>
-              <p className="text-sm font-bold text-gray-900">{product.age || 'N/A'}</p>
+              <p className="text-sm font-bold text-gray-900">{product.age || 'N/A'} days</p>
             </div>
           </div>
 
@@ -492,8 +484,9 @@ export default function ProductDetails() {
                   ['SKU', product.sku],
                   ['Category', product.category?.name],
                   ['Tree Type', product.tree_type],
-                  ['Height', product.height],
-                  ['Age', product.age],
+                  ['Height', product.height ? `${product.height} feet` : null],
+                  ['Age', product.age ? `${product.age} days` : null],
+                  ['Weight', product.weight ? `${product.weight} kg` : null],
                 ].map(([label, value]) => value && (
                   <div key={label} className="flex justify-between py-2.5 border-b border-gray-100">
                     <span className="text-sm text-gray-600">{label}</span>
@@ -764,7 +757,7 @@ export default function ProductDetails() {
                 <div key={label} className="bg-white rounded-xl p-4 border border-gray-200">
                   <Icon className="w-5 h-5 text-[#16a34a] mb-2" />
                   <p className="text-xs text-gray-500 mb-1">{label}</p>
-                  <p className="text-sm font-bold text-gray-900">{value}</p>
+                  <p className="text-sm font-bold text-gray-900">{value} </p>
                 </div>
               ))}
             </div>
@@ -961,8 +954,9 @@ export default function ProductDetails() {
                     ['SKU', product.sku],
                     ['Category', product.category?.name],
                     ['Tree Type', product.tree_type],
-                    ['Height', product.height],
-                    ['Age', product.age],
+                    ['Height', product.height ? `${product.height} feet` : null],
+                    ['Age', product.age ? `${product.age} days` : null],
+                    ['Weight', product.weight ? `${product.weight} kg` : null],
                     ['Stock Quantity', product.quantity],
                     ['Seller', product.seller?.store_name],
                   ].map(([label, value]) => value && (

@@ -43,18 +43,6 @@ export default function Messages() {
     refetchOnMountOrArgChange: true,
   });
 
-  // Debug: Check what we're getting
-  useEffect(() => {
-    console.log('=== BUYER MESSAGES DEBUG ===');
-    console.log('Auth Token:', localStorage.getItem('auth_token'));
-    console.log('User Data:', JSON.parse(localStorage.getItem('user_data') || '{}'));
-    console.log('Conversations Loading:', conversationsLoading);
-    console.log('Conversations Error:', conversationsError);
-    console.log('Conversations Data:', conversationsData);
-    console.log('Conversations Count:', conversationsData?.conversations?.length || 0);
-    console.log('===========================');
-  }, [conversationsData, conversationsLoading, conversationsError]);
-
   const { data: messagesData, isLoading: messagesLoading, refetch: refetchMessages } = useGetMessagesQuery(
     {
       conversationId: selectedConversation?.id,
@@ -123,7 +111,6 @@ export default function Messages() {
     try {
       // If no conversation ID (new conversation), create it first
       if (!selectedConversation?.id && sellerId && productId) {
-        console.log('Creating conversation with seller_id:', sellerId, 'product_id:', productId);
         const result = await createConversation({
           recipient_id: parseInt(sellerId),
           recipient_type: 'seller',
@@ -132,7 +119,6 @@ export default function Messages() {
           initial_message: messageText.trim(),
         }).unwrap();
         
-        console.log('Conversation created:', result);
         setSelectedConversation(result);
         setSearchParams({ conversation: result.id });
         setMessageText('');
