@@ -37,7 +37,7 @@ export default function QuickCategories({ limit = 8, onViewAll }) {
         {categories.map((category) => (
           <button
             key={category.id}
-            onClick={() => navigate(`/buyer/category/${category.slug}`)}
+            onClick={() => navigate(`/category/${category.slug}`)}
             className="bg-white p-3 rounded-xl border border-gray-200 flex flex-col items-center gap-2 hover:border-green-600 hover:shadow-md transition-all active:scale-95"
           >
             {category.image ? (

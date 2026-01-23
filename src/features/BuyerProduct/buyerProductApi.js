@@ -19,11 +19,12 @@ export const buyerProductApi = createApi({
   endpoints: (builder) => ({
     // Get all products with filters
     getProducts: builder.query({
-      query: ({ page = 1, limit = 20, category, min_price, max_price, sort } = {}) => {
+      query: ({ page = 1, limit = 20, category, category_id, min_price, max_price, sort } = {}) => {
         const params = new URLSearchParams();
         params.append('page', page);
         params.append('limit', limit);
-        if (category) params.append('category', category);
+        if (category_id) params.append('category_id', category_id);
+        if (category) params.append('category_id', category);
         if (min_price) params.append('min_price', min_price);
         if (max_price) params.append('max_price', max_price);
         if (sort) params.append('sort', sort);

@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import BottomNav from './components/BottomNav';
 import DesktopHeader from './components/DesktopHeader';
+import MobileHeader from './components/MobileHeader';
 import CategoryNav from './components/CategoryNav';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
+import { useGetWishlistCountQuery } from '@/features/wishlist/wishlistApi';
 
 export function BuyerLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: cartCountData } = useGetCartCountQuery();
+  const { data: wishlistCountData } = useGetWishlistCountQuery();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -58,7 +61,16 @@ export function BuyerLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {!isMobile && <DesktopHeader />}
+      {isMobile ? (
+        <MobileHeader 
+          cartCount={cartCountData?.count || 0}
+          wishlistCount={wishlistCountData?.count || 0}
+          onCartClick={() => navigate('/buyer/cart')}
+          onWishlistClick={() => navigate('/buyer/wishlist')}
+        />
+      ) : (
+        <DesktopHeader />
+      )}
       {showCategoryNav && <CategoryNav />}
       <main className={`flex-1 ${showBottomNav ? 'pb-20' : ''}`}>
         <Outlet />

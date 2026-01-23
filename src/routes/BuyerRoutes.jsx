@@ -24,8 +24,6 @@ import CheckoutPage from '../pages/buyer/CheckoutPage';
 import Orders from '../pages/buyer/Orders'
 import MyOrders from '../pages/buyer/MyOrders'
 import Messages from '../pages/buyer/Messages'
-import CategoriesPage from '../pages/buyer/CategoriesPage'
-import CategoryProductsPage from '../pages/buyer/CategoryProductsPage'
 
 const buyerRoutes = [
     {
@@ -79,8 +77,6 @@ const buyerRoutes = [
             { path: 'orders/:orderId/review', element: <CreateReview /> },
             { path: 'orders', element: <MyOrders /> },
             { path: 'messages', element: <Messages /> },
-            { path: 'categories', element: <CategoriesPage /> },
-            { path: 'category/:slug', element: <CategoryProductsPage /> },
 
             {
                 path: 'reviews',

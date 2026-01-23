@@ -185,7 +185,7 @@ export default function Homepage() {
   };
 
   const handleCategoryClick = (category) => {
-    navigate(`/buyer/category/${category.slug}`);
+    navigate(`/category/${category.slug}`);
   };
 
   if (productsLoading || categoriesLoading) {
@@ -284,7 +284,7 @@ export default function Homepage() {
         <div className="px-4 mb-6">
           <QuickCategories 
             limit={8} 
-            onViewAll={() => navigate('/buyer/categories')} 
+            onViewAll={() => navigate('/categories')} 
           />
         </div>
 
@@ -461,7 +461,7 @@ export default function Homepage() {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-800">Shop by Category</h3>
               <button 
-                onClick={() => navigate('/buyer/categories')}
+                onClick={() => navigate('/categories')}
                 className="text-green-600 font-medium flex items-center gap-1 hover:text-green-700"
               >
                 View All <ChevronRight className="w-5 h-5" />

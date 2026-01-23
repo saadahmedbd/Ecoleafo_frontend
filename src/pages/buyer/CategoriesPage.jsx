@@ -102,7 +102,7 @@ export default function CategoriesPage() {
 function CategoryCard({ category, navigate }) {
   return (
     <button
-      onClick={() => navigate(`/buyer/category/${category.slug}`)}
+      onClick={() => navigate(`/category/${category.slug}`)}
       className="bg-white rounded-xl p-6 border border-gray-200 hover:border-green-600 hover:shadow-lg transition-all group"
     >
       {category.image ? (
@@ -149,7 +149,7 @@ function CategoryListItem({ category, navigate, level = 0 }) {
       <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-600 transition-all">
         <div className="flex items-center justify-between">
           <button
-            onClick={() => navigate(`/buyer/category/${category.slug}`)}
+            onClick={() => navigate(`/category/${category.slug}`)}
             className="flex items-center gap-3 flex-1 text-left"
           >
             {category.image ? (

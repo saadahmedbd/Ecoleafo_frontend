@@ -14,6 +14,8 @@ import ShippingInfo from '@/pages/public/ShippingInfo';
 import Returns from '@/pages/public/Returns';
 import PrivacyPolicy from '@/pages/public/PrivacyPolicy';
 import TermsOfService from '@/pages/public/TermsOfService';
+import CategoriesPage from '@/pages/buyer/CategoriesPage';
+import CategoryProductsPage from '@/pages/buyer/CategoryProductsPage';
 
 
 const publicRoutes = {
@@ -23,6 +25,8 @@ const publicRoutes = {
     { index: true, element: <HomePage/> },
     { path: 'search', element: <SearchPage /> },
     { path: 'products/:id', element: <ProductDetails /> },
+    { path: 'categories', element: <CategoriesPage /> },
+    { path: 'category/:slug', element: <CategoryProductsPage /> },
     { path: 'auth/callback', element: <GoogleCallback /> },
     { path: 'auth/google/callback', element: <GoogleCallback /> },
     { path: 'buyer/login', element: <Login /> },

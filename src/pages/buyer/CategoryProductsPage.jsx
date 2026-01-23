@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronRight, SlidersHorizontal, X, Loader2 } from 'lucide-react';
-import { useGetCategoryBySlugQuery, useGetCategoryBreadcrumbQuery } from '@/features/categories/categoriesApi';
+import { useGetCategoryBySlugQuery, useGetCategoryBreadcrumbQuery, useGetCategoryProductsQuery } from '@/features/categories/categoriesApi';
 import { useGetProductsQuery } from '@/features/BuyerProduct/buyerProductApi';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
@@ -24,19 +24,14 @@ export default function CategoryProductsPage() {
     skip: !category?.id
   });
 
-  const { data: productsData, isLoading: productsLoading, isFetching } = useGetProductsQuery({
-    page,
-    limit: 20,
-    category_id: category?.id,
-    sort: sortBy
-  }, { skip: !category?.id });
+  const { data: productsData, isLoading: productsLoading, isFetching, error: productsError } = useGetCategoryProductsQuery(category?.id, { skip: !category?.id });
 
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist, refetchWishlist, refetchCount } = useWishlist();
 
   const products = productsData?.data || [];
-  const hasMore = productsData?.pagination?.has_more || false;
-  const total = productsData?.pagination?.total || 0;
+  const hasMore = false;
+  const total = productsData?.total || 0;
 
   useEffect(() => {
     if (toast) {
@@ -83,7 +78,7 @@ export default function CategoryProductsPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Category not found</h2>
           <button
-            onClick={() => navigate('/buyer/categories')}
+            onClick={() => navigate('/categories')}
             className="text-green-600 hover:text-green-700 font-medium"
           >
             Browse all categories
@@ -102,14 +97,14 @@ export default function CategoryProductsPage() {
         <div className="bg-white border-b">
           <div className="max-w-7xl mx-auto px-4 py-3">
             <div className="flex items-center gap-2 text-sm overflow-x-auto">
-              <button onClick={() => navigate('/buyer')} className="text-gray-600 hover:text-green-600 whitespace-nowrap">
+              <button onClick={() => navigate('/')} className="text-gray-600 hover:text-green-600 whitespace-nowrap">
                 Home
               </button>
               {breadcrumbData.data.map((crumb, idx) => (
                 <div key={crumb.id} className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                   <button
-                    onClick={() => navigate(`/buyer/category/${crumb.slug}`)}
+                    onClick={() => navigate(`/category/${crumb.slug}`)}
                     className={`whitespace-nowrap ${
                       idx === breadcrumbData.data.length - 1
                         ? 'text-green-600 font-medium'
@@ -167,7 +162,7 @@ export default function CategoryProductsPage() {
               {category.children.map((sub) => (
                 <button
                   key={sub.id}
-                  onClick={() => navigate(`/buyer/category/${sub.slug}`)}
+                  onClick={() => navigate(`/category/${sub.slug}`)}
                   className="flex-shrink-0 px-4 py-2 bg-gray-100 hover:bg-green-100 hover:text-green-700 rounded-lg text-sm font-medium transition-colors"
                 >
                   {sub.name}
@@ -205,6 +200,12 @@ export default function CategoryProductsPage() {
 
       {/* Products Grid */}
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {productsError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-800">Error loading products: {productsError?.data?.message || productsError?.error || 'Unknown error'}</p>
+            <p className="text-sm text-red-600 mt-1">Category ID: {category?.id}</p>
+          </div>
+        )}
         {productsLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
@@ -220,7 +221,7 @@ export default function CategoryProductsPage() {
                   product={product}
                   onAddToCart={handleAddToCart}
                   onToggleWishlist={handleToggleWishlist}
-                  onProductClick={(p) => navigate(`/buyer/products/${p.id}`)}
+                  onProductClick={(p) => navigate(`/products/${p.id}`)}
                   isInWishlist={isInWishlist(product.id)}
                 />
               ))}
@@ -249,7 +250,7 @@ export default function CategoryProductsPage() {
           <div className="text-center py-12">
             <p className="text-gray-600 mb-4">No products found in this category</p>
             <button
-              onClick={() => navigate('/buyer/categories')}
+              onClick={() => navigate('/categories')}
               className="text-green-600 hover:text-green-700 font-medium"
             >
               Browse other categories
