@@ -6,6 +6,12 @@ import { Provider } from 'react-redux';
 import { store } from './app/store';
 import App from './App';
 import './Styles/globals.css';
+import { API_BASE_URL } from './utils/constants';
+
+// Debug: Log API URL being used
+console.log('🌐 API Base URL:', API_BASE_URL);
+console.log('🌐 Runtime Config:', window.APP_CONFIG);
+console.log('🌐 Vite Env:', import.meta.env.VITE_API_BASE_URL);
 
 /**
  * Application Entry Point

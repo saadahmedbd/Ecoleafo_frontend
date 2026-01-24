@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --mode development",
     "dev:prod": "vite --mode production",
-    "build": "vite build",
+    "build": "node check-env.js && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server.js"
