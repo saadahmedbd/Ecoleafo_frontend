@@ -1,4 +1,6 @@
-// Runtime configuration - can be changed without rebuilding
+// Runtime configuration - auto-detects environment
 window.APP_CONFIG = {
-  API_BASE_URL: 'https://api.ecoleafo.com/api'
+  API_BASE_URL: window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000/api'
+    : 'https://api.ecoleafo.com/api'
 };

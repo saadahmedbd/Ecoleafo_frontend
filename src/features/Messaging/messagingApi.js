@@ -1,12 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-const API_BASE_URL = BASE_URL.replace('/api', '');
 
 export const messagingApi = createApi({
   reducerPath: 'messagingApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: `${API_BASE_URL}/api/v1/messaging`,
+    baseUrl: `${BASE_URL}/v1/messaging`,
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.token || localStorage.getItem('auth_token');
       if (token) {
