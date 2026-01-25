@@ -5,8 +5,10 @@ import { Search, Download, Eye, Calendar, RefreshCw, AlertCircle, Package } from
 import { useGetAllOrdersQuery, useGetOrderStatsQuery } from '../../features/OrderManagement/orderManagementApi';
 import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function OrdersListPage() {
+  usePageTitle('Orders');
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);

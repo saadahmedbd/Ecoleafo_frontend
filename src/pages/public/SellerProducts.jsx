@@ -13,6 +13,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const mockProducts = [
   {
@@ -78,6 +79,7 @@ const mockProducts = [
 ];
 
 export default function SellerProducts() {
+  usePageTitle('Seller Products');
   const [products, setProducts] = useState(mockProducts);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");

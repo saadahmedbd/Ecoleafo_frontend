@@ -1,7 +1,9 @@
 import { ArrowLeft, Package, MapPin, CheckCircle2, Clock, Truck, Download, RotateCcw } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function OrderDetails({ order, onBack, onReorder, onProductClick }) {
+  usePageTitle('Order Details');
   // Order status timeline
   const getStatusSteps = () => {
     const steps = [

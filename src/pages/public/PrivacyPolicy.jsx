@@ -1,7 +1,9 @@
 import React from 'react';
 import { Shield } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function PrivacyPolicy() {
+  usePageTitle('Privacy Policy');
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-gradient-to-r from-emerald-600 to-green-700 text-white py-16">

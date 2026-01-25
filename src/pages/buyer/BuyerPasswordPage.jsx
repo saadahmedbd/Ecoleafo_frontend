@@ -14,12 +14,14 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useChangePasswordMutation } from '@/features/buyerProfile/buyerProfileApi';
 import { validatePasswordChange } from '@/services/buyerProfileService';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * Password Management Page
  * Secure password change with validation and strength indicator
  */
 export default function BuyerPasswordPage() {
+  usePageTitle('Change Password');
   const navigate = useNavigate();
   const [changePassword, { isLoading }] = useChangePasswordMutation();
 

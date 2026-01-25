@@ -1,6 +1,7 @@
 import { Trash2, Plus, Minus, Tag, Store, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CartPage({
   items,
@@ -9,6 +10,7 @@ export default function CartPage({
   onCheckout,
   isLoggedIn = false,
 }) {
+  usePageTitle('Cart');
   const [selectedItems, setSelectedItems] = useState(new Set(items.map(item => item.id)));
 
   const toggleSelectItem = (itemId) => {

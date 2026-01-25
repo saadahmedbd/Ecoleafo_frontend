@@ -3,8 +3,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Search, Grid, List } from 'lucide-react';
 import { useGetCategoryTreeQuery } from '@/features/categories/categoriesApi';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CategoriesPage() {
+  usePageTitle('Categories');
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('grid');

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Search, Eye, Check, X, Flag } from 'lucide-react';
 import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ReviewsPage() {
+  usePageTitle('Review Details');
   const [activeTab, setActiveTab] = useState('all');
 
   const reviews = [

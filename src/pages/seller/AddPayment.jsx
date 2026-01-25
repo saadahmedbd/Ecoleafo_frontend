@@ -12,7 +12,9 @@ import { CreditCard, AlertCircle, CheckCircle, ArrowRight, Trash2, Star } from '
 import { useAddPaymentMethodMutation, useGetPaymentMethodsQuery, useDeletePaymentMethodMutation, useSetDefaultPaymentMethodMutation } from '../../features/auth/sellerAuthApi';
 import SellerAuthService from '../../services/SellerAuthService';
 import { toast } from 'sonner';
+import { usePageTitle } from '@/hooks/usePageTitle';
 export default function AddPayment() {
+  usePageTitle('Add Payment Method');
   const navigate = useNavigate();
   const location = useLocation();
   

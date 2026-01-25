@@ -10,8 +10,10 @@ import { useGetProductByIdQuery } from '@/features/BuyerProduct/buyerProductApi'
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useGetProductReviewsQuery, useCreateReviewMutation, useCheckReviewEligibilityQuery } from '@/features/review/reviewApi';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ProductDetails() {
+  usePageTitle('Product Details');
   const { id } = useParams();
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);

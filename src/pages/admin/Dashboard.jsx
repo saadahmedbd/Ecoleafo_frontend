@@ -1,5 +1,6 @@
 // src/pages/admin/DashboardHome.jsx
 import React, { useMemo } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { DollarSign, ShoppingCart, Store, Clock, Package, Users, TrendingUp, RefreshCw, AlertCircle, ArrowRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link } from 'react-router-dom';
@@ -14,6 +15,7 @@ import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
 
 export default function DashboardHome() {
+  usePageTitle('Admin Dashboard');
   // Fetch all dashboard data
   const { data: statsData, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useGetDashboardStatsQuery();
   const { data: topProductsData, isLoading: productsLoading, refetch: refetchProducts } = useGetTopProductsQuery(5);

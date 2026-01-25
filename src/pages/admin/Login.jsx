@@ -6,8 +6,10 @@ import { useDispatch } from 'react-redux';
 import Button from '../../ui/Button';
 import AdminAuthService from '@/services/adminAuthService';
 import { setAdminAuth } from '@/features/auth/authSlice';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AdminLoginPage() {
+  usePageTitle('Admin Login');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const adminAuthService = new AdminAuthService(dispatch);

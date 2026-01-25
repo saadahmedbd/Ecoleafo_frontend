@@ -13,7 +13,9 @@ import { useLoginSellerMutation, useGetProfileStatusQuery } from '../../features
 import { useAppSelector } from '../../app/hooks';
 import { selectIsAuthenticated, selectProfileStatus } from '../../features/auth/authSlice';
 import SellerAuthService from '../../services/SellerAuthService';
+import { usePageTitle } from '@/hooks/usePageTitle';
 export default function SellerLogin() {
+  usePageTitle('Seller Login');
   const navigate = useNavigate();
   const location = useLocation();
   

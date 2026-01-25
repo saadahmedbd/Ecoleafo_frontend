@@ -1,5 +1,6 @@
 // src/pages/buyer/Homepage.jsx - WITH LOAD MORE FUNCTIONALITY
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { ChevronRight, Clock, X, Loader2, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useGetFeaturedCategoriesQuery } from '@/features/categories/categoriesApi';
@@ -50,6 +51,7 @@ function Toast({ type, message, onClose }) {
 }
 
 export default function Homepage() {
+  usePageTitle('Home');
   const navigate = useNavigate();
   const [currentBanner, setCurrentBanner] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 30 });

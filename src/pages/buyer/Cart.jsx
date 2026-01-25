@@ -1,5 +1,6 @@
 // src/pages/buyer/Cart.jsx - PROFESSIONAL CART PAGE WITH 15+ YEARS UI/UX EXPERTISE
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   ShoppingCart, Trash2, Plus, Minus, Heart, ArrowRight,
   Package, AlertCircle, X, Loader2, Gift, ChevronRight,
@@ -318,6 +319,7 @@ function CartItem({
 
 // Main Cart Page Component
 export default function Cart() {
+  usePageTitle('Shopping Cart');
   const navigate = useNavigate();
   const [toast, setToast] = useState(null);
   const [updatingItems, setUpdatingItems] = useState(new Set());

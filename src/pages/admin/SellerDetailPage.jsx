@@ -7,6 +7,7 @@ import StatCard from '../../ui/StatCard';
 import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
 import { DollarSign, Package, ShoppingCart, Star } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // Simple Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -27,6 +28,7 @@ const Toast = ({ message, type, onClose }) => {
 };
 
 export default function SellerDetailPage() {
+  usePageTitle('Seller Details');
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
   const [actionModal, setActionModal] = useState(null);

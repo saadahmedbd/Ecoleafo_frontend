@@ -1,10 +1,12 @@
 //unified buyer and seller page
 import React, { useState } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { Users, Store } from 'lucide-react';
 import BuyersListPage from './BuyersListPage';
 import SellersListPage from './SellersListPage';
 
 export default function UsersPage() {
+  usePageTitle('Users Management');
   const [activeSection, setActiveSection] = useState('buyers');
 
   const sections = [

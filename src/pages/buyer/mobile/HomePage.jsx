@@ -2,6 +2,7 @@ import { Search, Mic, ChevronRight, Clock, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import ProductCard from "./ProductCard.jsx";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const categories = [
   { id: 1, name: "Oak", icon: "🌳" },
@@ -27,6 +28,7 @@ export default function Homepage({
   onSearchClick,
   onWishlistClick,
 }) {
+  usePageTitle('Home');
   const [currentBanner, setCurrentBanner] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 30 });
 

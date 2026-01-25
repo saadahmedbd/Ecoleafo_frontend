@@ -1,7 +1,9 @@
 import React from 'react';
 import { Leaf, Users, ShieldCheck, TrendingUp, Heart, Globe } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AboutUs() {
+  usePageTitle('About Us');
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}

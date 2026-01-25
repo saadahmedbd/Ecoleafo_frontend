@@ -13,8 +13,10 @@ import {
 } from '../../features/EarningsCommission/earningsCommissionApi';
 import Button from '../../ui/Button';
 import StatusBadge from '../../ui/StatusBadge';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function PayoutsPage() {
+  usePageTitle('Payouts');
   const [activeTab, setActiveTab] = useState('pending');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);

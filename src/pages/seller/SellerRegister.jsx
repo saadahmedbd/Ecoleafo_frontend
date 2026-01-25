@@ -15,7 +15,9 @@ import {
 import { useRegisterSellerMutation, useAddPaymentMethodMutation, useCompleteProfileMutation, } from '../../features/auth/sellerAuthApi';
 import SellerAuthService from '../../services/SellerAuthService';
 import { toast } from 'sonner';
+import { usePageTitle } from '@/hooks/usePageTitle';
 export default function SellerRegister() {
+  usePageTitle('Seller Registration');
   const navigate = useNavigate();
   
   // RTK Query mutation hook

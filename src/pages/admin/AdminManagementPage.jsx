@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Search, UserPlus, Eye, Edit, Trash2, Shield } from 'lucide-react';
 import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AdminManagementPage() {
+  usePageTitle('Admin Management');
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const admins = [

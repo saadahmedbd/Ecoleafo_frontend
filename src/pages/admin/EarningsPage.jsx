@@ -12,8 +12,10 @@ import {
 } from '../../features/EarningsCommission/earningsCommissionApi';
 import StatCard from '../../ui/StatCard';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function EarningsPage() {
+  usePageTitle('Earnings');
   const [commissionSettings, setCommissionSettings] = useState({
     default_rate: '',
     description: '',

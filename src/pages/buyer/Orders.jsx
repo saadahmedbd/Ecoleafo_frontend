@@ -8,6 +8,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useGetOrderByIdQuery, useGetOrderByNumberQuery } from '@/features/orders/ordersApi';
 import orderService from '@/services/orderService';
 import { motion } from 'framer-motion';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // Success Animation Component
 function SuccessAnimation() {
@@ -215,6 +216,7 @@ function InfoCard({ icon: Icon, title, content, delay = 0 }) {
 
 // Main Order Confirmation Component
 export default function OrderConfirmation() {
+  usePageTitle('Orders');
   const navigate = useNavigate();
   const { orderId } = useParams();
   const [searchParams] = useSearchParams();

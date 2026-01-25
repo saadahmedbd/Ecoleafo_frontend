@@ -17,12 +17,15 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  getProductById,
+
+import { usePageTitle } from '@/hooks/usePageTitle';
+import { 
+getProductById,
   deleteProduct,
 } from "@/services/NewsellerProductService";
 
 export default function ProductDetails() {
+  usePageTitle('Product Details');
   const { productId } = useParams();
   const navigate = useNavigate();
 

@@ -3,8 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Eye, EyeOff, Star, Package, FolderTree } from 'lucide-react';
 import { useGetCategoryByIdQuery, useDeleteCategoryMutation } from '../../features/CategoryManagement/categoryManagementApi';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CategoryDetailPage() {
+  usePageTitle('Category Details');
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: categoryData, isLoading } = useGetCategoryByIdQuery(id);

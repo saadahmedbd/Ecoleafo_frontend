@@ -17,8 +17,10 @@ import {
   validateProductData,
 } from "@/services/NewsellerProductService";
 import { useGetSellerCategoriesQuery } from "@/features/categories/categoriesApi";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AddProduct() {
+  usePageTitle('Add Product');
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const { data: categoriesData, isLoading: categoriesLoading, error: categoriesError } = useGetSellerCategoriesQuery();

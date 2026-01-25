@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Search, Loader2, CheckCircle, XCircle, Trash2, AlertTriangle, TrendingUp } from 'lucide-react';
+
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   useGetAdminReviewsQuery,
   useGetReviewStatsQuery,
@@ -8,6 +10,7 @@ import {
 } from '@/features/review/reviewApi';
 
 export default function AdminReviews() {
+  usePageTitle('Reviews Management');
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('');
   const [rating, setRating] = useState('');

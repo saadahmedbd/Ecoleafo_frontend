@@ -3,12 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Send, Loader2, Image as ImageIcon } from 'lucide-react';
 import { useGetProductByIdQuery } from '@/features/BuyerProduct/buyerProductApi';
 import { 
+import { usePageTitle } from '@/hooks/usePageTitle';
   useCreateConversationMutation, 
   useSendMessageMutation, 
   useGetMessagesQuery 
 } from '@/features/Messaging/messagingApi';
 
 export default function MessageSeller() {
+  usePageTitle('Message Seller');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sellerId = searchParams.get('seller_id');

@@ -33,8 +33,10 @@ import {
   useUpdateOrderStatusMutation,
   useCancelOrderMutation,
 } from "@/features/seller_order_management/orderApi";
+
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
-  formatDate,
+formatDate,
   formatDateShort,
   formatCurrency,
   getStatusColor,
@@ -49,6 +51,7 @@ import {
 } from "@/services/SellerOrderService";
 
 export default function SellerOrders() {
+  usePageTitle('Orders');
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("all");

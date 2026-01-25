@@ -1,5 +1,6 @@
 import { ArrowLeft, MapPin, Home, Briefcase, Plus, Edit2, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * ManageAddresses Component
@@ -7,6 +8,7 @@ import { useState } from "react";
  * Used for delivery address management in checkout flow
  */
 export default function ManageAddresses({ onBack, addresses = [], onSave }) {
+  usePageTitle('Manage Addresses');
   // State to track which address is being edited (null means adding new)
   const [editingId, setEditingId] = useState(null);
   

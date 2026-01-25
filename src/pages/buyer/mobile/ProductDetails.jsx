@@ -1,6 +1,7 @@
 import { ArrowLeft, Heart, Share2, Star, Plus, Minus, ShoppingCart, ChevronDown, ChevronUp, MapPin, Truck, Shield, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ProductDetails({
   product,
@@ -11,6 +12,7 @@ export default function ProductDetails({
   relatedProducts,
   onProductClick,
 }) {
+  usePageTitle('Product Details');
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "Medium");
   const [showFullDescription, setShowFullDescription] = useState(false);

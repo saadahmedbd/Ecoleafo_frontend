@@ -1,6 +1,7 @@
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * Google OAuth Only Login/Signup Page
@@ -11,6 +12,7 @@ export default function LoginPage({
   onGuestContinue,
   onSellerSignUpClick 
 }) {
+  usePageTitle('Login');
   const navigate = useNavigate();
   const [apiError, setApiError] = useState("");
   const [isLoading, setIsLoading] = useState(false);

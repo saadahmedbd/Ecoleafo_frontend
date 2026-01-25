@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import Button from '../../ui/Button';
 import { Settings, CreditCard, Truck, DollarSign, Mail, Globe, Shield } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function SettingsPage() {
+  usePageTitle('Settings');
   const [activeTab, setActiveTab] = useState('general');
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 

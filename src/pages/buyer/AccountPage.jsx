@@ -45,8 +45,10 @@ import {
 } from "@/services/buyerProfileService";
 import { logout } from "@/features/auth/authSlice";
 import { useLogoutMutation } from "@/features/auth/buyerAuthApi";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AccountPage() {
+  usePageTitle('My Account');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   

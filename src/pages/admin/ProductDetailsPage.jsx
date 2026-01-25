@@ -5,8 +5,10 @@ import { ArrowLeft, CheckCircle, XCircle, Store, RefreshCw, AlertCircle, Trash2,
 import { useGetProductByIdQuery, useApproveProductMutation, useRejectProductMutation, useDeleteProductMutation } from '../../features/ProductManagement/productManagementApi';
 import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ProductDetailPage() {
+  usePageTitle('Product Details');
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedImage, setSelectedImage] = useState(0);

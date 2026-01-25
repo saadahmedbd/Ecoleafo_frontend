@@ -19,8 +19,10 @@ import {
 import { useValidateInvitationQuery, useRegisterAdminMutation } from '@/features/auth/adminAuthApi';
 import { setCredentials } from '@/features/auth/authSlice';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AdminRegisterPage() {
+  usePageTitle('Admin Registration');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();

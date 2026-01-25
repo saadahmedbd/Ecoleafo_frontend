@@ -1,7 +1,9 @@
 import { ArrowLeft, Wallet, CreditCard, CheckCircle2, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function PaymentMethod({ total, onBack, onConfirmPayment }) {
+  usePageTitle('Payment Method');
   const [selectedPayment, setSelectedPayment] = useState("cod");
 
   // Payment methods with Bangladesh mobile banking options

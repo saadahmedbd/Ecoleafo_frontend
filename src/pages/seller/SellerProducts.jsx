@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   Plus,
   Search,
@@ -19,6 +20,7 @@ import {
 } from "@/services/NewsellerProductService";
 
 export default function SellerProducts() {
+  usePageTitle('My Products');
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);

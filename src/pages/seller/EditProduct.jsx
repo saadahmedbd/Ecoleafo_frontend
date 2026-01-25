@@ -18,8 +18,10 @@ import {
   uploadImageToCloudinary,
 } from "@/services/NewsellerProductService";
 import { useGetSellerCategoriesQuery } from "@/features/categories/categoriesApi";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function EditProduct() {
+  usePageTitle('Edit Product');
   const { productId } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);

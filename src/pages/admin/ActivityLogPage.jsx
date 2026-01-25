@@ -10,8 +10,10 @@ import {
   useExportLogsMutation 
 } from '../../features/AuditLog/auditLogApi';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ActivityLogsPage() {
+  usePageTitle('Activity Log');
   const [filters, setFilters] = useState({
     page: 1,
     limit: 20,

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function Contact() {
+  usePageTitle('Contact Us');
   const [formData, setFormData] = useState({
     name: '',
     email: '',

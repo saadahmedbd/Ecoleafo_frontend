@@ -10,7 +10,9 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, CheckCircle, Mail, Phone, AlertCircle, RefreshCw } from 'lucide-react';
 import { useGetProfileStatusQuery } from '../../features/auth/sellerAuthApi';
 import SellerAuthService from '../../services/SellerAuthService';
+import { usePageTitle } from '@/hooks/usePageTitle';
 export default function PendingApproval() {
+  usePageTitle('Pending Approval');
   const navigate = useNavigate();
   
   // Query profile status

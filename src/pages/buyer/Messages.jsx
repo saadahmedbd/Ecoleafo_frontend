@@ -20,8 +20,10 @@ import {
 } from '@/features/Messaging/messagingApi';
 import { useGetProductByIdQuery } from '@/features/BuyerProduct/buyerProductApi';
 import { formatDistanceToNow } from 'date-fns';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function Messages() {
+  usePageTitle('Messages');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversation, setSelectedConversation] = useState(null);

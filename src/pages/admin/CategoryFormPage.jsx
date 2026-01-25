@@ -13,8 +13,10 @@ import {
   useUploadCategoryIconMutation,
 } from '../../features/CategoryManagement/categoryManagementApi';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CategoryFormPage() {
+  usePageTitle('Category Form');
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = Boolean(id) && id !== 'create';

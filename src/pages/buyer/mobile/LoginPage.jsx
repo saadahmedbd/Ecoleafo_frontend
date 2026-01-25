@@ -1,7 +1,9 @@
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function LoginPage({ onBack, onLogin, onSignUpClick, onForgotPasswordClick, onGuestContinue }) {
+  usePageTitle('Login');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

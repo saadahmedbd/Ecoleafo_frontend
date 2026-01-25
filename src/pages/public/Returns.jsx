@@ -1,7 +1,9 @@
 import React from 'react';
 import { RotateCcw } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function Returns() {
+  usePageTitle('Returns & Refunds');
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-gradient-to-r from-emerald-600 to-green-700 text-white py-16">

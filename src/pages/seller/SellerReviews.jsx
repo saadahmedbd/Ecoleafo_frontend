@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Star, Search, Filter, ChevronDown, Loader2, MessageCircle, Send, X } from 'lucide-react';
 import { useGetSellerReviewsQuery, useRespondToReviewMutation } from '@/features/review/reviewApi';
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function SellerReviews() {
+  usePageTitle('Customer Reviews');
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [rating, setRating] = useState(null);

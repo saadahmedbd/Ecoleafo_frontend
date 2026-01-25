@@ -1,8 +1,10 @@
 import { ArrowLeft, MapPin, CheckCircle2, Edit2, Plus, ChevronRight, Truck, Calendar } from "lucide-react";
 import { useState } from "react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CheckoutPage({ items, onBack, onPlaceOrder, addresses = [], onAddAddress }) {
+  usePageTitle('Checkout');
   const [selectedAddress, setSelectedAddress] = useState(addresses[0]?.id || null);
   const [selectedDelivery, setSelectedDelivery] = useState("standard");
 

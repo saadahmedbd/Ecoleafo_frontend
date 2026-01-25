@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Package, Truck, CheckCircle, XCircle, Clock, MapPin, Phone, Mail, User, DollarSign, CreditCard, Calendar, Hash } from "lucide-react";
 import { toast } from "sonner";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function SellerOrderDetails() {
+  usePageTitle('Order Details');
   const { id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);

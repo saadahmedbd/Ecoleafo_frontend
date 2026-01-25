@@ -12,13 +12,16 @@ import {
   AlertCircle,
   Send
 } from 'lucide-react';
-import {
-  useGetPendingInvitationsQuery,
+
+import { usePageTitle } from '@/hooks/usePageTitle';
+import {  
+useGetPendingInvitationsQuery,
   useCreateInvitationMutation,
   useCancelInvitationMutation,
 } from '@/features/Admin/adminAPI';
 
 export default function AdminInvitationsPage() {
+  usePageTitle('Invitations');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [formData, setFormData] = useState({
     email: '',

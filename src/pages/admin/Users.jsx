@@ -25,8 +25,10 @@ import {
 import { useSelector } from 'react-redux';
 import { selectUser } from '@/features/auth/authSlice';
 import { Link } from 'react-router-dom';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AdminUsersPage() {
+  usePageTitle('Users');
   const currentUser = useSelector(selectUser);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);

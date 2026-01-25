@@ -14,8 +14,10 @@ import {
 } from 'lucide-react';
 import SellerProfileService from '@/services/SellerProfileService';
 import SellerAuthService from '@/services/SellerAuthService';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function SellerSettings() {
+  usePageTitle('Settings');
   const [activeTab, setActiveTab] = useState('store');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');

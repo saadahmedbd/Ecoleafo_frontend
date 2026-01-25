@@ -7,8 +7,10 @@ import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
 import StatCard from '../../ui/StatCard';
 import { Package, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ProductsListPage() {
+  usePageTitle('Products');
   const [activeTab, setActiveTab] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');

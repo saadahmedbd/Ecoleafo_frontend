@@ -13,6 +13,7 @@ import {
 } from '@/features/orders/ordersApi';
 import { useGetMyReviewsQuery } from '@/features/review/reviewApi';
 import orderService from '@/services/orderService';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // Toast Component
 function Toast({ type, message, onClose }) {
@@ -388,6 +389,7 @@ function OrderCard({ order, onViewDetails, onCancelOrder, onBuyAgain, onReturn, 
 
 // Main My Orders Component
 export default function MyOrders() {
+  usePageTitle('My Orders');
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);

@@ -11,8 +11,10 @@ import {
   LogOut,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function HomeSellerAccount() {
+  usePageTitle('Seller Home');
   const managementItems = [
     {
       id: 1,

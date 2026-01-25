@@ -1,8 +1,10 @@
 import { Package, Clock, CheckCircle2, XCircle, Download, RotateCcw, X } from "lucide-react";
 import { useState } from "react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function OrdersPage({ orders, onOrderClick, onReorder }) {
+  usePageTitle('Order Successful');
   const [activeTab, setActiveTab] = useState("all");
   const [showToast, setShowToast] = useState(false);
 

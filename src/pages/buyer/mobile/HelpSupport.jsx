@@ -1,7 +1,9 @@
 import { ArrowLeft, MessageCircle, Phone, Mail, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function HelpSupport({ onBack }) {
+  usePageTitle('Help & Support');
   const [expandedFaq, setExpandedFaq] = useState(null);
 
   const faqs = [

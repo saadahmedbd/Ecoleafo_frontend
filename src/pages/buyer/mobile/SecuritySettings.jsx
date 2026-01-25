@@ -1,5 +1,6 @@
 import { ArrowLeft, Lock, Eye, EyeOff, Shield, Smartphone } from "lucide-react";
 import { useState } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * SecuritySettings Component
@@ -7,6 +8,7 @@ import { useState } from "react";
  * Provides security tips and best practices
  */
 export default function SecuritySettings({ onBack, onSave }) {
+  usePageTitle('Security Settings');
   // Password form state
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");

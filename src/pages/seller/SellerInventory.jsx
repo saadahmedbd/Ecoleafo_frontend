@@ -20,8 +20,10 @@ import {
   useExportInventoryMutation,
 } from "@/features/seller_inventory/InventoryApi";
 import dashboardService from "@/services/DashboardService";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function SellerInventory() {
+  usePageTitle('Inventory Management');
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [editingStock, setEditingStock] = useState(null);

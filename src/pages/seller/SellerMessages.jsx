@@ -17,8 +17,10 @@ import {
   useMarkAsReadMutation,
 } from '@/features/Messaging/messagingApi';
 import { formatDistanceToNow } from 'date-fns';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function SellerMessages() {
+  usePageTitle('Messages');
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messageText, setMessageText] = useState('');

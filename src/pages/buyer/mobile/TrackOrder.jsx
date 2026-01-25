@@ -1,6 +1,8 @@
 import { ArrowLeft, Package, Truck, CheckCircle2, MapPin, Clock } from "lucide-react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function TrackOrder({ orderId, onBack }) {
+  usePageTitle('Track Order');
   // Mock tracking data
   const orderStatus = {
     orderId: orderId || "ORD12347",

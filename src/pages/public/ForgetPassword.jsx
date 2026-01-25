@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useForgotPasswordMutation } from "@/features/auth/buyerAuthApi";
 import { validateEmail } from "@/utils/validation";
 import BuyerAuthService from "../../services/BuyerAuthService";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * Forgot Password Page
@@ -20,6 +21,7 @@ import BuyerAuthService from "../../services/BuyerAuthService";
  * @param {Function} onLoginClick - Callback to navigate to login
  */
 export default function ForgotPasswordPage({ onBack, onLoginClick }) {
+  usePageTitle('Forgot Password');
   // RTK Query mutation hook
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
   

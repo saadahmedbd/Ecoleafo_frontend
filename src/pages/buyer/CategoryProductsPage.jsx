@@ -7,8 +7,10 @@ import { useGetProductsQuery } from '@/features/BuyerProduct/buyerProductApi';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
 import ProductCard from '@/layouts/components/ProductCard';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CategoryProductsPage() {
+  usePageTitle('Category Products');
   const { slug } = useParams();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);

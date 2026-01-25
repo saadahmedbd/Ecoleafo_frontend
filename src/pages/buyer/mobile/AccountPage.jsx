@@ -15,11 +15,13 @@ import {
   Store,
 } from "lucide-react";
 import { useState } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * AccountPage component - user account management page
  */
 export default function AccountPage({ onHelpClick, onLoginClick, onSignUpClick, onGuestContinue, onEditProfileClick, onManageAddressesClick, onSecurityClick, isLoggedIn = false, userName = "", userProfile = {} }) {
+  usePageTitle('Account');
   const [expandedSection, setExpandedSection] = useState(null);
 
   const toggleSection = (section) => {

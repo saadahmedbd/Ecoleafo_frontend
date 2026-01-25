@@ -3,13 +3,16 @@
 // Access via /seller/dashboard-test route
 
 import { useState } from 'react';
-import { 
-  useGetSellerStatisticsQuery,
+ 
+import { usePageTitle } from '@/hooks/usePageTitle';
+import {  
+useGetSellerStatisticsQuery,
   useGetRecentOrdersQuery,
   useGetTopProductsQuery,
 } from '@/features/seller_dashboard/dashboardApi';
 
 export default function DashboardTest() {
+  usePageTitle('Dashboard Test');
   const [showRaw, setShowRaw] = useState(true);
 
   const { data: stats, isLoading: statsLoading, error: statsError } = useGetSellerStatisticsQuery();

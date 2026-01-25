@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppDispatch } from '@/app/hooks';
 import { setCredentials } from '@/features/auth/authSlice';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function OAuthCallback() {
+  usePageTitle('Authenticating...');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();

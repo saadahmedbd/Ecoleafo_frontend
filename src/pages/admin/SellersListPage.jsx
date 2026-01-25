@@ -6,6 +6,7 @@ import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
 import StatCard from '../../ui/StatCard';
 import { Store, CheckCircle, Clock, Ban as BanIcon } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -26,6 +27,7 @@ const Toast = ({ message, type, onClose }) => {
 };
 
 export default function SellersListPage() {
+  usePageTitle('Sellers List');
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);

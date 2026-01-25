@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, RefreshCw, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AllSellerEarnings() {
+  usePageTitle('All Seller Earnings');
   const [earnings, setEarnings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ForgotPasswordPage() {
+  usePageTitle('Forgot Password');
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 

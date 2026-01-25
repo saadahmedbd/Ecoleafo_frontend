@@ -1,5 +1,6 @@
 import { ArrowLeft, Package, Tag, Bell, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * Notifications page component displaying user notifications grouped by time
@@ -7,6 +8,7 @@ import { useState } from "react";
  * @param {Function} props.onBack - Callback function to navigate back
  */
 export default function NotificationsPage({ onBack }) {
+  usePageTitle('Notifications');
   const [notifications, setNotifications] = useState([
     {
       id: 1,

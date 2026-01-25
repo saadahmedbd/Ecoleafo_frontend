@@ -6,10 +6,12 @@ import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
 import StatCard from '../../ui/StatCard';
 import { Users, UserCheck as ActiveIcon, UserX as InactiveIcon, Ban as BanIcon } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const ITEMS_PER_PAGE = 10;
 
 export default function BuyersListPage() {
+  usePageTitle('Buyers List');
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);

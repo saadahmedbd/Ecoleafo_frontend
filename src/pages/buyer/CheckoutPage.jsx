@@ -24,6 +24,7 @@ import {
   resetCheckout,
 } from '@/features/checkout/checkoutSlice';
 import checkoutService from '@/services/checkoutService';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // Toast Component
 function Toast({ type, message, onClose }) {
@@ -222,6 +223,7 @@ function AddressModal({ isOpen, onClose, onSave, existingAddress = null }) {
 
 // Main Checkout Component
 export default function Checkout() {
+  usePageTitle('Checkout');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();

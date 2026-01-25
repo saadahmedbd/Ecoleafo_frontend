@@ -7,8 +7,10 @@ import {
 } from 'lucide-react';
 import { useGetCategoryTreeQuery, useDeleteCategoryMutation } from '../../features/CategoryManagement/categoryManagementApi';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CategoryTreePage() {
+  usePageTitle('Category Tree');
   const { data: treeData, isLoading, error, refetch } = useGetCategoryTreeQuery();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [expandedNodes, setExpandedNodes] = useState(new Set());

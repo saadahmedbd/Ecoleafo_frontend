@@ -1,7 +1,9 @@
 import { ArrowLeft, User, Mail, Phone, Camera } from "lucide-react";
 import { useState, useRef } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function EditProfile({ onBack, onSave, userProfile }) {
+  usePageTitle('Edit Profile');
   const [firstName, setFirstName] = useState(userProfile?.firstName || "Saad");
   const [lastName, setLastName] = useState(userProfile?.lastName || "Ahmad");
   const [email, setEmail] = useState(userProfile?.email || "saad@example.com");

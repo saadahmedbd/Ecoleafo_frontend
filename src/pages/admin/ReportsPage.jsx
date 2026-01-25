@@ -3,8 +3,10 @@ import { Calendar, Download, TrendingUp, ShoppingCart, DollarSign, Users } from 
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import StatCard from '../../ui/StatCard';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ReportsPage() {
+  usePageTitle('Reports');
   const [dateRange, setDateRange] = useState('month');
 
   const salesData = [

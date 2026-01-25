@@ -1,6 +1,7 @@
 import { ArrowLeft, Search, X, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import ProductCard from "./ProductCard";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * Search page component with filtering capabilities
@@ -20,6 +21,7 @@ export default function SearchPage({
   onProductClick,
   wishlistIds,
 }) {
+  usePageTitle('Search');
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");

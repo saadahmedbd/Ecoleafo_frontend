@@ -13,8 +13,10 @@ import {
 } from '../../features/OrderManagement/orderManagementApi';
 import StatusBadge from '../../ui/StatusBadge';
 import Button from '../../ui/Button';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function OrderDetailPage() {
+  usePageTitle('Order Details');
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('details');
   const [actionModal, setActionModal] = useState(null);

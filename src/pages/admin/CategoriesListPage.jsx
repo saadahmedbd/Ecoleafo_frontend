@@ -12,8 +12,10 @@ import {
 } from '../../features/CategoryManagement/categoryManagementApi';
 import Button from '../../ui/Button';
 import { Link } from 'react-router-dom';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CategoriesListPage() {
+  usePageTitle('Categories');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);

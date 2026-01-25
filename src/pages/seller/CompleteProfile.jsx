@@ -11,7 +11,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, MapPin, Building2, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
 import { useCompleteProfileMutation } from '../../features/auth/sellerAuthApi';
 import SellerAuthService from '../../services/SellerAuthService';
+import { usePageTitle } from '@/hooks/usePageTitle';
 export default function CompleteProfile() {
+  usePageTitle('Complete Profile');
   const navigate = useNavigate();
   const location = useLocation();
   

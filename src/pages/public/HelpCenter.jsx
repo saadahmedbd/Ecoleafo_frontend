@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Search, ShoppingCart, Package, CreditCard, Users, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function HelpCenter() {
+  usePageTitle('Help Center');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFaq, setExpandedFaq] = useState(null);
 

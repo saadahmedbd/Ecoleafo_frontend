@@ -19,6 +19,7 @@ import {
   useUploadProfilePictureMutation,
   useDeleteProfilePictureMutation,
 } from '@/features/buyerProfile/buyerProfileApi';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   validateProfileUpdate,
   validateProfilePicture,
@@ -30,6 +31,7 @@ import {
  * Complete profile editing with image upload to Cloudinary
  */
 export default function BuyerProfilePage() {
+  usePageTitle('My Profile');
   const navigate = useNavigate();
   
   // RTK Query hooks

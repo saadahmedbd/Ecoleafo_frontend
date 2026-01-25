@@ -4,8 +4,10 @@ import { ArrowLeft, Mail, Phone, MapPin, Calendar, ShoppingBag, DollarSign, Chec
 import { useGetBuyerByIdQuery, useActivateBuyerMutation, useDeactivateBuyerMutation, useSuspendBuyerMutation } from '../../features/UsersManagement/usersManagementApi';
 import Button from '../../ui/Button';
 import StatusBadge from '../../ui/StatusBadge';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function BuyerDetailPage() {
+  usePageTitle('Buyer Details');
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: buyerData, isLoading, error, refetch } = useGetBuyerByIdQuery(id);

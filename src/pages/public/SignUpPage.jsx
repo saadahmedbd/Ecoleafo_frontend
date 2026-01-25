@@ -1,5 +1,6 @@
 import { ArrowLeft, User, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * Enhanced Buyer Sign Up Page
@@ -10,6 +11,7 @@ export default function SignUpPage({
   onLoginClick,
   onSellerSignUpClick 
 }) {
+  usePageTitle('Sign Up');
   // Form state
   const [formData, setFormData] = useState({
     firstName: "",

@@ -1,5 +1,6 @@
 import { Heart } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 /**
  * Wishlist page component displaying saved products
@@ -15,6 +16,7 @@ export default function WishlistPage({
   onRemoveFromWishlist,
   onProductClick,
 }) {
+  usePageTitle('Wishlist');
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-140px)] px-4">

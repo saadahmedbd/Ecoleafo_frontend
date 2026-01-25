@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   DollarSign,
   ShoppingBag,
@@ -36,6 +37,7 @@ import {
 import dashboardService from "@/services/DashboardService";
 
 export default function SellerDashboard() {
+  usePageTitle('Seller Dashboard');
   const navigate = useNavigate();
   const [chartView, setChartView] = useState("week");
   const [manualStats, setManualStats] = useState(null);

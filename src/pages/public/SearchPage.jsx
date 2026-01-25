@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Filter, X, Loader2 } from 'lucide-react';
 import { useSearchProductsQuery } from '@/features/search/searchApi';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function SearchPage() {
+  usePageTitle('Search Products');
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');

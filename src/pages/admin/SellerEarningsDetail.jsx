@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, DollarSign, TrendingUp, Wallet, RefreshCw, Store, User, Calendar } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function SellerEarningsDetail() {
+  usePageTitle('Seller Earnings Details');
   const { id } = useParams();
   const navigate = useNavigate();
   const [earnings, setEarnings] = useState(null);

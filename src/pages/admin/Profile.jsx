@@ -11,12 +11,14 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   useGetAdminProfileQuery,
   useUpdateAdminMutation,
 } from '@/features/Admin/adminAPI';
 
 export default function AdminProfilePage() {
+  usePageTitle('Admin Profile');
   const { data: profile, isLoading, error } = useGetAdminProfileQuery();
   const [updateAdmin, { isLoading: isUpdating }] = useUpdateAdminMutation();
 

@@ -12,6 +12,7 @@ import { useGetProductsQuery } from '@/features/BuyerProduct/buyerProductApi';
 import { useGetCartCountQuery } from '@/features/cart/cartApi';
 import ProductCard from '@/layouts/components/ProductCard';
 import useDeviceDetection from '@/hooks/useDeviceDetection';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // Toast Notification Component
 function Toast({ type, message, onClose }) {
@@ -426,6 +427,7 @@ function WishlistItemList({
 
 // Main Wishlist Page Component
 export default function Wishlist() {
+  usePageTitle('My Wishlist');
   const navigate = useNavigate();
   const [toast, setToast] = useState(null);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'

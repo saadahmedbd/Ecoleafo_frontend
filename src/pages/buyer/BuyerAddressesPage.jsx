@@ -20,6 +20,7 @@ import {
   useUpdateAddressMutation,
   useDeleteAddressMutation,
 } from '@/features/buyerProfile/buyerProfileApi';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   validateAddress,
   formatAddress,
@@ -30,6 +31,7 @@ import {
  * Full CRUD operations for buyer addresses
  */
 export default function BuyerAddressesPage() {
+  usePageTitle('My Addresses');
   const navigate = useNavigate();
 
   // RTK Query hooks
