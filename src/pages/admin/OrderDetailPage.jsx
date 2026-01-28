@@ -261,6 +261,17 @@ export default function OrderDetailPage() {
                   <div className="bg-[#FFF5F2] p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Truck className="text-[#568F87]" size={18} />
+                      <p className="text-sm text-[#666666]">Delivery Type</p>
+                    </div>
+                    <p className="text-[#1A1A1A] font-medium">
+                      {order.delivery_type === 'home_delivery' ? 'Home Delivery' : 
+                       order.delivery_type === 'pickup_point' ? 'Pickup Point' : 
+                       order.delivery_type?.replace(/_/g, ' ').toUpperCase() || 'N/A'}
+                    </p>
+                  </div>
+                  <div className="bg-[#FFF5F2] p-4 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Package className="text-[#568F87]" size={18} />
                       <p className="text-sm text-[#666666]">Tracking Number</p>
                     </div>
                     <p className="text-[#1A1A1A] font-medium">

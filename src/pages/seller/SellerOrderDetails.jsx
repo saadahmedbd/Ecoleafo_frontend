@@ -43,7 +43,10 @@ export default function SellerOrderDetails() {
         body: JSON.stringify({ status: newStatus }),
       });
       toast.success("Order status updated");
-      setOrder({ ...order, status: newStatus });
+      
+      // Auto-update payment status to 'paid' when order is delivered
+      const updatedPaymentStatus = newStatus === 'delivered' ? 'paid' : order.payment_status;
+      setOrder({ ...order, status: newStatus, payment_status: updatedPaymentStatus });
     } catch (error) {
       toast.error("Failed to update status");
     }
@@ -217,19 +220,32 @@ export default function SellerOrderDetails() {
           <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-[#FF9900]" />
-              Payment Info
+              Payment & Delivery
             </h3>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-500">Method</p>
+                <p className="text-sm text-gray-500">Payment Method</p>
                 <p className="font-semibold text-gray-900 capitalize">{order.payment_method.replace('_', ' ')}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Status</p>
+                <p className="text-sm text-gray-500">Payment Status</p>
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mt-1 ${paymentStatusColors[order.payment_status]}`}>
                   {order.payment_status.toUpperCase()}
                 </span>
               </div>
+              {order.delivery_type && (
+                <div className="pt-3 border-t border-gray-100">
+                  <p className="text-sm text-gray-500">Delivery Type</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Truck className="w-4 h-4 text-[#FF9900]" />
+                    <p className="font-semibold text-gray-900">
+                      {order.delivery_type === 'home_delivery' ? 'Home Delivery' : 
+                       order.delivery_type === 'pickup_point' ? 'Pickup Point' : 
+                       order.delivery_type.replace('_', ' ')}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

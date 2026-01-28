@@ -4,8 +4,7 @@ import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   ShoppingCart, Trash2, Plus, Minus, Heart, ArrowRight,
   Package, AlertCircle, X, Loader2, Gift, ChevronRight,
-  CheckCircle, Tag, TrendingUp, Store,
-  Shield
+  CheckCircle, Tag, TrendingUp, Store, Shield, Truck
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
@@ -326,6 +325,7 @@ export default function Cart() {
   const [selectedItemIds, setSelectedItemIds] = useState(new Set());
   const [pendingGiftMessages, setPendingGiftMessages] = useState(new Map());
   const [localGiftStates, setLocalGiftStates] = useState({});
+  const [selectedDeliveryType, setSelectedDeliveryType] = useState('home_delivery');
 
   // Cart hook with all operations
   const {
@@ -677,9 +677,11 @@ export default function Cart() {
     navigate(`/products/${product.id}`);
   };
 
-  // Handle checkout - just navigate, let onBlur save messages
+  // Handle checkout - pass delivery type
   const handleCheckout = () => {
     if (selectedItemIds.size === 0) return;
+    // Store delivery type in localStorage for checkout page
+    localStorage.setItem('selected_delivery_type', selectedDeliveryType);
     navigate('/buyer/checkout');
   };
 
@@ -795,7 +797,26 @@ export default function Cart() {
     return sum + discount;
   }, 0);
   
-  const shippingCost = selectedItems.length > 0 ? Math.round(transformedCart?.shipping_cost || 0) : 0;
+  // Get delivery options from cart
+  const deliveryOptions = transformedCart?.delivery_options || [];
+  const totalWeight = transformedCart?.total_weight || 0;
+  
+  // Auto-select delivery type based on availability
+  useEffect(() => {
+    if (deliveryOptions.length > 0) {
+      const homeDelivery = deliveryOptions.find(opt => opt.type === 'home_delivery');
+      const pickupPoint = deliveryOptions.find(opt => opt.type === 'pickup_point');
+      
+      if (homeDelivery?.available) {
+        setSelectedDeliveryType('home_delivery');
+      } else if (pickupPoint?.available) {
+        setSelectedDeliveryType('pickup_point');
+      }
+    }
+  }, [deliveryOptions]);
+  
+  const selectedDeliveryOption = deliveryOptions.find(opt => opt.type === selectedDeliveryType);
+  const shippingCost = selectedItems.length > 0 ? Math.round(selectedDeliveryOption?.charge || transformedCart?.shipping_cost || 0) : 0;
   
   // Debug gift items - check both backend data and local state
   console.log('Selected Items:', selectedItems.map(item => ({
@@ -966,10 +987,61 @@ export default function Cart() {
                   </div>
                 )}
                 
-                <div className="flex justify-between text-gray-600">
-                  <span>Delivery Charge</span>
-                  <span className="font-semibold">{shippingCost > 0 ? `৳${shippingCost.toLocaleString('en-IN')}` : 'FREE'}</span>
-                </div>
+                {/* Delivery Options */}
+                {deliveryOptions.length > 0 && (
+                  <div className="border-t border-gray-200 pt-3 mt-3">
+                    <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <Truck className="w-4 h-4 text-green-600" />
+                      Choose Delivery Method
+                    </h3>
+                    <div className="space-y-2">
+                      {deliveryOptions.map((option) => (
+                        <label
+                          key={option.type}
+                          className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                            selectedDeliveryType === option.type
+                              ? 'border-green-600 bg-green-50'
+                              : 'border-gray-200 hover:border-green-300'
+                          } ${!option.available ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <input
+                            type="radio"
+                            name="delivery-type"
+                            value={option.type}
+                            checked={selectedDeliveryType === option.type}
+                            onChange={() => option.available && setSelectedDeliveryType(option.type)}
+                            disabled={!option.available}
+                            className="w-4 h-4 text-green-600 focus:ring-green-500 flex-shrink-0"
+                          />
+                          <div className="flex-1 ml-3 min-w-0">
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-sm font-semibold text-gray-800">
+                                  {option.type === 'home_delivery' ? 'Home Delivery' : 'Pickup Point'}
+                                </span>
+                                {option.savings > 0 && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+                                    Save ৳{option.savings}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-sm font-bold text-gray-800 flex-shrink-0">৳{option.charge}</span>
+                            </div>
+                            <p className="text-xs text-gray-600">{option.description}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                    {totalWeight >= 4 && (
+                      <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-lg">
+                        <p className="text-xs text-orange-700 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>Heavy order ({totalWeight}kg) - Pickup point recommended</span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
                 
                 {giftCharge > 0 && (
                   <div className="flex justify-between text-purple-600">
@@ -1001,7 +1073,7 @@ export default function Cart() {
                 disabled={selectedItemIds.size === 0}
                 className="w-full py-3 px-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg flex items-center justify-center gap-2 mb-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                Proceed to Checkout ({selectedCount})
+                Checkout ({selectedCount})
                 <ArrowRight className="w-5 h-5" />
               </button>
 
@@ -1030,28 +1102,64 @@ export default function Cart() {
             </div>
 
             {/* Mobile Sticky Order Summary */}
-            <div className="lg:hidden fixed bottom-16 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-40">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-xs text-gray-600">Total ({selectedCount} items)</p>
-                  <p className="text-2xl font-bold text-green-600">৳{selectedTotal.toLocaleString('en-IN')}</p>
-                  <p className="text-xs text-green-600">Delivery: ৳{shippingCost.toLocaleString('en-IN')}</p>
-                  {giftCharge > 0 && (
-                    <p className="text-xs text-purple-600">Gift Wrapping: ৳{giftCharge}</p>
-                  )}
-
-                  {selectedDiscount > 0 && (
-                    <p className="text-xs text-green-600">Saved ৳{selectedDiscount.toLocaleString('en-IN')}</p>
-                  )}
+            <div className="lg:hidden fixed bottom-16 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
+              <div className="p-3">
+                {/* Delivery Options for Mobile */}
+                {deliveryOptions.length > 0 && (
+                  <div className="mb-3 pb-3 border-b border-gray-200">
+                    <p className="text-xs font-semibold text-gray-700 mb-2">Delivery Method</p>
+                    <div className="flex gap-2">
+                      {deliveryOptions.map((option) => (
+                        <label
+                          key={option.type}
+                          className={`flex-1 p-2 rounded-lg border-2 cursor-pointer transition-all ${
+                            selectedDeliveryType === option.type
+                              ? 'border-green-600 bg-green-50'
+                              : 'border-gray-200'
+                          } ${!option.available ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <input
+                            type="radio"
+                            name="delivery-mobile"
+                            value={option.type}
+                            checked={selectedDeliveryType === option.type}
+                            onChange={() => option.available && setSelectedDeliveryType(option.type)}
+                            disabled={!option.available}
+                            className="sr-only"
+                          />
+                          <div className="text-center">
+                            <p className="text-xs font-semibold text-gray-800 mb-0.5">
+                              {option.type === 'home_delivery' ? 'Home' : 'Pickup'}
+                            </p>
+                            <p className="text-xs font-bold text-green-600">৳{option.charge}</p>
+                            {option.savings > 0 && (
+                              <p className="text-xs text-green-600 mt-0.5">-৳{option.savings}</p>
+                            )}
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-gray-600">Total ({selectedCount} items)</p>
+                    <p className="text-xl font-bold text-green-600">৳{selectedTotal.toLocaleString('en-IN')}</p>
+                    <div className="flex items-center gap-2 text-xs text-gray-600 mt-0.5">
+                      <span>Delivery: ৳{shippingCost}</span>
+                      {giftCharge > 0 && <span>• Gift: ৳{giftCharge}</span>}
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleCheckout}
+                    disabled={selectedItemIds.size === 0}
+                    className="px-5 py-2.5 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg flex items-center gap-1.5 disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
+                  >
+                    Checkout
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
-                <button
-                  onClick={handleCheckout}
-                  disabled={selectedItemIds.size === 0}
-                  className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg flex items-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  Checkout
-                  <ArrowRight className="w-5 h-5" />
-                </button>
               </div>
             </div>
           </div>

@@ -229,6 +229,7 @@ export default function Checkout() {
   const location = useLocation();
   const [toast, setToast] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [selectedDeliveryType, setSelectedDeliveryType] = useState('home_delivery');
   const { isDesktop } = useDeviceDetection();
 
   // Redux state
@@ -249,6 +250,19 @@ export default function Checkout() {
   const profile = profileData;
   const addresses = addressesData || [];
   const cart = cartData || {};
+  
+  // Get delivery type from localStorage (set in cart page)
+  useEffect(() => {
+    const savedDeliveryType = localStorage.getItem('selected_delivery_type');
+    if (savedDeliveryType) {
+      setSelectedDeliveryType(savedDeliveryType);
+    }
+  }, []);
+  
+  // Get delivery options from cart
+  const deliveryOptions = cart?.delivery_options || [];
+  const totalWeight = cart?.total_weight || 0;
+  const selectedDeliveryOption = deliveryOptions.find(opt => opt.type === selectedDeliveryType);
   // Show all cart items (backend should return only selected items)
   const allCartItems = cart.items || [];
   const cartItems = allCartItems;
@@ -299,13 +313,16 @@ export default function Checkout() {
   }, 0);
 
   const giftCharge = cartItems.some(item => item.is_gift || item.gift) ? 50 : 0;
+  
+  // Use selected delivery option charge if available, otherwise use cart shipping cost
+  const deliveryCharge = selectedDeliveryOption?.charge || cart?.shipping_cost || 0;
 
   const orderSummary = {
     subtotal: Math.round(selectedSubtotal),
     discount: Math.round(selectedDiscount),
-    shippingCost: Math.round(cart?.shipping_cost || 0),
+    shippingCost: Math.round(deliveryCharge),
     giftCharge: giftCharge,
-    total: Math.round(selectedSubtotal + (cart?.shipping_cost || 0) + giftCharge),
+    total: Math.round(selectedSubtotal + deliveryCharge + giftCharge),
     savings: Math.round(selectedDiscount),
     canCheckout: cart?.can_checkout ?? true
   };
@@ -352,6 +369,9 @@ export default function Checkout() {
       checkoutState.selectedAddress,
       cart
     );
+    
+    // Add delivery type to order data
+    orderData.delivery_type = selectedDeliveryType;
 
     // Validate
     const validation = checkoutService.validateCheckoutData(orderData);
@@ -373,6 +393,8 @@ export default function Checkout() {
 
       // Redirect to order confirmation
       setTimeout(() => {
+        // Clear delivery type from localStorage
+        localStorage.removeItem('selected_delivery_type');
         navigate(`/buyer/orders/${result.id}`);
       }, 1500);
     } catch (error) {
@@ -634,39 +656,92 @@ export default function Checkout() {
             </div>
 
             {/* Shipping Method */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4">
-                <Truck className="w-5 h-5 text-green-600" />
-                Shipping Method
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2 mb-3 sm:mb-4">
+                <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                Delivery Method
               </h2>
-              <div className="space-y-3">
-                <button
-                  onClick={() => dispatch(setShippingMethod('standard'))}
-                  className={`w-full p-4 rounded-lg border-2 transition-all ${
-                    checkoutState.shippingMethod === 'standard'
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Package className="w-5 h-5 text-gray-600" />
-                      <div className="text-left">
-                        <p className="font-semibold text-gray-800">Standard Delivery</p>
-                        <p className="text-sm text-gray-600">5-7 business days</p>
+              
+              {deliveryOptions.length > 0 ? (
+                <div className="space-y-2 sm:space-y-3">
+                  {deliveryOptions.map((option) => (
+                    <button
+                      key={option.type}
+                      onClick={() => option.available && setSelectedDeliveryType(option.type)}
+                      disabled={!option.available}
+                      className={`w-full p-3 sm:p-4 rounded-lg border-2 transition-all ${
+                        selectedDeliveryType === option.type
+                          ? 'border-green-600 bg-green-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      } ${!option.available ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2 sm:gap-3 flex-1">
+                          {option.type === 'home_delivery' ? (
+                            <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                          ) : (
+                            <Package className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                          )}
+                          <div className="text-left flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
+                              <p className="text-sm sm:text-base font-semibold text-gray-800">
+                                {option.type === 'home_delivery' ? 'Home Delivery' : 'Pickup Point'}
+                              </p>
+                              {option.savings > 0 && (
+                                <span className="text-xs bg-green-100 text-green-700 px-1.5 sm:px-2 py-0.5 rounded-full font-medium">
+                                  Save ৳{option.savings}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs sm:text-sm text-gray-600">{option.description}</p>
+                            {totalWeight >= 4 && option.type === 'pickup_point' && (
+                              <div className="mt-1.5 sm:mt-2 flex items-center gap-1 text-xs text-orange-600">
+                                <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                                <span>Heavy order ({totalWeight}kg)</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right ml-2 flex-shrink-0">
+                          <p className="text-sm sm:text-base font-bold text-gray-800">৳{option.charge.toLocaleString('en-IN')}</p>
+                          {selectedDeliveryType === option.type && (
+                            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 ml-auto mt-1" />
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <button
+                    onClick={() => dispatch(setShippingMethod('standard'))}
+                    className={`w-full p-4 rounded-lg border-2 transition-all ${
+                      checkoutState.shippingMethod === 'standard'
+                        ? 'border-green-600 bg-green-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Package className="w-5 h-5 text-gray-600" />
+                        <div className="text-left">
+                          <p className="font-semibold text-gray-800">Standard Delivery</p>
+                          <p className="text-sm text-gray-600">5-7 business days</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-800">
+                          {orderSummary.shippingCost === 0 ? 'FREE' : `৳${orderSummary.shippingCost.toLocaleString('en-IN')}`}
+                        </p>
+                        {checkoutState.shippingMethod === 'standard' && (
+                          <CheckCircle className="w-5 h-5 text-green-600 ml-auto mt-1" />
+                        )}
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-gray-800">
-                        {orderSummary.shippingCost === 0 ? 'FREE' : `৳${orderSummary.shippingCost.toLocaleString('en-IN')}`}
-                      </p>
-                      {checkoutState.shippingMethod === 'standard' && (
-                        <CheckCircle className="w-5 h-5 text-green-600 ml-auto mt-1" />
-                      )}
-                    </div>
-                  </div>
-                </button>
-              </div>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Payment Method */}
