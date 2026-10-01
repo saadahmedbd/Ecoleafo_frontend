@@ -102,6 +102,7 @@ class AdminAuthService {
         email: response.email,
         first_name: response.first_name,
         last_name: response.last_name,
+        full_name: `${response.first_name || ''} ${response.last_name || ''}`.trim() || 'Admin',
         userType: response.user_type || 'admin',
         roles: response.roles || ['admin'],
       };
@@ -109,10 +110,9 @@ class AdminAuthService {
       // Store access token
       localStorage.setItem('auth_token', token);
       
-      // Store refresh token (respect rememberMe preference)
-      if (credentials.rememberMe) {
-        localStorage.setItem('refresh_token', refreshToken);
-      } else {
+      // Store refresh token in localStorage for background refresh
+      localStorage.setItem('refresh_token', refreshToken);
+      if (!credentials.rememberMe) {
         sessionStorage.setItem('refresh_token', refreshToken);
       }
       

@@ -5,8 +5,11 @@
  * Centralized configuration for API endpoints and settings
  */
 
-// Base API URL - can be overridden by environment variables
-export const API_BASE_URL = window.APP_CONFIG?.API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+// Base API URL - supports build-time env variable and runtime window.APP_CONFIG
+export const API_BASE_URL = 
+  import.meta.env.VITE_API_BASE_URL || 
+  window.APP_CONFIG?.API_BASE_URL || 
+  'http://localhost:3000/api';
 
 // API timeout configuration (30 seconds)
 export const API_TIMEOUT = 30000;

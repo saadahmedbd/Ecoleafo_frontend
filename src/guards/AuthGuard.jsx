@@ -19,7 +19,7 @@ const AuthGuard = ({ children }) => {
 
   // Determine role from user data or from current path
   const userRole = user?.userType || user?.role || 
-    (location.pathname.startsWith('/buyer') ? 'buyer' : 
+    (location.pathname.startsWith('/admin') ? 'admin' :
      location.pathname.startsWith('/seller') ? 'seller' : 'buyer');
 
   // If not authenticated, redirect to login

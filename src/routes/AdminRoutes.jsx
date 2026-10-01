@@ -1,14 +1,12 @@
-// src/routes/adminRoutes.jsx
+// src/routes/AdminRoutes.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import AuthGuard from '@/guards/AuthGuard';
-import RoleGuard from '@/guards/RoleGuard';
-import AdminGuard from '../guards/adminGuard';
-import AdminLayout from '@/layouts/AdminLayout'
-import AdminLogin from '@/pages/admin/Login'
+import AdminGuard from '@/guards/adminGuard';
+import AdminLayout from '@/layouts/AdminLayout';
+import AdminLogin from '@/pages/admin/Login';
 import AdminRegisterPage from '../pages/admin/Register';
 import Homepage from '../pages/public/HomePage';
-import AdminDashboard from '@/pages/admin/Dashboard'
+import AdminDashboard from '@/pages/admin/Dashboard';
 import ForgotPassword from '../pages/admin/ForgotPassword';
 import ActivityLogsPage from '../pages/admin/ActivityLogPage';
 import AdminManagementPage from '../pages/admin/AdminManagementPage';
@@ -16,7 +14,6 @@ import EarningsPage from '../pages/admin/EarningsPage';
 import OrderDetailPage from '../pages/admin/OrderDetailPage';
 import OrdersListPage from '../pages/admin/OrderListPage';
 import PayoutsPage from '../pages/admin/PayoutsPage';
-import { path } from 'framer-motion/client';
 import ProductsListPage from '../pages/admin/ProductsListPage';
 import ProductDetailPage from '../pages/admin/ProductDetailsPage';
 import ReportsPage from '../pages/admin/ReportsPage';
@@ -28,13 +25,13 @@ import SellerEarningsDetail from '../pages/admin/SellerEarningsDetail';
 import AllSellerEarnings from '../pages/admin/AllSellerEarnings';
 import SettingsPage from '../pages/admin/SettingPage';
 import AdminInvitations from '../pages/admin/Invitations';
-import Admins from '../pages/admin/Users'
-import AdminProfile from '../pages/admin/Profile'
+import Admins from '../pages/admin/Users';
+import AdminProfile from '../pages/admin/Profile';
 import UsersPage from '../pages/admin/UsersPage';
 import BuyersListPage from '../pages/admin/BuyersListPage';
 import BuyerDetailPage from '../pages/admin/BuyerDetailPage';
-import CategoryManagement from '../pages/admin/CategoriesListPage'
-import CategoriesTree from '../pages/admin/CategoryTreePage'
+import CategoryManagement from '../pages/admin/CategoriesListPage';
+import CategoriesTree from '../pages/admin/CategoryTreePage';
 import CategoryFormPage from '../pages/admin/CategoryFormPage';
 import CategoryDetailPage from '../pages/admin/CategoryDetailPage';
 
@@ -49,6 +46,10 @@ const adminRoutes = [
     element: <AdminRegisterPage />,
   },
   {
+    path: '/admin/forgot-password',
+    element: <ForgotPassword />,
+  },
+  {
     path: '/admin/forgot/password',
     element: <ForgotPassword />,
   },
@@ -57,13 +58,9 @@ const adminRoutes = [
   {
     path: '/admin',
     element: (
-      <AuthGuard>
-        <RoleGuard allowedRoles={['admin']}>
-          <AdminGuard>
-            <AdminLayout />
-          </AdminGuard>
-        </RoleGuard>
-      </AuthGuard>
+      <AdminGuard>
+        <AdminLayout />
+      </AdminGuard>
     ),
     children: [
       { index: true, element: <Navigate to="/admin/dashboard" replace /> },

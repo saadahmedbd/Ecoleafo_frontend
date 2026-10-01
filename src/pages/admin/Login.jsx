@@ -50,6 +50,7 @@ export default function AdminLoginPage() {
             email: result.email,
             first_name: result.first_name,
             last_name: result.last_name,
+            full_name: `${result.first_name || ''} ${result.last_name || ''}`.trim() || 'Admin',
             userType: result.user_type || 'admin',
             roles: result.roles || ['admin'],
           },

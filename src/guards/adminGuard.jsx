@@ -24,6 +24,13 @@ export default function AdminGuard({ children }) {
   }, []);
 
   const verifyAdminAccess = async () => {
+    // If already authenticated in Redux, grant access immediately
+    if (adminAuth?.isAuthenticated && (adminAuth.user?.userType === 'admin' || adminAuth.role === 'admin')) {
+      setIsAuthorized(true);
+      setIsVerifying(false);
+      return;
+    }
+
     setIsVerifying(true);
 
     try {

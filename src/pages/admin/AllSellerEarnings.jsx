@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, RefreshCw, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { API_BASE_URL } from '@/utils/constants';
 
 export default function AllSellerEarnings() {
   usePageTitle('All Seller Earnings');
@@ -16,7 +17,7 @@ export default function AllSellerEarnings() {
     setLoading(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/sellers/earnings/all?page=${page}&limit=${limit}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/sellers/earnings/all?page=${page}&limit=${limit}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

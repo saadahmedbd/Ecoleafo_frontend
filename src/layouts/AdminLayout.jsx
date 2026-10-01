@@ -24,7 +24,6 @@ import {
 } from 'lucide-react';
 import AdminAuthService from '@/services/adminAuthService';
 import { clearAuth, selectUser } from '@/features/auth/authSlice';
-import { path } from 'framer-motion/client';
 
 /**
  * Fully Responsive Admin Dashboard Layout
@@ -99,6 +98,9 @@ const AdminLayout = () => {
         .join('')
         .toUpperCase()
         .slice(0, 2);
+    }
+    if (user?.first_name) {
+      return `${user.first_name[0]}${user.last_name?.[0] || ''}`.toUpperCase();
     }
     return user?.email?.[0]?.toUpperCase() || 'A';
   };

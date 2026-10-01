@@ -27,7 +27,7 @@ import Messages from '../pages/buyer/Messages'
 
 const buyerRoutes = [
     {
-        
+        path: '/buyer/login',
         element: (
           // <GuestGuard redirectTo="/buyer/dashboard">
             <Login />
@@ -35,7 +35,7 @@ const buyerRoutes = [
         ),
       },
       {
-        
+        path: '/buyer/register',
         element: (
           // <GuestGuard redirectTo="/buyer/dashboard">
             <BuyerSignUp />
